@@ -164,7 +164,17 @@ class EntryService extends Component
          */
         foreach($pubFields as $data)
         {
-            if((string)$csvData[$data] !== (string)$craftData->$data)
+            // Check if it's a date time class
+            // and do the necessary comparison
+            if(is_a($craftData[$data], 'DateTime')) 
+            {
+                // change CraftEntry datetime for comparison
+                if($csvData[$data] !== $craftData->$data->format('Y-m-d H:i:s'));
+                {
+                    Triton::getInstance()->entryChangeService->addChanged($craftData->title, $data);
+                }
+                
+            } elseif((string)$csvData[$data] !== (string)$craftData->$data)
             {
                 // Add change to the service for later use
                 Triton::getInstance()->entryChangeService->addChanged($craftData->title, $data);
@@ -237,47 +247,14 @@ class EntryService extends Component
 
         $entry->setFieldValues($csvData);
 
-        var_dump($entry);
+        //var_dump($entry);
+        //die();
 
         if(Craft::$app->elements->saveElement($entry)) {
             die();
         } else {
             throw new \Exception("Saving failed: " . print_r($entry->getErrors(), true));
         }
-        die();
-
-        $craftEntry->study = $studies;
-
-        return $entry;
-    }
-
-    protected function setupEntry(Entry $craftEntry, $csvData)
-    {
-        // Convert necessary params
-        $startDate = date('Y-m-d H:i:s', strtotime($csvData['startDate']));
-        $submissionDate = date('Y-m-d H:i:s', strtotime($csvData['submissionDate']));
-
-        // New way of seting fields, will need remove the special values
-        $entry->setFieldValues($csvData);
-
-        $craftEntry->title = $csvData['title'];
-        $craftEntry->documentTitle = $csvData['documentTitle'];
-        $craftEntry->documentStatus = $csvData['documentStatus'];
-        $craftEntry->startDate = $startDate;
-        $craftEntry->submmissionDate = $submissionDate;
-        $craftEntry->documentAuthor = $csv['documentAuthor'];
-
-        $studies = [];
-        foreach($csv['study'] as $study)
-        {
-            $studyField = new BaseField();   
-            $test = Triton::getInstance()->studiesService->getStudyByTitle($study);
-            $studies[] = $test;
-            $studyField->id = $test->id;
-       }
-
-        var_dump($studyField);
-        //var_dump($studies);
         die();
 
         $craftEntry->study = $studies;

@@ -13,7 +13,7 @@ use yii\base\Component;
 use craft\elements\Entry;
 use craft\fields\Entries as BaseField;
 
-ini_set('xdebug.var_display_max_depth', 20);
+ini_set('xdebug.var_display_max_depth', 1000);
 ini_set('xdebug.var_display_max_children', 256);
 ini_set('xdebug.var_display_max_data', 1024);
 ini_set('max_execution_time', 300);
@@ -164,12 +164,17 @@ class EntryService extends Component
          */
         foreach($pubFields as $data)
         {
+            // There maybe whitespace
+            $data = trim($data);
+
             // Check if it's a date time class
             // and do the necessary comparison
             if(is_a($craftData[$data], 'DateTime')) 
             {
+                $csvDate = new \DateTime($csvData[$data]);
+                $csvDate->getTimestamp();
                 // change CraftEntry datetime for comparison
-                if($csvData[$data] !== $craftData->$data->format('Y-m-d H:i:s'));
+                if($csvDate !== $craftData->$data->getTimestamp());
                 {
                     Triton::getInstance()->entryChangeService->addChanged($craftData->title, $data);
                 }

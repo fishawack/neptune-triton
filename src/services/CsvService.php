@@ -56,16 +56,16 @@ class CsvService extends Component
             }            
 
             // Setup all the keys correctly
-            $data[$expandCsv[0]]['title'] = $expandCsv[0];
-            $data[$expandCsv[0]]['documentTitle'] = $expandCsv[1];
-            $data[$expandCsv[0]]['documentStatus'] = $expandCsv[2];
+            $data[$expandCsv[0]]['title'] = mb_convert_encoding($expandCsv[0], "UTF-8");
+            $data[$expandCsv[0]]['documentTitle'] = mb_convert_encoding($expandCsv[1], "UTF-8");
+            $data[$expandCsv[0]]['documentStatus'] = mb_convert_encoding($expandCsv[2], "UTF-8");
             $data[$expandCsv[0]]['startDate'] = $startDate;
             $data[$expandCsv[0]]['submissionDate'] = $submissionDate;
-            $data[$expandCsv[0]]['documentAuthor'] = $expandCsv[5];
-            $data[$expandCsv[0]]['journal'] = $expandCsv[6];
-            $data[$expandCsv[0]]['documentType'] = $expandCsv[7];
-            $data[$expandCsv[0]]['citation'] = $expandCsv[8];
-            $data[$expandCsv[0]]['citationUrl'] = $expandCsv[9];
+            $data[$expandCsv[0]]['documentAuthor'] = mb_convert_encoding($expandCsv[5], "UTF-8");
+            $data[$expandCsv[0]]['journal'] = mb_convert_encoding($expandCsv[6], "UTF-8");
+            $data[$expandCsv[0]]['documentType'] = mb_convert_encoding($expandCsv[7], "UTF-8");
+            $data[$expandCsv[0]]['citation'] = mb_convert_encoding($expandCsv[8], "UTF-8");
+            $data[$expandCsv[0]]['citationUrl'] = mb_convert_encoding($expandCsv[9], "UTF-8");
             $data[$expandCsv[0]]['publicationDate'] = $publicationDate;
 
             // Clean & expand studies
@@ -120,7 +120,7 @@ class CsvService extends Component
             // catch all the random white spaces
             if(strlen($data) > 2) 
             {
-                $returnArray[] = $data;
+                $returnArray[] = mb_convert_encoding($data, "UTF-8");
             }
         }
         return $returnArray;

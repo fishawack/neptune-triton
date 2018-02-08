@@ -38,18 +38,19 @@
 {# The content of the CP Section#}
 {% set content %}
     {% if results.error is defined %}
-    <h2>Whoooops! Something bad has happened!</h2>
+    <h1>Whoooops! Something bad has happened!</h1>
     <p>{{ results.error }}</p>
     {% else %}
+    <h1>Import Successful!</h1>
         {% for result, value in results %}
-            <h3>{{ result }}</h3>
+            <h2>{{ result }}</h2>
             {% for pubTitle, changes in value %}
                 <ul>
                     <li>
-                        <strong>{{ pubTitle }}</strong>
+                        <strong style="color:#606060;">{{ pubTitle }}</strong>
                         <ul>
                             {% for change in changes %}
-                                <li> - {{ change }}</li>
+                                <li style="margin-left: 1em;"> - {{ change }}</li>
                             {% endfor %}
                         </ul>
                     </li>

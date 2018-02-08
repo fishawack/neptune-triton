@@ -1,0 +1,41 @@
+{# @var craft \craft\web\twig\variables\CraftVariable #}
+{#
+/**
+ * Triton plugin for Craft CMS 3.x
+ *
+ * Triton index.twig
+ *
+ * @author    GeeHim Siu
+ * @copyright Copyright (c) 2018 GeeHim Siu
+ * @link      www.fishawack.com
+ * @package   Triton
+ * @since     1.0.0
+ */
+#}
+
+{% extends "_layouts/cp" %}
+{% import "_includes/forms" as forms %}
+
+{# Link for the ? icon at the bottom of the page #}
+{% set docsUrl = "???" %}
+
+{# The title of this CP section #}
+{% set title = "Triton" %}
+
+{# The URL to this plugin's base CP section #}
+{% set pluginCpUrl = url('triton') %}
+
+{# Content that should appear in the page header#}
+{% set extraPageHeaderHtml %}
+    <div class="buttons">
+        <a href="{{ pluginCpUrl }}" class="btn submit add icon">{{ "Click Me!"|t('triton') }}</a>
+    </div>
+{% endset %}
+
+{# The content of the CP Section#}
+{% set content %}
+    <h2>{{ "Select CSV Import Type"|t('triton') }}</h2>
+    <p class="textline"></p>
+
+{% endset %}
+

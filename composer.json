@@ -1,0 +1,41 @@
+{
+    "name": "fishawack/triton",
+    "description": "JSON export for Neptune",
+    "type": "craft-plugin",
+    "version": "1.0.0",
+    "keywords": [
+        "craft",
+        "cms",
+        "craftcms",
+        "craft-plugin",
+        "triton"
+    ],
+    "support": {
+        "docs": "",
+        "issues": ""
+    },
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "GeeHim Siu",
+            "homepage": "www.fishawack.com"
+        }
+    ],
+    "require": {
+        "craftcms/cms": "^3.0.0-RC1"
+    },
+    "autoload": {
+        "psr-4": {
+          "fishawack\\triton\\": "src/"
+        }
+    },
+    "extra": {
+        "name": "Triton",
+        "handle": "triton",
+        "schemaVersion": "1.0.0",
+        "hasCpSettings": false,
+        "hasCpSection": false,
+        "changelogUrl": "???",
+        "class": "fishawack\\triton\\Triton"
+    }
+}

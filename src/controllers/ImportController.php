@@ -57,10 +57,27 @@ class ImportController extends Controller
             // Get our path to Asset
             $csvPath = Triton::getInstance()->tritonAssets->getAssetPath($uploadResult); 
 
-            // Read the file into memory
-            $importData = Triton::getInstance()->csvService->csvToArray($csvPath);
+            $csvType = Triton::getInstance()->csvService->checkCsvType($csvPath);
 
-            $results = Triton::getInstance()->entryService->importArrayToEntries($importData);
+            switch ($csvType)
+            {
+                case "Publications":
+                    $importData = Triton::getInstance()->csvService->publicationCsvToArray($csvPath);
+                    $results = Triton::getInstance()->entryService->importArrayToEntries($importData);
+                    break;
+                case "Studies":
+                     $importData = Triton::getInstance()->csvService->studiesCsvToArray($csvPath);
+                    $results = Triton::getInstance()->studiesService->saveNewStudy('', $importData, true);
+                    break;
+                case "Journals":
+                    $importData = Triton::getInstance()->csvService->journalsCsvToArray($csvPath);
+                    $results = Triton::getInstance()->journalsService->importArrayToEntries($importData);
+                    break;
+                case "Congress":
+                    $importData = Triton::getInstance()->csvService->congressCsvToArray($csvPath);
+                    $results = Triton::getInstance()->congressService->importArrayToEntries($importData);
+                    break;
+            }
             
             if(!$results)
             {

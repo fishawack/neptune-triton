@@ -16,10 +16,33 @@ use yii\base\Component;
 class CsvService extends Component
 {
     /*
+     *  Check CSV type, we need to see
+     *  if the CSV is a Journal, Study, Congress
+     *  or Publication
+     *
+     *  The 2nd row of the data from the CSV
+     *  should be in the format:
+     *
+     *  "Chai's $csvType Test"
+     */
+    public function checkCsvType($filePath)
+    {
+        $csvFile = file($filePath);
+        
+        $csvType = explode(' ', $csvFile[1]);
+
+        // TODO
+        //
+        // Define global variables in a seperate file
+        // for better flexibility
+        return $csvType[1];
+    } 
+
+    /*
      * Read file into memory and turn into
      * an array
      */
-    public function csvToArray($filePath)
+    public function publicationCsvToArray($filePath)
     {
         $csvFile = file($filePath);
 
@@ -35,6 +58,8 @@ class CsvService extends Component
         foreach($cleanData as $result)
         {
             $expandCsv = [];
+
+            // $expandCsv[0] is the title
             $expandCsv =  explode('`', $result);
 
             $startDate = null;
@@ -74,6 +99,79 @@ class CsvService extends Component
             $data[$expandCsv[0]]['study'] = $this->clearEmptyArrayValues($studies);
         } 
         return $data;
+    }
+
+    /**
+     *  Read Csv into Array for studies
+     */
+    public function studiesCsvToArray($filePath)
+    {
+        $csvFile = file($filePath);
+
+        // Remove the misc fields from dv
+        $cleanData = $this->cleanCsv($csvFile);
+
+        $data = [];
+
+        foreach($cleanData as $result)
+        {
+            $expandCsv = [];
+            $expandCsv =  explode('`', $result);
+
+            
+            $sacDate = null;
+            if(strlen($expandCsv[1]) > 0)
+            {
+                $sacDate = date('Y-m-d H:i:s', strtotime($expandCsv[1]));
+            }
+            
+            $data[$expandCsv[2]]['title'] = mb_convert_encoding($expandCsv[2], "UTF-8");
+            $data[$expandCsv[2]]['sacDate'] = $sacDate;
+            $data[$expandCsv[2]]['studyTitle'] =  mb_convert_encoding($expandCsv[0], "UTF-8");
+        }
+        return $data;
+    }
+
+    /**
+     *  Read Csv into Array for journals
+     */
+    public function journalsCsvToArray($filePath)
+    {
+        $csvFile = file($filePath);
+
+        // Remove the misc fields from dv
+        $cleanData = $this->cleanCsv($csvFile);
+
+        $data = [];
+        
+        // $i = 2 because we've deleted the first
+        // 2 rows, don't want to use more memory
+        // reindexing etc when we will not need it
+        // afterwards
+        foreach($cleanData as $result)
+        {
+        }
+    }
+
+    /**
+     *  Read Csv into Array for congress     
+     */
+    public function congressCsvToArray($filePath)
+    {
+        $csvFile = file($filePath);
+
+        // Remove the misc fields from dv
+        $cleanData = $this->cleanCsv($csvFile);
+
+        $data = [];
+        
+        // $i = 2 because we've deleted the first
+        // 2 rows, don't want to use more memory
+        // reindexing etc when we will not need it
+        // afterwards
+        foreach($cleanData as $result)
+        {
+        }
     }
 
     /*

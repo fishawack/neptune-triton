@@ -39,10 +39,6 @@ Class StudiesService extends component
         return $studyList;
     }
 
-    public function createNewStudy()
-    {
-        return true;
-    }
 
     /*
      *  Incomplete function
@@ -116,6 +112,9 @@ Class StudiesService extends component
     /**
      *  Save studies that are already on the 
      *  system
+     *
+     *  @param array $studies
+     *  @param Entry $craftEntry
      */
     public function saveStudy($studies, &$craftEntry)
     {
@@ -131,8 +130,12 @@ Class StudiesService extends component
             {
                 $studyIds[] = $this->studies[$study]->id;
             } else {
-                // TODO
                 // Save a the study as a new entry
+                //
+                // TODO
+                // This may need a 2nd look, in theory
+                // the return should be giving
+                $studyIds[] = $this->saveNewStudy($study);
             }
         }
 
@@ -140,9 +143,70 @@ Class StudiesService extends component
         return $saveRelation;
     }
 
-    public function saveNewStudy()
+    /**
+     * Check if it's created via upload
+     * csv or through publication import -
+     * through Csv we need to build the 
+     * relations
+     *
+     * @param string $studyData
+     * @param bool $upload
+     */
+    public function saveNewStudy(string $studyTitle, array $studyData = [], bool $upload = false)
     {
+        if($upload == true)
+        {
+            if(empty($studyData))
+            {
+                throw new \Exception("No values entered for studies");
+            }
+            // TODO
+            //
+            // importing and setting everything up
+            // goes here 
+            foreach($studyData as $study)
+            {
+                $newStudy = new Entry();
+                
+                $newStudy->sectionId = $this->sectionId;
+                $newStudy->typeId = $this->entryType->id;
 
+                $newStudy->title = $study['title'];
+                $newStudy->slug = str_replace(' ', '-', $study['title']);
+
+                unset($study['title']);
+
+                $newStudy->setFieldValues($study);
+
+                if($saveResult = Craft::$app->elements->saveElement($newStudy)) {
+                } else {
+                    throw new \Exception("Saving failed: " . print_r($newStudy->getErrors(), true));
+                }
+            }
+
+            return $saveResult;
+
+        } else {
+            $newStudy = new Entry();
+            
+            $newStudy->sectionId = $this->sectionId;
+            $newStudy->typeId = $this->entryType->id;
+
+            $newStudy->title = $studyTitle;
+
+            // Not sure why DV gives out their fields with
+            // a random space in the document titles
+            //
+            // TODO
+            // remove 2nd - from title 
+            $newStudy->slug = str_replace(' ', '-', $studyTitle);
+
+            if($saveResult = Craft::$app->elements->saveElement($newStudy)) {
+                return $saveResult;
+            } else {
+                throw new \Exception("Saving failed: " . print_r($newStudy->getErrors(), true));
+            }
+        }
     }
     
     protected function addToStudyList($studyTitle, $studyId)

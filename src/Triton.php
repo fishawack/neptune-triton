@@ -108,7 +108,9 @@ class Triton extends Plugin
             'csvService' => services\CsvService::class,
             'entryService' => services\EntryService::class,
             'entryChangeService' => services\EntryChangeService::class,
-            'studiesService' => services\StudiesService::class
+            'studiesService' => services\StudiesService::class,
+            'congressService' => services\CongressService::class,
+            'journalService' => services\JournalService::class,
         ]);
 
 /**

@@ -25,6 +25,11 @@ class EntryChangeService extends Component
         $this->document['Changed'][$title][] = $field;
     }
 
+    public function addUnchanged($title)
+    {
+        $this->document['Unchanged'][] = $title;
+    }
+
     public function addNewEntry($title)
     {
         $this->document['New'][] = $title;

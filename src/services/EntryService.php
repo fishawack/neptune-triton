@@ -124,7 +124,15 @@ class EntryService extends Component
         ->all();
     }
 
-    protected function prepareAndSaveEntry($csvData, $craftData)
+    /*
+     *  Prepare and save the data,
+     *  in preparation we're checking
+     *  if there's been any changes
+     *
+     *  @param array $csvData
+     *  @param Entry $craftData
+     */
+    protected function prepareAndSaveEntry(array $csvData, Entry $craftData)
     {
         //die(var_dump($csvData));
         $pubFields = $this->getPublicationArrayFields();
@@ -172,17 +180,22 @@ class EntryService extends Component
             if(is_a($craftData[$data], 'DateTime')) 
             {
                 $csvDate = new \DateTime($csvData[$data]);
-                $csvDate->getTimestamp();
+                $csvDate = $csvDate->getTimestamp();
+                $craftTime = $craftData->$data->getTimestamp();
+                
                 // change CraftEntry datetime for comparison
-                if($csvDate !== $craftData->$data->getTimestamp());
+                if($csvDate !== $craftTime)
                 {
                     Triton::getInstance()->entryChangeService->addChanged($craftData->title, $data);
                 }
-                
             } elseif((string)$csvData[$data] !== (string)$craftData->$data)
             {
                 // Add change to the service for later use
                 Triton::getInstance()->entryChangeService->addChanged($craftData->title, $data);
+            } else {
+                //var_dump($craftData->title);
+                // No changes would mean they've not changed
+                Triton::getInstance()->entryChangeService->addUnchanged($craftData->title);
             }
         }
 
@@ -201,7 +214,8 @@ class EntryService extends Component
     }
 
     /*
-     *
+     * Check if the entry exists already in
+     * our CMS
      */
     protected function checkEntry($title)
     {

@@ -43,19 +43,29 @@
     {% else %}
     <h1>Import Successful!</h1>
         {% for result, value in results %}
-            <h2>{{ result }}</h2>
-            {% for pubTitle, changes in value %}
-                <ul>
-                    <li>
-                        <strong style="color:#606060;">{{ pubTitle }}</strong>
-                        <ul>
-                            {% for change in changes %}
-                                <li style="margin-left: 1em;"> - {{ change }}</li>
-                            {% endfor %}
-                        </ul>
-                    </li>
-                </ul>
-            {% endfor %}
+        <h2>{{ result }} ({{ value | length }})</h2>
+            {% if result == "Changed" %}
+                {% for pubTitle, changes in value %}
+                    <ul>
+                        <li>
+                            <strong style="color:#606060;">{{ pubTitle }}</strong>
+                            <ul>
+                                {% for change in changes %}
+                                    <li style="margin-left: 1em;"> - {{ change }}</li>
+                                {% endfor %}
+                            </ul>
+                        </li>
+                    </ul>
+                {% endfor %}
+            {% else %}
+                {% for pubTitle in value %}
+                    <ul>
+                        <li>
+                            <strong style="color:#606060;">{{ pubTitle }}</strong>
+                        </li>
+                    </ul>
+                {% endfor %}
+            {% endif %}
         {% endfor %}
     {% endif %}
     <p class="textline"></p>

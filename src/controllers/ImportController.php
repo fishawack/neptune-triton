@@ -48,21 +48,30 @@ class ImportController extends Controller
          *  Setup our file by saving into the temp
          *  folder and moving it into our asset
          *  library
-         *
-         *  TODO
-         *  Check to make sure user has actually
-         *  uploaded file
          */
         $uploadedFile = UploadedFile::getInstanceByName('tritonupload');
-        $uploadResult = Triton::getInstance()->tritonAssets->saveAsset($uploadedFile, $folderId);
-        // Get our path to Asset
-        $csvPath = Triton::getInstance()->tritonAssets->getAssetPath($uploadResult); 
 
-        // Read the file into memory
-        $importData = Triton::getInstance()->csvService->csvToArray($csvPath);
+        if($uploadedFile)
+        {
+            $uploadResult = Triton::getInstance()->tritonAssets->saveAsset($uploadedFile, $folderId);
+            // Get our path to Asset
+            $csvPath = Triton::getInstance()->tritonAssets->getAssetPath($uploadResult); 
 
-        $result = Triton::getInstance()->entryService->importArrayToEntries($importData);
+            // Read the file into memory
+            $importData = Triton::getInstance()->csvService->csvToArray($csvPath);
 
-        return $this->asJson($result);
+            $results = Triton::getInstance()->entryService->importArrayToEntries($importData);
+            
+            if(!$results)
+            {
+                $results['error'] = "The import was unsuccessful!";
+            }
+        } else {
+            $results['error'] = "Please upload a file!";
+        }
+
+        return $this->renderTemplate('triton/importchanges', [
+            'results' => $results
+        ]);
     }
 }

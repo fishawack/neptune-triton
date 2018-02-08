@@ -22,17 +22,17 @@ class EntryChangeService extends Component
 
     public function addChanged($title, $field)
     {
-        $this->document['changed'][$title]['field'][] = $field;
+        $this->document['Changed'][$title][] = $field;
     }
 
     public function addNewEntry($title)
     {
-        $this->document['new'][] = $title;
+        $this->document['New'][] = $title;
     }
 
     public function addDeletedEntry($title)
     {
-        $this->document['deleted'][] = $title;
+        $this->document['Deleted'][] = $title;
     }
 
     public function getStatus()

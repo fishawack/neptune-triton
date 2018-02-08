@@ -1,3 +1,7 @@
+# VIM swap files
+*.swp
+*.swo
+
 # CRAFT ENVIRONMENT
 .env.php
 .env.sh

@@ -160,17 +160,20 @@ class CsvService extends Component
                 // Check to see if the 
                 // data is supposed to be saved
                 // as a date.
-                if (stripos($key, 'date') !== false)
+                if (stripos($key, 'date') !== false && $value !== '')
                 { 
-                   $date[$fusion['title']][$key][] = date('Y-m-d H:i:s', strtotime($value));
+                   $fusion[$key] = date('Y-m-d H:i:s', strtotime($value));
                 } else {
-                   $date[$fusion['title']][$key][] = trim(mb_convert_encoding($value, "UTF-8"));
+                   $fusion[$key] = trim(mb_convert_encoding($value, "UTF-8"));
                 }
             }
 
-            var_dump($fusion);
+            $data[$fusion['title']] = $fusion;
+    
+            //var_dump($fusion);
+            
         }
-
+var_dump($data);
         die();
         return $data;
     }

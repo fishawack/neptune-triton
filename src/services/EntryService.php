@@ -138,7 +138,7 @@ class EntryService extends Component
         $pubFields = $this->getPublicationArrayFields();
 
         /*
-         * Save our studyies seperately!
+         * Save our studies seperately!
          *
          * Without this there will be a foreign Key error,
          * once the save has been done then we can remove the
@@ -147,7 +147,7 @@ class EntryService extends Component
          * Annoyingly saveRelation doesn't tell you if
          * it has been saved or not, it'll always return null
          */
-        $saveStudy = Triton::getInstance()->studiesService->saveStudy($csvData['study'], $craftData);
+        $saveStudy = Triton::getInstance()->studiesService->saveStudyRelation($csvData['study'], $craftData);
         unset($csvData['study']);
 
         /**
@@ -168,8 +168,9 @@ class EntryService extends Component
 
      
         /**
-         *  Setup changes ready to be shown  
+         *  Track Changes
          */
+        $changed = 0;
         foreach($pubFields as $data)
         {
             // There maybe whitespace
@@ -186,17 +187,22 @@ class EntryService extends Component
                 // change CraftEntry datetime for comparison
                 if($csvDate !== $craftTime)
                 {
+                    $changed++;
                     Triton::getInstance()->entryChangeService->addChanged($craftData->title, $data);
                 }
-            } elseif((string)$csvData[$data] !== (string)$craftData->$data)
-            {
-                // Add change to the service for later use
-                Triton::getInstance()->entryChangeService->addChanged($craftData->title, $data);
             } else {
-                //var_dump($craftData->title);
-                // No changes would mean they've not changed
-                Triton::getInstance()->entryChangeService->addUnchanged($craftData->title);
+                if((string)$csvData[$data] !== (string)$craftData->$data)
+                {
+                    $changed++;
+                    // Add change to the service for later use
+                    Triton::getInstance()->entryChangeService->addChanged($craftData->title, $data);
+                }
             }
+        }
+
+        if($changed === 0)
+        {
+            Triton::getInstance()->entryChangeService->addUnchanged($craftData->title);
         }
 
         /**
@@ -231,7 +237,7 @@ class EntryService extends Component
      * Delete Entry
      *
      */
-    protected function deleteEntry(Entry $craftEntry)
+    public function deleteEntry(Entry $craftEntry)
     {
         Triton::getInstance()->entryChangeService->addDeletedEntry((string)$craftEntry->title);
 

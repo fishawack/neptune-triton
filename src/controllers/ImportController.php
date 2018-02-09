@@ -66,16 +66,16 @@ class ImportController extends Controller
                     $results = Triton::getInstance()->entryService->importArrayToEntries($importData);
                     break;
                 case "Studies":
-                     $importData = Triton::getInstance()->csvService->studiesCsvToArray($csvPath);
-                    $results = Triton::getInstance()->studiesService->saveNewStudy('', $importData, true);
+                     $importData = Triton::getInstance()->csvService->jscCsvToArray('studies', $csvPath);
+                    $results = Triton::getInstance()->studiesService->importArrayToEntries('studies', $importData);
                     break;
                 case "Journals":
                     $importData = Triton::getInstance()->csvService->journalsCsvToArray($csvPath);
-                    $results = Triton::getInstance()->journalsService->importArrayToEntries($importData);
+                    $results = Triton::getInstance()->journalsService->importArrayToEntries('journals', $importData);
                     break;
                 case "Congress":
                     $importData = Triton::getInstance()->csvService->congressCsvToArray($csvPath);
-                    $results = Triton::getInstance()->congressService->importArrayToEntries($importData);
+                    $results = Triton::getInstance()->congressService->importArrayToEntries('congresses', $importData);
                     break;
             }
             

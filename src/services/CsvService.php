@@ -9,6 +9,8 @@
 
 namespace fishawack\triton\services;
 
+use fishawack\triton\Triton;
+
 use Craft;
 
 use yii\base\Component;
@@ -102,6 +104,78 @@ class CsvService extends Component
     }
 
     /**
+     * Journale Congress Study csv to array
+     */
+    public function jscCsvToArray(string $sectionTitle, string $filePath)
+    {
+        $csvFile = file($filePath);
+
+        // Remove the misc fields from dv
+        $cleanData = $this->cleanCsv($csvFile);
+
+        // Check to make sure that our arrays match 
+        // in size.
+        //
+        // We have to unset the title for the exploded
+        // array to match in size - DV doesn't provide
+        // you with Craft titles which we will load in
+        //
+        // $titlePosition is which position within the 
+        // array is for the title to be saved
+        $titlePosition = 0;
+        switch ($sectionTitle)
+        {
+            case "studies":
+                $titlePosition = 2;
+                $JSCArray = Triton::getInstance()->variablesService->getStudyHeaders();
+                break;
+            case "journals":
+                $JSCArray = Triton::getInstance()->variablesService->getJournalHeaders();
+                break;
+            case "congresses":
+                $JSCArray = Triton::getInstance()->variablesService->getCongressHeaders();
+                break;
+        }
+
+        $data = [];
+
+        foreach($cleanData as $result)
+        {
+             // Put all out data into an array by
+            // delimiting the `
+            $expandCsv = [];
+            $expandCsv =  explode('`', $result);           
+
+            // Check if the arrays match
+            if(count($expandCsv)!== count($JSCArray))
+            {
+                var_dump("not working");
+                die();
+            }
+
+            $fusion = array_combine($JSCArray, $expandCsv);
+
+            foreach($fusion as $key => $value) 
+            {
+                // Check to see if the 
+                // data is supposed to be saved
+                // as a date.
+                if (stripos($key, 'date') !== false)
+                { 
+                   $date[$fusion['title']][$key][] = date('Y-m-d H:i:s', strtotime($value));
+                } else {
+                   $date[$fusion['title']][$key][] = trim(mb_convert_encoding($value, "UTF-8"));
+                }
+            }
+
+            var_dump($fusion);
+        }
+
+        die();
+        return $data;
+    }
+
+    /**
      *  Read Csv into Array for studies
      */
     public function studiesCsvToArray($filePath)
@@ -125,9 +199,9 @@ class CsvService extends Component
                 $sacDate = date('Y-m-d H:i:s', strtotime($expandCsv[1]));
             }
             
-            $data[$expandCsv[2]]['title'] = mb_convert_encoding($expandCsv[2], "UTF-8");
+            $data[$expandCsv[2]]['title'] = trim(mb_convert_encoding($expandCsv[2], "UTF-8"));
             $data[$expandCsv[2]]['sacDate'] = $sacDate;
-            $data[$expandCsv[2]]['studyTitle'] =  mb_convert_encoding($expandCsv[0], "UTF-8");
+            $data[$expandCsv[2]]['studyTitle'] =  trim(mb_convert_encoding($expandCsv[0], "UTF-8"));
         }
         return $data;
     }

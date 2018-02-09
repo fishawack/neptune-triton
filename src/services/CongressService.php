@@ -13,13 +13,12 @@ use yii\base\Component;
 use craft\elements\Entry;
 use craft\fields\Entries as BaseField;
 
-Class StudiesService extends component
+Class CongressService extends component
 {
     private $sectionId,
         $entryType,
         $authorId,
         $typeId,
-        $sectionTitle,
         $studies = [];
 
     public function __construct()
@@ -55,7 +54,7 @@ Class StudiesService extends component
     public function getAllStudies()
     {        
         $queryStudies = Entry::find()
-            ->section($this->sectionTitle)
+            ->section('studies')
             ->all();
 
         // We just need 1 entry as a base to
@@ -123,9 +122,8 @@ Class StudiesService extends component
      *
      *  @param array $studies
      */
-    public function importArrayToEntries(string $sectionTitle, array $studies)
+    public function importArrayToEntries(array $studies)
     {
-        $this->sectionTitle = $sectionTitle;
         // Get list of studies already in the system
         $studyList = $this->getStudyList();
         $studyHeader = $this->getStudyArrayFields();
@@ -344,4 +342,5 @@ Class StudiesService extends component
         return $studyFields;
     }
 }
+
 

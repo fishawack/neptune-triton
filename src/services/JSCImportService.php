@@ -1,7 +1,17 @@
 <?php
 
 /*
+ * JSC Import Service
+ * ==================
  *
+ * Since our import plugin revolves around
+ * Publication entries, everything else
+ * has a much simpler interface therefore we
+ * can group them together in this class.
+ *
+ * J - Journals
+ * S - Studies
+ * C - Congress
  */
 namespace fishawack\triton\services;
 
@@ -13,49 +23,49 @@ use yii\base\Component;
 use craft\elements\Entry;
 use craft\fields\Entries as BaseField;
 
-Class StudiesService extends component
+Class JSCImportService extends component
 {
     private $sectionId,
         $entryType,
         $authorId,
         $typeId,
-        $sectionTitle,
-        $studies = [];
+        $sectionTitle = '';
+        $JSCObjects = [];
 
     public function __construct()
     {
-        $this->studies = $this->getAllStudies();
+        $this->JSCObjects = $this->getJSC($this->sectionTitle);
     }
 
     /*
      * Get all studies, put it into an 
      * array with the titles as keys
      */
-    public function getStudyList()
+    public function getJSCList()
     {
-        if(!empty($this->studies))
+        if(!empty($this->JSCObjects))
         {
-            $studies = $this->studies;
+            $studies = $this->JSCObjects;
         } else {
             $studies = $this->getAllStudies();
         }
 
-        $studyList = [];
-        foreach($studies as $study)
+        $JSCList = [];
+        foreach($JSCList as $list)
         {
-            $studyList[$study->title]['title'] = $study->title;
-            $studyList[$study->title]['id'] = $study->id;
+            $JSCList[$list>title]['title'] = $list>title;
+            $JSCList[$lsit>title]['id'] = $list>id;
         }
-        return $studyList;
+        return $JSCList;
     }
 
     /*
      * Get all the studies from Craft
      */
-    public function getAllStudies()
+    public function getJSC(string $sectionTitle)
     {        
-        $queryStudies = Entry::find()
-            ->section($this->sectionTitle)
+        $query = Entry::find()
+            ->section($sectionTitle)
             ->all();
 
         // We just need 1 entry as a base to
@@ -63,20 +73,20 @@ Class StudiesService extends component
         //
         // To save anything, craft depends on this
         // so if you're saving in Entries, makes
-        // sure the getStudyList is initiated first
-        $this->sectionId = $queryStudies[0]->sectionId;
-        $this->entryType = $queryStudies[0]->type;
+        // sure the getJSCList is initiated first
+        $this->sectionId = $query[0]->sectionId;
+        $this->entryType = $query[0]->type;
         $this->authorId = $currentUser = Craft::$app->getUser()->getIdentity()->id;
 
         // Change the keys to title for
         // easy searching!
         $studyCleaned = [];
-        foreach($queryStudies as $study)
+        foreach($query as $craftData)
         {
-            $studyCleaned[$study->title] = $study;
+            $dataCleaned[$craftData->title] = $craftData;
         }
 
-        return $studyCleaned; 
+        return $dataCleaned; 
     }
 
     /*
@@ -100,7 +110,7 @@ Class StudiesService extends component
      *
      *  @param Entry $craftEntry
      */
-    public function getStudyField(Entry $craftEntry)
+    public function getJSCField(Entry $craftEntry)
     {
         $fields = $craftEntry->getFieldLayout()->getFields();
 
@@ -123,35 +133,35 @@ Class StudiesService extends component
      *
      *  @param array $studies
      */
-    public function importArrayToEntries(string $sectionTitle, array $studies)
+    public function importArrayToEntries(string $sectionTitle, array $jscEntries)
     {
         $this->sectionTitle = $sectionTitle;
+
         // Get list of studies already in the system
-        $studyList = $this->getStudyList();
-        $studyHeader = $this->getStudyArrayFields();
+        $jscEntries = $this->getJSCList();
 
         // Check if there's any changes, if not add new entry
-        foreach($studies as $entry)
+        foreach($jscEntries as $entry)
         {
-            if(isset($this->studies[$entry['title']]))
+            if(isset($this->JSCObjects[$entry['title']]))
             {
-                $this->prepareAndSaveStudy($entry, $this->studies[$entry['title']]);
+                $this->prepareAndSave($entry, $this->JSCObjects[$entry['title']]);
             } else {
-                $this->saveNewStudy('', $entry, true);
+                $this->saveNewJSC('', $entry, true);
                 Triton::getInstance()->entryChangeService->addNewEntry($entry['title']);
             }
 
             // delete from array so that we're
             // left with publications that have been
             // deleted.
-            unset($this->studies[$entry['title']]);
+            unset($this->JSCObjects[$entry['title']]);
         }
 
         // If anything is left in the array then we
         // need to delete(disable) these records
-        if(count($this->studies) > 0)
+        if(count($this->JSCObjects) > 0)
         {
-            foreach($this->studies as $deletedEntry)
+            foreach($this->JSCObjects as $deletedEntry)
             {
                 Triton::getInstance()->entryService->deleteEntry($deletedEntry);
             }
@@ -167,30 +177,28 @@ Class StudiesService extends component
      *  @param array $studies
      *  @param Entry $craftEntry
      */
-    public function saveStudyRelation(array $studies, Entry &$craftEntry)
+    public function saveJSCRelation(string $sectionTitle, array $jsc, Entry &$craftEntry)
     {
-        //$studyField = new BaseField();
-        //$studyField->id = $this->getStudyField($craftEntry);
+        $this->sectionTitle = $sectionTitle;
+        $jscField = $this->getJSCField($craftEntry);
 
-        $studyField = $this->getStudyField($craftEntry);
-
-        $studyIds = [];
-        foreach($studies as $study)
+        $jscIds = [];
+        foreach($jsc as $entry)
         {
-            if(isset($this->studies[$study]))
+            if(isset($this->JSCObjects[$entry]))
             {
-                $studyIds[] = $this->studies[$study]->id;
+                $entryIds[] = $this->JSCObjects[$entry]->id;
             } else {
                 // Save a the study as a new entry
                 //
                 // TODO
                 // This may need a 2nd look, in theory
                 // the return should be giving
-                $studyIds[] = $this->saveNewStudy($study);
+                $entryIds[] = $this->saveNewJSC($entry);
             }
         }
 
-        $saveRelation = Craft::$app->relations->saveRelations($studyField, $craftEntry, $studyIds);
+        $saveRelation = Craft::$app->relations->saveRelations($jscField, $craftEntry, $entryIds);
         return $saveRelation;
     }
 
@@ -202,31 +210,31 @@ Class StudiesService extends component
      * @param Entry $craftData
      *
      */
-    public function prepareAndSaveStudy(array $studyData, Entry $craftData)
+    public function prepareAndSave(array $data, Entry $craftData)
     {
         // Get list of study headers
-        $studyHeader = $this->getStudyArrayFields();
+        $headers = $this->getHeaderFields();
         
         // Track changes
         $changed = 0;
-        foreach($studyHeader as $header)
+        foreach($headers as $header)
         {
             // Check if it's a date time class
             // and do the necessary comparison
             if(is_a($craftData[$header], 'DateTime')) 
             {
-                $studyDate = new \DateTime($studyData[$header]);
-                $studyDate = $studyDate->getTimestamp();
+                $data = new \DateTime($data[$header]);
+                $data = $date->getTimestamp();
                 $craftTime = $craftData->$header->getTimestamp();
                 
                 // change CraftEntry datetime for comparison
-                if($studyDate !== $craftTime)
+                if($date !== $craftTime)
                 {
                     $changed++;
                     Triton::getInstance()->entryChangeService->addChanged($craftData->title, $header);
                 }
             } else {
-                if((string)$studyData[$header] !== (string)$craftData->$header)
+                if((string)$data[$header] !== (string)$craftData->$header)
                 {
                     $changed++;
                     // Add change to the service for later use
@@ -237,16 +245,16 @@ Class StudiesService extends component
 
         if($changed === 0)
         {
-            Triton::getInstance()->entryChangeService->addUnchanged($studyData['title']);    
+            Triton::getInstance()->entryChangeService->addUnchanged($data['title']);    
         }
 
-        $craftData->title = $studyData['title'];
-        unset($studyData['title']);
+        $craftData->title = $data['title'];
+        unset($data['title']);
 
         /**
          *  Save everything else as normal!
          */
-        $craftData->setFieldValues($studyData);
+        $craftData->setFieldValues($data);
 
         $status = Triton::getInstance()->entryChangeService->getStatus();
 
@@ -266,67 +274,54 @@ Class StudiesService extends component
      * @param string $studyData
      * @param bool $upload
      */
-    public function saveNewStudy(string $studyTitle, array $studyData = [], bool $upload = false)
+    public function saveNewJSC(string $jscTitle, array $jscData = [], bool $upload = false)
     {
         if($upload == true)
         {
-            if(empty($studyData))
+            if(empty($jscData))
             {
                 throw new \Exception("No values entered for studies");
             }
 
-            $newStudy = new Entry();
+            $newJSC = new Entry();
  
-            $newStudy->sectionId = $this->sectionId;
-            $newStudy->typeId = $this->entryType->id;
+            $newJSC->sectionId = $this->sectionId;
+            $newJSC->typeId = $this->entryType->id;
 
-            $newStudy->title = $studyData['title'];
-            $newStudy->slug = str_replace(' ', '-', $studyData['title']);
+            $newJSC->title = $jscData['title'];
+            $newJSC->slug = str_replace(' ', '-', $jscData['title']);
 
-            unset($studyData['title']);
-            unset($studyData['slug']);
+            unset($jscData['title']);
+            unset($jscData['slug']);
 
-            $newStudy->setFieldValues($studyData);
+            $newJSC->setFieldValues($jscData);
 
-            if($saveResult = Craft::$app->elements->saveElement($newStudy)) {
+            if($saveResult = Craft::$app->elements->saveElement($newJSC)) {
                 return $saveResult;
             } else {
-                throw new \Exception("Saving failed: " . print_r($newStudy->getErrors(), true));
+                throw new \Exception("Saving failed: " . print_r($newJSC->getErrors(), true));
             }
         } else {
-            $newStudy = new Entry();
+            $newJSC = new Entry();
             
-            $newStudy->sectionId = $this->sectionId;
-            $newStudy->typeId = $this->entryType->id;
+            $newJSC->sectionId = $this->sectionId;
+            $newJSC->typeId = $this->entryType->id;
 
-            $newStudy->title = $studyTitle;
+            $newJSC->title = $jscTitle;
 
             // Not sure why DV gives out their fields with
             // a random space in the document titles
             //
             // TODO
             // Remove the space for slugs
-            $newStudy->slug = str_replace(' ', '-', $studyTitle);
+            $newJSC->slug = str_replace(' ', '-', $jscTitle);
 
-            if($saveResult = Craft::$app->elements->saveElement($newStudy)) {
+            if($saveResult = Craft::$app->elements->saveElement($newJSC)) {
                 return $saveResult;
             } else {
-                throw new \Exception("Saving failed: " . print_r($newStudy->getErrors(), true));
+                throw new \Exception("Saving failed: " . print_r($newJSC->getErrors(), true));
             }
         }
-    }
-
-    /**
-     * Unused action
-     * -------------
-     * Add studies to the list
-     * @param string $studyTitle
-     * @param string $studyId
-     */
-    protected function addToStudyList($studyTitle, $studyId)
-    {
-        $this->studies[$studyTitle]['title'] = $studyTitle;
-        $this->studies[$studyTitle]['id'] = $studyId;
     }
 
     /*
@@ -334,14 +329,15 @@ Class StudiesService extends component
      *  probably need to put into a 
      *  Global array
      */
-    protected function getStudyArrayFields()
+    protected function getHeaderFields()
     {
-        $studyFields = [
+        $headerFields = [
             'title',
             'sacDate',
             'studyTitle'    
         ];
-        return $studyFields;
+        return $headerFields;
     }
 }
+
 

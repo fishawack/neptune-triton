@@ -13,18 +13,17 @@ use yii\base\Component;
 use craft\elements\Entry;
 use craft\fields\Entries as BaseField;
 
-Class StudiesService extends component
+Class JournalService extends component
 {
     private $sectionId,
         $entryType,
         $authorId,
         $typeId,
-        $sectionTitle,
         $studies = [];
 
     public function __construct()
     {
-        $this->studies = $this->getAllStudies();
+        $this->studies = $this->getAllJournals();
     }
 
     /*
@@ -37,25 +36,25 @@ Class StudiesService extends component
         {
             $studies = $this->studies;
         } else {
-            $studies = $this->getAllStudies();
+            $studies = $this->getAllJournals();
         }
 
-        $studyList = [];
-        foreach($studies as $study)
+        $journalList = [];
+        foreach($studies as $journal)
         {
-            $studyList[$study->title]['title'] = $study->title;
-            $studyList[$study->title]['id'] = $study->id;
+            $journalList[$journal->title]['title'] = $journal->title;
+            $journalList[$journal->title]['id'] = $journal->id;
         }
-        return $studyList;
+        return $journalList;
     }
 
     /*
      * Get all the studies from Craft
      */
-    public function getAllStudies()
+    public function getAllJournals()
     {        
-        $queryStudies = Entry::find()
-            ->section($this->sectionTitle)
+        $queryJournals = Entry::find()
+            ->section('studies')
             ->all();
 
         // We just need 1 entry as a base to
@@ -64,39 +63,39 @@ Class StudiesService extends component
         // To save anything, craft depends on this
         // so if you're saving in Entries, makes
         // sure the getStudyList is initiated first
-        $this->sectionId = $queryStudies[0]->sectionId;
-        $this->entryType = $queryStudies[0]->type;
+        $this->sectionId = $queryJournals[0]->sectionId;
+        $this->entryType = $queryJournals[0]->type;
         $this->authorId = $currentUser = Craft::$app->getUser()->getIdentity()->id;
 
         // Change the keys to title for
         // easy searching!
-        $studyCleaned = [];
-        foreach($queryStudies as $study)
+        $journalCleaned = [];
+        foreach($queryJournals as $journal)
         {
-            $studyCleaned[$study->title] = $study;
+            $journalCleaned[$journal->title] = $journal;
         }
 
-        return $studyCleaned; 
+        return $journalCleaned; 
     }
 
     /*
      *  Grab the stufy by title,
      *  runs a search via Craft
      *
-     *  @param string $studyTitle
+     *  @param string $journalTitle
      */
-    public function getStudyByTitle(string $studyTitle)
+    public function getStudyByTitle(string $journalTitle)
     {
-        $queryStudies = Entry::find()
+        $queryJournals = Entry::find()
             ->section('studies')
-            ->title($studyTitle)
+            ->title($journalTitle)
             ->one();
 
-        return $queryStudies;         
+        return $queryJournals;         
     }
 
     /**
-     *  Get the study field
+     *  Get the journal field
      *
      *  @param Entry $craftEntry
      */
@@ -104,16 +103,16 @@ Class StudiesService extends component
     {
         $fields = $craftEntry->getFieldLayout()->getFields();
 
-        $studyField = 0;
+        $journalField = 0;
         foreach($fields as $field)
         {   
-            if($field->handle == 'study')
+            if($field->handle == 'journal')
             {
-                $studyField = $field;
+                $journalField = $field;
             }
         }
 
-        return $studyField;
+        return $journalField;
     }
 
     /**
@@ -123,12 +122,11 @@ Class StudiesService extends component
      *
      *  @param array $studies
      */
-    public function importArrayToEntries(string $sectionTitle, array $studies)
+    public function importArrayToEntries(array $studies)
     {
-        $this->sectionTitle = $sectionTitle;
         // Get list of studies already in the system
-        $studyList = $this->getStudyList();
-        $studyHeader = $this->getStudyArrayFields();
+        $journalList = $this->getStudyList();
+        $journalHeader = $this->getStudyArrayFields();
 
         // Check if there's any changes, if not add new entry
         foreach($studies as $entry)
@@ -169,64 +167,64 @@ Class StudiesService extends component
      */
     public function saveStudyRelation(array $studies, Entry &$craftEntry)
     {
-        //$studyField = new BaseField();
-        //$studyField->id = $this->getStudyField($craftEntry);
+        //$journalField = new BaseField();
+        //$journalField->id = $this->getStudyField($craftEntry);
 
-        $studyField = $this->getStudyField($craftEntry);
+        $journalField = $this->getStudyField($craftEntry);
 
-        $studyIds = [];
-        foreach($studies as $study)
+        $journalIds = [];
+        foreach($studies as $journal)
         {
-            if(isset($this->studies[$study]))
+            if(isset($this->studies[$journal]))
             {
-                $studyIds[] = $this->studies[$study]->id;
+                $journalIds[] = $this->studies[$journal]->id;
             } else {
-                // Save a the study as a new entry
+                // Save a the journal as a new entry
                 //
                 // TODO
                 // This may need a 2nd look, in theory
                 // the return should be giving
-                $studyIds[] = $this->saveNewStudy($study);
+                $journalIds[] = $this->saveNewStudy($journal);
             }
         }
 
-        $saveRelation = Craft::$app->relations->saveRelations($studyField, $craftEntry, $studyIds);
+        $saveRelation = Craft::$app->relations->saveRelations($journalField, $craftEntry, $journalIds);
         return $saveRelation;
     }
 
     /**
-     * Save study and make sure the comparisons 
+     * Save journal and make sure the comparisons 
      * are returned
      *
-     * @param array $studyData
+     * @param array $journalData
      * @param Entry $craftData
      *
      */
-    public function prepareAndSaveStudy(array $studyData, Entry $craftData)
+    public function prepareAndSaveStudy(array $journalData, Entry $craftData)
     {
-        // Get list of study headers
-        $studyHeader = $this->getStudyArrayFields();
+        // Get list of journal headers
+        $journalHeader = $this->getStudyArrayFields();
         
         // Track changes
         $changed = 0;
-        foreach($studyHeader as $header)
+        foreach($journalHeader as $header)
         {
             // Check if it's a date time class
             // and do the necessary comparison
             if(is_a($craftData[$header], 'DateTime')) 
             {
-                $studyDate = new \DateTime($studyData[$header]);
-                $studyDate = $studyDate->getTimestamp();
+                $journalDate = new \DateTime($journalData[$header]);
+                $journalDate = $journalDate->getTimestamp();
                 $craftTime = $craftData->$header->getTimestamp();
                 
                 // change CraftEntry datetime for comparison
-                if($studyDate !== $craftTime)
+                if($journalDate !== $craftTime)
                 {
                     $changed++;
                     Triton::getInstance()->entryChangeService->addChanged($craftData->title, $header);
                 }
             } else {
-                if((string)$studyData[$header] !== (string)$craftData->$header)
+                if((string)$journalData[$header] !== (string)$craftData->$header)
                 {
                     $changed++;
                     // Add change to the service for later use
@@ -237,16 +235,16 @@ Class StudiesService extends component
 
         if($changed === 0)
         {
-            Triton::getInstance()->entryChangeService->addUnchanged($studyData['title']);    
+            Triton::getInstance()->entryChangeService->addUnchanged($journalData['title']);    
         }
 
-        $craftData->title = $studyData['title'];
-        unset($studyData['title']);
+        $craftData->title = $journalData['title'];
+        unset($journalData['title']);
 
         /**
          *  Save everything else as normal!
          */
-        $craftData->setFieldValues($studyData);
+        $craftData->setFieldValues($journalData);
 
         $status = Triton::getInstance()->entryChangeService->getStatus();
 
@@ -263,14 +261,14 @@ Class StudiesService extends component
      * through Csv we need to build the 
      * relations
      *
-     * @param string $studyData
+     * @param string $journalData
      * @param bool $upload
      */
-    public function saveNewStudy(string $studyTitle, array $studyData = [], bool $upload = false)
+    public function saveNewStudy(string $journalTitle, array $journalData = [], bool $upload = false)
     {
         if($upload == true)
         {
-            if(empty($studyData))
+            if(empty($journalData))
             {
                 throw new \Exception("No values entered for studies");
             }
@@ -280,13 +278,13 @@ Class StudiesService extends component
             $newStudy->sectionId = $this->sectionId;
             $newStudy->typeId = $this->entryType->id;
 
-            $newStudy->title = $studyData['title'];
-            $newStudy->slug = str_replace(' ', '-', $studyData['title']);
+            $newStudy->title = $journalData['title'];
+            $newStudy->slug = str_replace(' ', '-', $journalData['title']);
 
-            unset($studyData['title']);
-            unset($studyData['slug']);
+            unset($journalData['title']);
+            unset($journalData['slug']);
 
-            $newStudy->setFieldValues($studyData);
+            $newStudy->setFieldValues($journalData);
 
             if($saveResult = Craft::$app->elements->saveElement($newStudy)) {
                 return $saveResult;
@@ -299,14 +297,14 @@ Class StudiesService extends component
             $newStudy->sectionId = $this->sectionId;
             $newStudy->typeId = $this->entryType->id;
 
-            $newStudy->title = $studyTitle;
+            $newStudy->title = $journalTitle;
 
             // Not sure why DV gives out their fields with
             // a random space in the document titles
             //
             // TODO
             // Remove the space for slugs
-            $newStudy->slug = str_replace(' ', '-', $studyTitle);
+            $newStudy->slug = str_replace(' ', '-', $journalTitle);
 
             if($saveResult = Craft::$app->elements->saveElement($newStudy)) {
                 return $saveResult;
@@ -320,13 +318,13 @@ Class StudiesService extends component
      * Unused action
      * -------------
      * Add studies to the list
-     * @param string $studyTitle
-     * @param string $studyId
+     * @param string $journalTitle
+     * @param string $journalId
      */
-    protected function addToStudyList($studyTitle, $studyId)
+    protected function addToStudyList($journalTitle, $journalId)
     {
-        $this->studies[$studyTitle]['title'] = $studyTitle;
-        $this->studies[$studyTitle]['id'] = $studyId;
+        $this->studies[$journalTitle]['title'] = $journalTitle;
+        $this->studies[$journalTitle]['id'] = $journalId;
     }
 
     /*
@@ -336,12 +334,13 @@ Class StudiesService extends component
      */
     protected function getStudyArrayFields()
     {
-        $studyFields = [
+        $journalFields = [
             'title',
             'sacDate',
-            'studyTitle'    
+            'journalTitle'    
         ];
-        return $studyFields;
+        return $journalFields;
     }
 }
+
 

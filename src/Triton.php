@@ -109,8 +109,8 @@ class Triton extends Plugin
             'entryService' => services\EntryService::class,
             'entryChangeService' => services\EntryChangeService::class,
             'studiesService' => services\StudiesService::class,
-            'congressService' => services\CongressService::class,
-            'journalService' => services\JournalService::class,
+            'jscImportService' => services\JSCImportService::class,
+            'variablesService' => services\VariablesService::class
         ]);
 
 /**

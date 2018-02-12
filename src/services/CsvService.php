@@ -33,10 +33,6 @@ class CsvService extends Component
         
         $csvType = explode(' ', $csvFile[1]);
 
-        // TODO
-        //
-        // Define global variables in a seperate file
-        // for better flexibility
         return $csvType[1];
     } 
 
@@ -82,18 +78,28 @@ class CsvService extends Component
                 $submissionDate = date('Y-m-d H:i:s', strtotime($expandCsv[10]));
             }            
 
+            $title = mb_convert_encoding($expandCsv[0], "UTF-8");
+
             // Setup all the keys correctly
-            $data[$expandCsv[0]]['title'] = mb_convert_encoding($expandCsv[0], "UTF-8");
+            $data[$expandCsv[0]]['title'] = $title;
             $data[$expandCsv[0]]['documentTitle'] = mb_convert_encoding($expandCsv[1], "UTF-8");
             $data[$expandCsv[0]]['documentStatus'] = mb_convert_encoding($expandCsv[2], "UTF-8");
             $data[$expandCsv[0]]['startDate'] = $startDate;
             $data[$expandCsv[0]]['submissionDate'] = $submissionDate;
             $data[$expandCsv[0]]['documentAuthor'] = mb_convert_encoding($expandCsv[5], "UTF-8");
-            $data[$expandCsv[0]]['journal'] = mb_convert_encoding($expandCsv[6], "UTF-8");
             $data[$expandCsv[0]]['documentType'] = mb_convert_encoding($expandCsv[7], "UTF-8");
             $data[$expandCsv[0]]['citation'] = mb_convert_encoding($expandCsv[8], "UTF-8");
             $data[$expandCsv[0]]['citationUrl'] = mb_convert_encoding($expandCsv[9], "UTF-8");
             $data[$expandCsv[0]]['publicationDate'] = $publicationDate;
+
+            // Check if we need Journal or Congress
+            if($this->strposa($title, Triton::getInstance()->variablesService->journalPubs()))
+            {
+                $data[$expandCsv[0]]['journal'] = mb_convert_encoding($expandCsv[6], "UTF-8");
+            } else {
+                $data[$expandCsv[0]]['congress'] = mb_convert_encoding($expandCsv[6], "UTF-8");
+            }
+            
 
             // Clean & expand studies
             $studies = $this->removeHTMLTags($this->removeHTMLTags($expandCsv[11]));
@@ -144,16 +150,22 @@ class CsvService extends Component
              // Put all out data into an array by
             // delimiting the `
             $expandCsv = [];
-            $expandCsv =  explode('`', $result);           
+            $expandCsv =  explode('`', $result);
 
             // Check if the arrays match
             if(count($expandCsv)!== count($JSCArray))
             {
-                var_dump("not working");
-                die();
+                throw new \Exception("Array doesn't match for ".$sectionTitle);
             }
 
-            $fusion = array_combine($JSCArray, $expandCsv);
+            // Merge the two arrays to use variables
+            // as keys
+            $fusion = [];
+            for($i=0; $i < count($JSCArray); $i++)
+            {
+                $fusion[$JSCArray[$i]] = $expandCsv[$i];
+
+            }
 
             foreach($fusion as $key => $value) 
             {
@@ -169,12 +181,8 @@ class CsvService extends Component
             }
 
             $data[$fusion['title']] = $fusion;
-    
-            //var_dump($fusion);
-            
         }
-var_dump($data);
-        die();
+
         return $data;
     }
 
@@ -299,5 +307,19 @@ var_dump($data);
             }
         }
         return $returnArray;
+    }
+
+    public function strposa($haystack, $needle, $offset=0) 
+    {
+        if(!is_array($needle)) 
+        {
+            $needle = array($needle);
+        }
+
+        foreach($needle as $query) 
+        {
+            if(strpos($haystack, $query, $offset) !== false) return true; // stop on first true result
+        }
+        return false;
     }
 }   

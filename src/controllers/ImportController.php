@@ -67,7 +67,7 @@ class ImportController extends Controller
                     break;
                 case "Studies":
                      $importData = Triton::getInstance()->csvService->jscCsvToArray('studies', $csvPath);
-                    $results = Triton::getInstance()->studiesService->importArrayToEntries('studies', $importData);
+                    $results = Triton::getInstance()->jscImportService->importArrayToEntries('studies', $importData);
                     break;
                 case "Journals":
                     $importData = Triton::getInstance()->csvService->journalsCsvToArray($csvPath);

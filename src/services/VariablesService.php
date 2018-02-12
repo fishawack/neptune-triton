@@ -21,6 +21,24 @@ Class VariablesService extends component
      *  has mimic the structure of the 
      *  excel sheet, these will be keys
      */
+    public function getPublicationArrayFields()
+    {
+        return [
+            'title',
+            'documentTitle',
+            'documentStatus',
+            'startDate',
+            'submissionDate',
+            'documentAuthor',
+            'documentType',
+            'citation',
+            'citationUrl',
+            'publicationDate',
+            'study'    
+        ];
+
+    }
+
     public function getJournalHeaders()
     {
         return [
@@ -45,6 +63,15 @@ Class VariablesService extends component
             'studyTitle',
             'sacDate',
             'title'
+        ];
+    }
+
+    public function journalPubs()
+    {
+        return [
+            '1MS',
+            '2MS',
+            'RA'
         ];
     }
 }

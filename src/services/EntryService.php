@@ -17,6 +17,7 @@ ini_set('xdebug.var_display_max_depth', 1000);
 ini_set('xdebug.var_display_max_children', 256);
 ini_set('xdebug.var_display_max_data', 1024);
 ini_set('max_execution_time', 300);
+ini_set('memory_limit', '256M');
 
 /**
  *  Entry Controller
@@ -30,7 +31,13 @@ class EntryService extends Component
         $publicationTitle = [],
         $sectionId,
         $entryType,
-        $authorId;
+        $authorId,
+        // full list of 
+        // studies/journales & congresses
+        $studies = [],
+        $congresses = [],
+        $journals = [];
+        
 
     /*
      *  Have a list of the data that needs to be
@@ -44,7 +51,14 @@ class EntryService extends Component
     public function importArrayToEntries(array $data)
     {
         $this->data = $data;
-        $allPublications = $this->getAllEntries();
+
+        $studies = $this->getAllEntries('studies');
+        $congresses = $this->getAllEntries('congresses');
+        $journals = $this->getAllEntries('journals');
+
+        // Set this last so that we get the
+        // correct sectionId
+        $allPublications = $this->getAllEntries('publications');
 
         // Get all publications
         $this->setupPublicationTitles($allPublications);
@@ -61,7 +75,8 @@ class EntryService extends Component
                 // deleted.
                 unset($allPublications[$entry['title']]);
             } else {
-                //$this->newEntry($entry);
+                $this->newEntry($entry);
+                Triton::getInstance()->entryChangeService->addNewEntry($entry['title'], $data);
             }
         }
 
@@ -75,19 +90,23 @@ class EntryService extends Component
             }
         }
 
+        die(var_dump($this->journals));
+
         return Triton::getInstance()->entryChangeService->getStatus();    
     }
 
     /**
      * Get all entries from publications
+     *
+     * @param string $entryHandle
      */
-    public function getAllEntries()
+    public function getAllEntries(string $entryHandle)
     {
         $publication = [];        
         $currentUser = Craft::$app->getUser()->getIdentity();
 
         $queryPublications = Entry::find()
-            ->section('publications')
+            ->section($entryHandle)
             ->all();
 
         // We just need 1 entry as a base to
@@ -102,6 +121,7 @@ class EntryService extends Component
         }
         return $publications;
     }
+
 
     /*
      * @param Entry 
@@ -147,7 +167,40 @@ class EntryService extends Component
          * Annoyingly saveRelation doesn't tell you if
          * it has been saved or not, it'll always return null
          */
-        $saveStudy = Triton::getInstance()->studiesService->saveStudyRelation($csvData['study'], $craftData);
+        $saveStudy = Triton::getInstance()->jscImportService->saveJSCRelation('studies', 'study', $csvData['study'], $craftData, $this->studies);
+
+        foreach($csvData['study'] as $study)
+        {
+            if(!isset($this->studies[$study]))
+            {
+                $this->studies[$study] = Entry::find()->section('study')->title($study)->one();;
+            }
+        }
+        
+        if(isset($csvData['journal']) && strlen($csvData['journal']) > 0)
+        {
+            Triton::getInstance()->jscImportService->saveJSCRelation('journals', 'journal', (array)$csvData['journal'], $craftData, $this->journals);
+
+            // Update our list of journals
+            if(!isset($this->journals[$csvData['journal']]))
+            {
+                $this->journals[$csvData['journal']] = Entry::find()->section('journals')->title($csvData['journal'])->one();
+;
+            }
+        }
+
+        if(isset($csvData['congress']) && strlen($csvData['congress']) > 0)
+        {
+            Triton::getInstance()->jscImportService->saveJSCRelation('congresses', 'congress', (array)$csvData['congress'], $craftData, $this->congresses);
+
+            // Update our list of journals
+            if(!isset($this->congresses[$csvData['congress']]))
+            {   
+                $this->congresses[$csvData['congress']] = Entry::find()->section('congresses')->title($csvData['congresses'])->one();
+;
+            }
+        }
+
         unset($csvData['study']);
 
         /**
@@ -158,12 +211,13 @@ class EntryService extends Component
          */
 
         unset($csvData['journal']);
+        unset($csvData['congress']);
         unset($csvData['title']);
 
         // remove title from our pubFields
         // since we've already retrieved them
         unset($pubFields[0]);
-        unset($pubFields[6]);
+        unset($pubFields[10]);
         unset($pubFields[11]);
 
      
@@ -250,8 +304,7 @@ class EntryService extends Component
     }
 
     /**
-     *  Save all object data into array
-     *  so that it can be compared
+     *  Add a new Entry into Craft      
      */
     protected function newEntry(Array $csvData)
     {
@@ -266,25 +319,67 @@ class EntryService extends Component
         $entry->title = $csvData['title'];
         $entry->slug = str_replace(' ', '-', $csvData['title']);
 
+        // Setup relations to be imported
+        $relations['studies'] = &$csvData['study'];
+
+        if(isset($csvData['journal']))
+        {
+            $relations['journal'] = $csvData['journal'];
+            unset($csvData['journal']);
+        }
+
+        if(isset($csvData['congress']))
+        {
+            $relations['congress'] = $csvData['congress'];
+            unset($csvData['congress']);
+        }
+        
         // New way of seting fields, need to remove our title
         // for set fields to work
         unset($csvData['title']);
+        unset($csvData['study']);
 
         $entry->setFieldValues($csvData);
 
-        //var_dump($entry);
-        //die();
 
-        if(Craft::$app->elements->saveElement($entry)) {
-            die();
+        if($savedEntry = Craft::$app->elements->saveElement($entry)) {
+            // Save Relationship with studies
+            $getEntry = Entry::find()
+                ->section('publications')
+                ->one();
+
+            Triton::getInstance()->jscImportService->saveJSCRelation('studies', 'study', $relations['studies'], $getEntry, $this->studies);
+
+            foreach($relations['studies'] as $study)
+            {
+                if(!isset($this->studies[$study]))
+                {
+                    $this->studies[$study] = Entry::find()->section('studies')->title($study)->one();
+                }
+            }
+
+            if(!empty($relations['journal']))
+            {
+                Triton::getInstance()->jscImportService->saveJSCRelation('journals', 'journal', (array)$relations['journal'], $getEntry, $this->journals);
+                // Update our list of journals
+                if(!isset($this->journals[$relations['journal']]))
+                {
+                    $this->journals[$relations['journal']] = Entry::find()->section('journal')->title($relations['journal'])->one();
+                }
+            }
+            if(!empty($relations['congresses']))
+            {
+                Triton::getInstance()->jscImportService->saveJSCRelation('congresses', 'congress', (array)$relations['congresses'], $getEntry, $this->congresses);
+                // Update our list of journals
+                if(!isset($this->congresses[$relations['congresses']]))
+                {
+                    $this->congresses[$relations['congresses']] = Entry::find()->section('congresses')->title($relations['congresses'])->one();
+                }
+            }
+            return $entry;
         } else {
             throw new \Exception("Saving failed: " . print_r($entry->getErrors(), true));
         }
-        die();
-
-        $craftEntry->study = $studies;
-
-        return $entry;
     }
 
     protected function getPublicationArrayFields()
@@ -296,7 +391,6 @@ class EntryService extends Component
             'startDate',
             'submissionDate',
             'documentAuthor',
-            'journal',
             'documentType',
             'citation',
             'citationUrl',

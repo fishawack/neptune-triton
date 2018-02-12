@@ -21,6 +21,7 @@ use Craft;
 
 use yii\base\Component;
 use craft\elements\Entry;
+use craft\elements\db\EntryQuery;
 use craft\fields\Entries as BaseField;
 
 Class JSCImportService extends component
@@ -29,40 +30,23 @@ Class JSCImportService extends component
         $entryType,
         $authorId,
         $typeId,
-        $sectionTitle = '';
+        $sectionTitle = '',
         $JSCObjects = [];
 
     public function __construct()
     {
-        $this->JSCObjects = $this->getJSC($this->sectionTitle);
+        $this->JSCObjects = $this->getAllJSC($this->sectionTitle);
     }
 
-    /*
-     * Get all studies, put it into an 
-     * array with the titles as keys
-     */
-    public function getJSCList()
+    public function setJSCObjects(string $sectionTitle)
     {
-        if(!empty($this->JSCObjects))
-        {
-            $studies = $this->JSCObjects;
-        } else {
-            $studies = $this->getAllStudies();
-        }
-
-        $JSCList = [];
-        foreach($JSCList as $list)
-        {
-            $JSCList[$list>title]['title'] = $list>title;
-            $JSCList[$lsit>title]['id'] = $list>id;
-        }
-        return $JSCList;
+        $this->JSCObjects = $this->getAllJSC($sectionTitle);        
     }
 
     /*
      * Get all the studies from Craft
      */
-    public function getJSC(string $sectionTitle)
+    public function getAllJSC(string $sectionTitle)
     {        
         $query = Entry::find()
             ->section($sectionTitle)
@@ -89,35 +73,19 @@ Class JSCImportService extends component
         return $dataCleaned; 
     }
 
-    /*
-     *  Grab the stufy by title,
-     *  runs a search via Craft
-     *
-     *  @param string $studyTitle
-     */
-    public function getStudyByTitle(string $studyTitle)
-    {
-        $queryStudies = Entry::find()
-            ->section('studies')
-            ->title($studyTitle)
-            ->one();
-
-        return $queryStudies;         
-    }
-
     /**
      *  Get the study field
      *
      *  @param Entry $craftEntry
      */
-    public function getJSCField(Entry $craftEntry)
+    public function getJSCField(Entry $craftEntry, string $handle)
     {
         $fields = $craftEntry->getFieldLayout()->getFields();
-
+        //$fields = $craftEntry->getFieldByHandle($handle);
         $studyField = 0;
         foreach($fields as $field)
         {   
-            if($field->handle == 'study')
+            if($field->handle == $handle)
             {
                 $studyField = $field;
             }
@@ -131,14 +99,15 @@ Class JSCImportService extends component
      *
      *  Get the cleaned and exploded array
      *
-     *  @param array $studies
+     *  @param string $sectionTitle
+     *  @param array $jscEntries
      */
     public function importArrayToEntries(string $sectionTitle, array $jscEntries)
     {
         $this->sectionTitle = $sectionTitle;
 
         // Get list of studies already in the system
-        $jscEntries = $this->getJSCList();
+        $jscList = $this->JSCObjects;
 
         // Check if there's any changes, if not add new entry
         foreach($jscEntries as $entry)
@@ -154,14 +123,14 @@ Class JSCImportService extends component
             // delete from array so that we're
             // left with publications that have been
             // deleted.
-            unset($this->JSCObjects[$entry['title']]);
+            unset($jscList[$entry['title']]);
         }
 
         // If anything is left in the array then we
         // need to delete(disable) these records
-        if(count($this->JSCObjects) > 0)
+        if(count($jscList) > 0)
         {
-            foreach($this->JSCObjects as $deletedEntry)
+            foreach($jscList as $deletedEntry)
             {
                 Triton::getInstance()->entryService->deleteEntry($deletedEntry);
             }
@@ -174,27 +143,50 @@ Class JSCImportService extends component
      *  Save studies that are already on the 
      *  system
      *
-     *  @param array $studies
+     *  @param string $sectionTitle
+     *  @param string $handle
+     *  @param array $jscData
      *  @param Entry $craftEntry
      */
-    public function saveJSCRelation(string $sectionTitle, array $jsc, Entry &$craftEntry)
+    public function saveJSCRelation(string $sectionTitle, string $handle, array $jscData, Entry &$craftEntry, $list = [])
     {
-        $this->sectionTitle = $sectionTitle;
-        $jscField = $this->getJSCField($craftEntry);
-
-        $jscIds = [];
-        foreach($jsc as $entry)
+        if(empty($list))
         {
-            if(isset($this->JSCObjects[$entry]))
+            $list = $this->JSCObjects;
+        }
+        
+        // Need to get section details
+        $section = Entry::find()
+            ->section($sectionTitle)
+            ->one();
+
+        $this->sectionId = $section->sectionId;
+        $this->typeId = $section->type->id;
+
+        // Set new section id
+        $jscField = $this->getJSCField($craftEntry, $handle);
+    
+        $entryIds = [];
+        foreach($jscData as $entry)
+        {
+            if(!empty($jscData))
             {
-                $entryIds[] = $this->JSCObjects[$entry]->id;
-            } else {
-                // Save a the study as a new entry
-                //
-                // TODO
-                // This may need a 2nd look, in theory
-                // the return should be giving
-                $entryIds[] = $this->saveNewJSC($entry);
+                if(isset($list[$entry]))
+                {
+                    $entryIds[] = $list[$entry]->id;
+                } else {
+                    // Save a the study as a new entry,
+                    // find the studyId and put it into
+                    // our list
+
+                    $this->saveNewJSC($entry);
+
+                    $getId = Entry::find()->section($sectionTitle)->title($entry)->one();
+                    if(isset($getId->id))
+                    {
+                        $entryIds[] = $getId->id;
+                    }
+                }
             }
         }
 
@@ -223,8 +215,8 @@ Class JSCImportService extends component
             // and do the necessary comparison
             if(is_a($craftData[$header], 'DateTime')) 
             {
-                $data = new \DateTime($data[$header]);
-                $data = $date->getTimestamp();
+                $date = new \DateTime($data[$header]);
+                $date = $date->getTimestamp();
                 $craftTime = $craftData->$header->getTimestamp();
                 
                 // change CraftEntry datetime for comparison
@@ -305,7 +297,7 @@ Class JSCImportService extends component
             $newJSC = new Entry();
             
             $newJSC->sectionId = $this->sectionId;
-            $newJSC->typeId = $this->entryType->id;
+            $newJSC->typeId = $this->typeId;
 
             $newJSC->title = $jscTitle;
 

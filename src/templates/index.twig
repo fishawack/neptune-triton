@@ -38,13 +38,6 @@
     <p class="textline">
     </p>
 
-    <p style="margin-bottom:1em; width:50%;">
-        <strong style="color:red;">Caution</strong><br>
-        I've had problems when you edit the CSV export using a Mac, more often that not
-        it'll add extra , to the end of your rows therefore if you are to edit the file
-        please make sure it's being saved / edited using something different (VIM edits
-        the files without any probs).
-    </p>
 
     <form action="/admin/triton/upload" enctype="multipart/form-data" method="POST">
         <div style="width:100%; margin: 1.5em 0;">
@@ -60,5 +53,15 @@
         <button style="padding:1em 0; width: 100%;">Export Database</button>
     </div>
     </form>
+
+    <p style="margin-bottom:1em; width:50%; text-align:justify;">
+        <strong style="color:red;">Caution</strong><br>
+        I've had problems when you edit the CSV export using a Mac, more often that not
+        it'll add extra , to the end of your rows therefore if you are to edit the file
+        please make sure it's being saved / edited using something different (VIM edits
+        the files without any probs).<br><br>
+        Make sure that each section has at least 1 entry - even if the entry only has a title!
+        Our plugin needs a single entry to base the sections & types from.
+    </p>
 
 {% endset %}

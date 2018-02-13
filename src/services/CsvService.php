@@ -239,14 +239,15 @@ class CsvService extends Component
         foreach ($dataArray as $data)
         {
             // clear all white space
-            $data = str_replace(' ', '', $data);
+            //$data = str_replace(' ', '', $data);
+            $data = trim($data);
 
             // Studies should alwasy have more than
             // 2 characters whilst sometimes we can't 
             // catch all the random white spaces
             if(strlen($data) > 2) 
             {
-                $returnArray[] = trim(mb_convert_encoding($data, "UTF-8"));
+                $returnArray[] = mb_convert_encoding($data, "UTF-8");
             }
         }
         return $returnArray;

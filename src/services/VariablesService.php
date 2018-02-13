@@ -21,7 +21,7 @@ Class VariablesService extends component
      *  has mimic the structure of the 
      *  excel sheet, these will be keys
      */
-    public function getPublicationArrayFields()
+    public function getPublicationHeaders()
     {
         return [
             'title',

@@ -26,8 +26,10 @@ class CsvService extends Component
      *  should be in the format:
      *
      *  "Chai's $csvType Test"
+     *
+     *  @param string $filePath
      */
-    public function checkCsvType($filePath)
+    public function checkCsvType(string $filePath)
     {
         $csvFile = file($filePath);
         
@@ -39,8 +41,10 @@ class CsvService extends Component
     /*
      * Read file into memory and turn into
      * an array
+     *
+     * @param string $filePath
      */
-    public function publicationCsvToArray($filePath)
+    public function publicationCsvToArray(string $filePath)
     {
         $csvFile = file($filePath);
 
@@ -78,26 +82,26 @@ class CsvService extends Component
                 $submissionDate = date('Y-m-d H:i:s', strtotime($expandCsv[10]));
             }            
 
-            $title = mb_convert_encoding($expandCsv[0], "UTF-8");
+            $title = trim(mb_convert_encoding($expandCsv[0], "UTF-8"));
 
             // Setup all the keys correctly
             $data[$expandCsv[0]]['title'] = $title;
-            $data[$expandCsv[0]]['documentTitle'] = mb_convert_encoding($expandCsv[1], "UTF-8");
-            $data[$expandCsv[0]]['documentStatus'] = mb_convert_encoding($expandCsv[2], "UTF-8");
+            $data[$expandCsv[0]]['documentTitle'] = trim(mb_convert_encoding($expandCsv[1], "UTF-8"));
+            $data[$expandCsv[0]]['documentStatus'] = trim(mb_convert_encoding($expandCsv[2], "UTF-8"));
             $data[$expandCsv[0]]['startDate'] = $startDate;
             $data[$expandCsv[0]]['submissionDate'] = $submissionDate;
-            $data[$expandCsv[0]]['documentAuthor'] = mb_convert_encoding($expandCsv[5], "UTF-8");
-            $data[$expandCsv[0]]['documentType'] = mb_convert_encoding($expandCsv[7], "UTF-8");
-            $data[$expandCsv[0]]['citation'] = mb_convert_encoding($expandCsv[8], "UTF-8");
-            $data[$expandCsv[0]]['citationUrl'] = mb_convert_encoding($expandCsv[9], "UTF-8");
+            $data[$expandCsv[0]]['documentAuthor'] = trim(mb_convert_encoding($expandCsv[5], "UTF-8"));
+            $data[$expandCsv[0]]['documentType'] = trim(mb_convert_encoding($expandCsv[7], "UTF-8"));
+            $data[$expandCsv[0]]['citation'] = trim(mb_convert_encoding($expandCsv[8], "UTF-8"));
+            $data[$expandCsv[0]]['citationUrl'] = trim(mb_convert_encoding($expandCsv[9], "UTF-8"));
             $data[$expandCsv[0]]['publicationDate'] = $publicationDate;
 
             // Check if we need Journal or Congress
             if($this->strposa($title, Triton::getInstance()->variablesService->journalPubs()))
             {
-                $data[$expandCsv[0]]['journal'] = mb_convert_encoding($expandCsv[6], "UTF-8");
+                $data[$expandCsv[0]]['journal'] = trim(mb_convert_encoding($expandCsv[6], "UTF-8"));
             } else {
-                $data[$expandCsv[0]]['congress'] = mb_convert_encoding($expandCsv[6], "UTF-8");
+                $data[$expandCsv[0]]['congress'] = trim(mb_convert_encoding($expandCsv[6], "UTF-8"));
             }
             
 
@@ -111,6 +115,9 @@ class CsvService extends Component
 
     /**
      * Journale Congress Study csv to array
+     *
+     * @param string $sectionTitle
+     * @param string $filePath
      */
     public function jscCsvToArray(string $sectionTitle, string $filePath)
     {
@@ -186,83 +193,12 @@ class CsvService extends Component
         return $data;
     }
 
-    /**
-     *  Read Csv into Array for studies
-     */
-    public function studiesCsvToArray($filePath)
-    {
-        $csvFile = file($filePath);
-
-        // Remove the misc fields from dv
-        $cleanData = $this->cleanCsv($csvFile);
-
-        $data = [];
-
-        foreach($cleanData as $result)
-        {
-            $expandCsv = [];
-            $expandCsv =  explode('`', $result);
-
-            
-            $sacDate = null;
-            if(strlen($expandCsv[1]) > 0)
-            {
-                $sacDate = date('Y-m-d H:i:s', strtotime($expandCsv[1]));
-            }
-            
-            $data[$expandCsv[2]]['title'] = trim(mb_convert_encoding($expandCsv[2], "UTF-8"));
-            $data[$expandCsv[2]]['sacDate'] = $sacDate;
-            $data[$expandCsv[2]]['studyTitle'] =  trim(mb_convert_encoding($expandCsv[0], "UTF-8"));
-        }
-        return $data;
-    }
-
-    /**
-     *  Read Csv into Array for journals
-     */
-    public function journalsCsvToArray($filePath)
-    {
-        $csvFile = file($filePath);
-
-        // Remove the misc fields from dv
-        $cleanData = $this->cleanCsv($csvFile);
-
-        $data = [];
-        
-        // $i = 2 because we've deleted the first
-        // 2 rows, don't want to use more memory
-        // reindexing etc when we will not need it
-        // afterwards
-        foreach($cleanData as $result)
-        {
-        }
-    }
-
-    /**
-     *  Read Csv into Array for congress     
-     */
-    public function congressCsvToArray($filePath)
-    {
-        $csvFile = file($filePath);
-
-        // Remove the misc fields from dv
-        $cleanData = $this->cleanCsv($csvFile);
-
-        $data = [];
-        
-        // $i = 2 because we've deleted the first
-        // 2 rows, don't want to use more memory
-        // reindexing etc when we will not need it
-        // afterwards
-        foreach($cleanData as $result)
-        {
-        }
-    }
-
     /*
      *  Check if it's a Chai datavision export,
      *  we need to remove the first two elements
      *  of the array
+     *
+     *  @param array $csvArray
      */
     protected function cleanCsv(array $csvArray)
     {
@@ -283,6 +219,8 @@ class CsvService extends Component
 
     /**
      * Remove HTML entities etc
+     *
+     * @param string $data
      */
     protected function removeHTMLTags($data)
     {
@@ -290,6 +228,11 @@ class CsvService extends Component
         return $clean;
     }
 
+    /*
+     * clear empty array values
+     *
+     * @param array $dataArray
+     */
     protected function clearEmptyArrayValues(array $dataArray)
     {
         $returnArray = [];
@@ -303,12 +246,19 @@ class CsvService extends Component
             // catch all the random white spaces
             if(strlen($data) > 2) 
             {
-                $returnArray[] = mb_convert_encoding($data, "UTF-8");
+                $returnArray[] = trim(mb_convert_encoding($data, "UTF-8"));
             }
         }
         return $returnArray;
     }
 
+    /*
+     *  find string in array data
+     *
+     *  @param array $haystack
+     *  @param string $needle
+     *  @param int $offset
+     */
     public function strposa($haystack, $needle, $offset=0) 
     {
         if(!is_array($needle)) 

@@ -36,7 +36,14 @@
 {% set content %}
     <h2>Upload the Datavision Publication CSV!</h2>
     <p class="textline">
-    
+    </p>
+
+    <p style="margin-bottom:1em; width:50%;">
+        <strong style="color:red;">Caution</strong><br>
+        I've had problems when you edit the CSV export using a Mac, more often that not
+        it'll add extra , to the end of your rows therefore if you are to edit the file
+        please make sure it's being saved / edited using something different (VIM edits
+        the files without any probs).
     </p>
 
     <form action="/admin/triton/upload" enctype="multipart/form-data" method="POST">
@@ -45,8 +52,13 @@
         </div>
         <div style="width:25%; margin: 1.5em 0;">
             <input type="submit" name="submit" value="Import" style="padding:0.5em 0; width: 100%;" />
-        </div>
+                    </div>
     </form>
 
-    <button>Export Database</button>
+    <form action="/admin/triton/exportdb" enctype="mutlipart/form-data" method="POST">
+    <div style="width:25%; margin: 1.5em 0;">
+        <button style="padding:1em 0; width: 100%;">Export Database</button>
+    </div>
+    </form>
+
 {% endset %}

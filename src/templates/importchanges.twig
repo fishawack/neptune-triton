@@ -42,6 +42,9 @@
     <p>{{ results.error }}</p>
     {% else %}
     <h1>Import Successful!</h1>
+    <p>
+        Import took <i>{{ performance }}s</i>
+    </p>
         {% for result, value in results %}
         <h2>{{ result }} ({{ value | length }})</h2>
             {% if result == "Changed" %}

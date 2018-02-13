@@ -117,9 +117,10 @@ Class JSCImportService extends component
         // Check if there's any changes, if not add new entry
         foreach($jscEntries as $entry)
         {
-            if(isset($this->JSCObjects[$entry['title']]))
+            $find = Entry::find()->title($entry['title'])->one();
+            if($find)
             {
-                $this->prepareAndSave($sectionTitle, $entry, $this->JSCObjects[$entry['title']]);
+                $this->saveExisting($sectionTitle, $entry, $this->JSCObjects[$entry['title']]);
             } else {
                 $this->saveNewJSC($entry['title'], $entry, true);
                 Triton::getInstance()->entryChangeService->addNewEntry($entry['title']);
@@ -174,16 +175,17 @@ Class JSCImportService extends component
         $entryIds = [];
         foreach($jscData as $entry)
         {
+            $find = Entry::find()->section($sectionTitle)->title($entry)->one();
+
             if(!empty($jscData))
             {
-                if(isset($list[$entry]))
+                if($find)
                 {
-                    $entryIds[] = $list[$entry]->id;
+                    $entryIds[] = $find->id;
                 } else {
                     // Save a the study as a new entry,
                     // find the studyId and put it into
                     // our list
-
                     $this->saveNewJSC($entry);
 
                     $getId = Entry::find()->section($sectionTitle)->title($entry)->one();
@@ -200,6 +202,65 @@ Class JSCImportService extends component
     }
 
     /**
+     * Check if it's created via upload
+     * csv or through publication import -
+     * through Csv we need to build the 
+     * relations
+     *
+     * @param string $studyData
+     * @param bool $upload
+     */
+    public function saveNewJSC(string $jscTitle, array $jscData = [], bool $upload = false)
+    {
+        if($upload == true)
+        {
+            if(empty($jscData))
+            {
+                throw new \Exception("No values entered for studies");
+            }
+
+            $newJSC = new Entry();
+ 
+            $newJSC->sectionId = $this->sectionId;
+            $newJSC->typeId = $this->entryType->id;
+
+            $newJSC->title = $jscTitle;
+            $newJSC->slug = str_replace(' ', '-', $jscTitle);
+
+            unset($jscData['title']);
+            //unset($jscData['slug']);
+
+            $newJSC->setFieldValues($jscData);
+
+            if($saveResult = Craft::$app->elements->saveElement($newJSC)) {
+                return $saveResult;
+            } else {
+                throw new \Exception("Saving failed: " . print_r($newJSC->getErrors(), true));
+            }
+        } else {
+            $newJSC = new Entry();
+            
+            $newJSC->sectionId = $this->sectionId;
+            $newJSC->typeId = $this->typeId;
+
+            $newJSC->title = $jscTitle;
+
+            // Not sure why DV gives out their fields with
+            // a random space in the document titles
+            //
+            // TODO
+            // Remove the space for slugs
+            $newJSC->slug = str_replace(' ', '-', $jscTitle);
+
+            if($saveResult = Craft::$app->elements->saveElement($newJSC)) {
+                return $saveResult;
+            } else {
+                throw new \Exception("Saving failed: " . print_r($newJSC->getErrors(), true));
+            }
+        }
+    }
+
+    /**
      * Save study and make sure the comparisons 
      * are returned
      *
@@ -207,7 +268,7 @@ Class JSCImportService extends component
      * @param Entry $craftData
      *
      */
-    public function prepareAndSave(string $sectionTitle, array $data, Entry $craftData)
+    public function saveExisting(string $sectionTitle, array $data, Entry $craftData)
     {
         // Get list of study headers
         switch ($sectionTitle)
@@ -272,79 +333,6 @@ Class JSCImportService extends component
         }
     }
 
-    /**
-     * Check if it's created via upload
-     * csv or through publication import -
-     * through Csv we need to build the 
-     * relations
-     *
-     * @param string $studyData
-     * @param bool $upload
-     */
-    public function saveNewJSC(string $jscTitle, array $jscData = [], bool $upload = false)
-    {
-        if($upload == true)
-        {
-            if(empty($jscData))
-            {
-                throw new \Exception("No values entered for studies");
-            }
-
-            $newJSC = new Entry();
- 
-            $newJSC->sectionId = $this->sectionId;
-            $newJSC->typeId = $this->entryType->id;
-
-            $newJSC->title = $jscTitle;
-            $newJSC->slug = str_replace(' ', '-', $jscTitle);
-
-            unset($jscData['title']);
-            //unset($jscData['slug']);
-
-            $newJSC->setFieldValues($jscData);
-
-            if($saveResult = Craft::$app->elements->saveElement($newJSC)) {
-                return $saveResult;
-            } else {
-                throw new \Exception("Saving failed: " . print_r($newJSC->getErrors(), true));
-            }
-        } else {
-            $newJSC = new Entry();
-            
-            $newJSC->sectionId = $this->sectionId;
-            $newJSC->typeId = $this->typeId;
-
-            $newJSC->title = $jscTitle;
-
-            // Not sure why DV gives out their fields with
-            // a random space in the document titles
-            //
-            // TODO
-            // Remove the space for slugs
-            $newJSC->slug = str_replace(' ', '-', $jscTitle);
-
-            if($saveResult = Craft::$app->elements->saveElement($newJSC)) {
-                return $saveResult;
-            } else {
-                throw new \Exception("Saving failed: " . print_r($newJSC->getErrors(), true));
-            }
-        }
-    }
-
-    /*
-     *  Setup array fields,
-     *  probably need to put into a 
-     *  Global array
-     */
-    protected function getHeaderFields()
-    {
-        $headerFields = [
-            'title',
-            'sacDate',
-            'studyTitle'    
-        ];
-        return $headerFields;
-    }
 }
 
 

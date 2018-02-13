@@ -62,6 +62,8 @@ class ImportController extends Controller
             // Script performation testing
             //
             // Method 1 = 192.3657
+            // Method 2 = 185.3
+            // Method 3 = 71.059
             $scriptStart = microtime(true);
 
             switch ($csvType)
@@ -84,9 +86,7 @@ class ImportController extends Controller
                     break;
             }
 
-            $scriptStop = microtime(true) - $scriptStart;
-            var_dump($scriptStop);
-            $results['performance'] = $scriptStop;
+            $performance = microtime(true) - $scriptStart;
             
             if(!$results)
             {
@@ -97,7 +97,8 @@ class ImportController extends Controller
         }
 
         return $this->renderTemplate('triton/importchanges', [
-            'results' => $results
+            'results' => $results,
+            'performance' => $performance
         ]);
     }
 }

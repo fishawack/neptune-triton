@@ -90,7 +90,7 @@ class EntryService extends Component
             }
         }
 
-        die(var_dump($this->journals));
+        //die(var_dump($this->journals));
 
         return Triton::getInstance()->entryChangeService->getStatus();    
     }
@@ -196,7 +196,7 @@ class EntryService extends Component
             // Update our list of journals
             if(!isset($this->congresses[$csvData['congress']]))
             {   
-                $this->congresses[$csvData['congress']] = Entry::find()->section('congresses')->title($csvData['congresses'])->one();
+                $this->congresses[$csvData['congress']] = Entry::find()->section('congresses')->title($csvData['congress'])->one();
 ;
             }
         }

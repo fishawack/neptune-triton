@@ -106,6 +106,11 @@ Class JSCImportService extends component
     {
         $this->sectionTitle = $sectionTitle;
 
+        // Constructor doesn't construct
+        // when accessing the class through 
+        // services weirdly.
+        $this->setJSCObjects($sectionTitle);
+
         // Get list of studies already in the system
         $jscList = $this->JSCObjects;
 
@@ -114,9 +119,9 @@ Class JSCImportService extends component
         {
             if(isset($this->JSCObjects[$entry['title']]))
             {
-                $this->prepareAndSave($entry, $this->JSCObjects[$entry['title']]);
+                $this->prepareAndSave($sectionTitle, $entry, $this->JSCObjects[$entry['title']]);
             } else {
-                $this->saveNewJSC('', $entry, true);
+                $this->saveNewJSC($entry['title'], $entry, true);
                 Triton::getInstance()->entryChangeService->addNewEntry($entry['title']);
             }
 
@@ -202,10 +207,21 @@ Class JSCImportService extends component
      * @param Entry $craftData
      *
      */
-    public function prepareAndSave(array $data, Entry $craftData)
+    public function prepareAndSave(string $sectionTitle, array $data, Entry $craftData)
     {
         // Get list of study headers
-        $headers = $this->getHeaderFields();
+        switch ($sectionTitle)
+        {
+            case 'studies':
+                $headers = Triton::getInstance()->variablesService->getStudyHeaders();
+                break;
+            case 'journals':
+                $headers = Triton::getInstance()->variablesService->getJournalHeaders();
+                break;
+            case 'congresses':
+                $headers = Triton::getInstance()->variablesService->getCongressHeaders();
+                break;
+        }
         
         // Track changes
         $changed = 0;
@@ -237,7 +253,8 @@ Class JSCImportService extends component
 
         if($changed === 0)
         {
-            Triton::getInstance()->entryChangeService->addUnchanged($data['title']);    
+            Triton::getInstance()->entryChangeService->addUnchanged($data['title']);
+            return true;
         }
 
         $craftData->title = $data['title'];
@@ -247,8 +264,6 @@ Class JSCImportService extends component
          *  Save everything else as normal!
          */
         $craftData->setFieldValues($data);
-
-        $status = Triton::getInstance()->entryChangeService->getStatus();
 
         if(Craft::$app->elements->saveElement($craftData)) {
             return true;
@@ -280,11 +295,11 @@ Class JSCImportService extends component
             $newJSC->sectionId = $this->sectionId;
             $newJSC->typeId = $this->entryType->id;
 
-            $newJSC->title = $jscData['title'];
-            $newJSC->slug = str_replace(' ', '-', $jscData['title']);
+            $newJSC->title = $jscTitle;
+            $newJSC->slug = str_replace(' ', '-', $jscTitle);
 
             unset($jscData['title']);
-            unset($jscData['slug']);
+            //unset($jscData['slug']);
 
             $newJSC->setFieldValues($jscData);
 

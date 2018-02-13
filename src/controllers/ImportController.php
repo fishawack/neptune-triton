@@ -59,6 +59,11 @@ class ImportController extends Controller
 
             $csvType = Triton::getInstance()->csvService->checkCsvType($csvPath);
 
+            // Script performation testing
+            //
+            // Method 1 = 192.3657
+            $scriptStart = microtime(true);
+
             switch ($csvType)
             {
                 case "Publications":
@@ -70,14 +75,18 @@ class ImportController extends Controller
                     $results = Triton::getInstance()->jscImportService->importArrayToEntries('studies', $importData);
                     break;
                 case "Journals":
-                    $importData = Triton::getInstance()->csvService->journalsCsvToArray($csvPath);
-                    $results = Triton::getInstance()->journalsService->importArrayToEntries('journals', $importData);
+                    $importData = Triton::getInstance()->csvService->jscCsvToArray('journals', $csvPath);
+                    $results = Triton::getInstance()->jscImportService->importArrayToEntries('journals', $importData);
                     break;
                 case "Congress":
-                    $importData = Triton::getInstance()->csvService->congressCsvToArray($csvPath);
-                    $results = Triton::getInstance()->congressService->importArrayToEntries('congresses', $importData);
+                    $importData = Triton::getInstance()->csvService->jscCsvToArray('congresses', $csvPath);
+                    $results = Triton::getInstance()->jscImportService->importArrayToEntries('congresses', $importData);
                     break;
             }
+
+            $scriptStop = microtime(true) - $scriptStart;
+            var_dump($scriptStop);
+            $results['performance'] = $scriptStop;
             
             if(!$results)
             {

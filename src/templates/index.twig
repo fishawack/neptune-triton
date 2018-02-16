@@ -50,6 +50,9 @@
 
     <button id="updatejson" style="padding:1em 0; width: 100%;">Update Json Cache</button>
 
+    <div id="notification" style="width:100%; min-height: 2.5em; color: #20DE89; margin:1em 0;">
+    </div>
+
     <p style="margin-bottom:1em; width:50%; text-align:justify;">
         <strong style="color:red;">Caution</strong><br>
         I've had problems when you edit the CSV export using a Mac, more often that not
@@ -59,14 +62,49 @@
         Make sure that each section has at least 1 entry - even if the entry only has a title!
         Our plugin needs a single entry to base the sections & types from.
     </p>
+
     <script type="text/javascript">
-    var updateButton = document.querySelector('#updatejson');
-    
-    updateButton.addEventListener('click', runJsonUpdate());
+    var updateButton = document.querySelector('#updatejson');   
+   
+    updateButton.addEventListener('click', function() {
+        runJsonUpdate()
+    });
 
     function runJsonUpdate()
     {   
-        
+        // generate studies
+        ajax('http://localhost:8000/triton/updatejsonfiles?data=studies');
+        // generate journals
+        ajax('http://localhost:8000/triton/updatejsonfiles?data=journals');
+        // generate congresses
+        ajax('http://localhost:8000/triton/updatejsonfiles?data=congresses');
+        // generete tags
+        ajax('http://localhost:8000/triton/updatejsonfiles?data=tags');
+        // generate pubs
+        ajax('http://localhost:8000/triton/updatejsonfiles?data=publications');
     }
+
+    function ajax(path)
+    {
+        notification('Loading next file ...');
+        var xobj = new XMLHttpRequest();
+        xobj.open('GET', path);
+        
+        xobj.onreadystatechange = function () {
+            if(xobj.readyState == 4 && xobj.status == "200")
+            {
+                response = JSON.parse(xobj.responseText);
+                notification(response.complete);
+            }
+        };
+        xobj.send(null); 
+    }
+
+    function notification(data, error = false)
+    {      
+        var notification = document.querySelector('#notification');
+        notification.innerHTML = '<p>'+data+'</p>';
+    }
+
     </script>
 {% endset %}

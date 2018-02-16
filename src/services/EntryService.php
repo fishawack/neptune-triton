@@ -31,6 +31,7 @@ class EntryService extends Component
         $studies,
         $journals,
         $congresses;
+
     /*
      *  Have a list of the data that needs to be
      *  imported - if it needs updating/creating do it
@@ -124,10 +125,10 @@ class EntryService extends Component
     /*
      *  Get all entrie titles from publications
      */
-    protected function getAllEntryTitles()
+    protected function getAllEntries($section)
     {
         $queryAll = Entry::find()
-        ->section('publications')
+        ->section($section)
         ->all();
     }
 

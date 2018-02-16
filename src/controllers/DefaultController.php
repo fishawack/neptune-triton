@@ -76,190 +76,8 @@ class DefaultController extends Controller
      */
     public function actionGetAllPublications()
     {
-        $jsonArray = [];
-
-        $queryAll = Entry::find()
-            ->section('publications')
-            ->all();
-
-        foreach($queryAll as $query)
-        {
-            $id = '';
-
-            if(isset($query->id))
-            {
-                $id = $query->id;
-            }
-
-            $title = '';
-            if(isset($query->title))
-            {
-                $title = $query->title;
-            }
-
-            $citation = '';
-            if(isset($query->citation))
-            {
-                $citation = $query->citation;
-            }
-
-            $citationUrl = '';
-            if(isset($query->citationUrl))
-            {
-                $citationUrl = $query->citationUrl;
-            }
-
-            $status = '';
-            if(isset($query->documentStatus))
-            {   
-                $status = $query->documentStatus->value;
-            }
-
-            $docNum = '';
-            if(isset($query->title))
-            {
-                $docNum = $query->title;
-            }
-
-            $title = '';
-            if(isset($query->documentTitle))
-            {
-                $title = $query->documentTitle;
-            }
-
-            $keyPub = false;
-            if(isset($query->keyPublication))
-            {
-                $keyPub = $query->keyPublication;
-            }
-
-            $author = '';
-            if(isset($query->documentAuthor))
-            {
-                $author = $query->documentAuthor;
-            }
-
-            $congresses = [];
-            
-            if(isset($query->congress))
-            {
-                foreach ($query->congress as $congress)
-                {
-                    $congresses[] = $congress->id;
-                }
-            }
-
-            $journals = [];
-
-            if(isset($query->journal))
-            {
-                foreach($query->journal as $journal)
-                {
-                    $journals[] = $journal->id;
-                }
-            }
-
-            $studies = [];
-            if(isset($query->study))
-            {
-                foreach($query->study as $study)
-                {
-                    $studies[] = $study->id;
-                }
-            }
-
-            $categories = [];
-            if(isset($query->category))
-            {
-                foreach($query->category as $category)
-                {
-                    $categories[] = $category->id;
-                }
-            }
-
-            $related = [];
-            if(isset($query->relatedPubs))
-            {
-                foreach($query->relatedPubs as $relatedEntry)
-                {
-                    $related[] = $relatedEntry>id;
-                }
-            }
-
-            $pubTags = [];
-            if(isset($query->publicationTags))
-            {
-                foreach($query->publicationTags as $tags)
-                {
-                    $pubTags[] = $tags->id;
-                }
-            }
-
-            $docType = [];
-            if(isset($query->docType))
-            {
-                foreach($query->docType as $type)
-                {
-                    $docType[] = $type->id;
-                }
-            }
-
-            $publicationDate = '';
-            if($query->publicationDate)
-            {
-                $publicationDate = $query->publicationDate->format('d-m-Y'); 
-            }
-
-            $startDate = '';
-            if($query->startDate)
-            {
-                $startDate = $query->startDate->format('d-m-Y'); 
-            }
-
-            $submissionDate = '';
-            if($query->submissionDate)
-            {
-                $submissionDate = $query->submissionDate->format('d-m-Y'); 
-            }
-
-            $summary = '';
-            if(isset($query->summary))
-            {
-                $summary = $query->summary;
-            }
-
-            $objectives = '';
-            if(isset($query->objectives))
-            {
-                $objectives = $query->objectives;
-            }
- 
-            $jsonArray[] = [
-                'id' => $id,
-                'docNum' => $title,
-                'author' => $author,
-                'citation' => $citation,
-                'citationUrl' => $citationUrl,
-                'congress' => $congresses,
-                'journal' => $journals,
-                'status' => $status,
-                'title' => $title,
-                'type' => $docType,
-                'publicationDate' => $publicationDate,
-                'startDate' => $startDate,
-                'studies' => $studies,
-                'submissionDate' => $submissionDate,
-                'categories' => $categories,
-                'related' => $related,
-                'keyPublication' => $keyPub,
-                'summary' => $summary,
-                'objectives' => $objectives,
-                'tags' => $pubTags
-            ];
-        }
-
         //return $this->asJson($queryAll);
-        return $this->asJson($jsonArray);
+        return $this->asJson(Triton::getInstance()->jsonService->getAllPublications());
     }
 
     /*
@@ -269,22 +87,7 @@ class DefaultController extends Controller
      */
     public function actionGetAllJournals()
     {
-        $jsonArray = [];
-
-        // Get all journals
-        $queryAll = Entry::find()
-            ->section('journals')
-            ->all();        
-
-        foreach($queryAll as $journal)
-        {
-            $jsonArray[] = [
-                'id' => $journal->id,
-                'title' => $journal->title
-            ];
-        }
-
-        return $this->asJson($jsonArray);
+        return $this->asJson(Triton::getInstance()->jsonService->getAllJournals());
     }
 
     /*
@@ -294,44 +97,7 @@ class DefaultController extends Controller
      */
     public function actionGetAllCongresses()
     {
-        $jsonArray = [];
-
-        // Get all journals
-        $queryAll = Entry::find()
-            ->section('congresses')
-            ->all();        
-
-        foreach($queryAll as $journal)
-        {
-            $dueDate = '';
-            if($journal->abstractDueDate)
-            {
-                $dueDate = $journal->abstractDueDate->format('d-m-Y');
-            }
-
-            $fromDate = '';
-            if($journal->fromDate)
-            {
-                $fromDate = $journal->fromDate->format('d-m-Y');
-            }
-
-            $toDate = '';
-            if($journal->toDate)
-            {
-                $toDate = $journal->toDate->format('d-m-Y');
-            }
-
-            $jsonArray[] = [
-                'id' => $journal->id,
-                'title' => $journal->title,
-                'acronym' => $journal->congressAcronym,
-                'dueDate' => $dueDate,
-                'fromDate' => $fromDate,
-                'toDate' => $toDate
-            ];
-        }
-
-        return $this->asJson($jsonArray);
+        return $this->asJson(Triton::getInstance()->jsonService->getAllCongresses());
     }
 
     /*
@@ -339,29 +105,7 @@ class DefaultController extends Controller
      */
     public function actionGetAllStudies()
     {
-        $jsonArray = [];
-
-        // Get all journals
-        $queryAll = Entry::find()
-            ->section('studies')
-            ->all();        
-
-        foreach($queryAll as $studies)
-        {
-            $sacDate = '';
-            if($studies->sacDate)
-            {
-                $sacDate = $studies->sacDate->format('d-m-Y'); 
-            }
-            $jsonArray[] = [
-                'id' => $studies->id,
-                'title' => $studies->title,
-                'sacDate' => $sacDate,
-                'studyTitle' => $studies->studyTitle
-            ];
-        }
-
-        return $this->asJson($jsonArray);
+        return $this->asJson(Triton::getInstance()->jsonService->getAllCongresses());
     }
 
     /*
@@ -405,14 +149,18 @@ class DefaultController extends Controller
     /*
      * Update our generated Json cache,
      * you can always use the live links
-     * but the speed isn't instant
+     * but the speed isn't instant.
+     *
+     * We'll need to segregate it for better
+     * debugging capabilities and also we can 
+     * then do some cute little ajax update
+     * for the front end
      *
      */
     public function actionUpdateJsonCache()
     {
-        $result = Triton::getInstance()->jsonService->updateAllJsonCache();
-        return $this->renderTemplate('triton/notifications', [
-           'results' => $results 
-        ]);
+        $data = $_REQUEST['data'];
+        $result = Triton::getInstance()->jsonService->updateJsonFile($data);
+        return $this->asJson($result);
     }
 }

@@ -17,46 +17,67 @@ ini_set("allow_url_fopen", 1);
 
 class JsonService extends Component
 {
-    public function updateAllJsonCache()
+    public function updateJsonFile($section)
     {
         // Get SiteUrl
         $siteInfo = new UrlHelper;
 
         $allVarJson = Triton::getInstance()->variablesService->getJsonLinks();
-
-        foreach($allVarJson as $fileData)
+        if(!isset($allVarJson[$section]))
         {
-            //$data = file_get_contents($siteInfo->siteUrl() . $fileData['url']);
-            //$status = $this->writeJsonFile($data, $fileData['path']);
-
-            $curl = curl_init($siteInfo->siteUrl() . $fileData['url']);
-
-            // Check if file exists
-            //if($this->checkFileExists($filePath) === false)
-            //{
-            //    $this->createFile($filePath);
-            //}
-
-            $fileWrite = fopen($fileData['path'], 'w+');
-
-            curl_setopt($curl, CURLOPT_FILE, $fileWrite);
-
-            curl_exec($curl);
-            curl_close($curl);
-            fclose($fileWrite);
+            $result['error'] = 'No section with this data name';
+            return $result;
         }
 
-        return true;
+        // Check folder will handle the exceptions
+        // as well
+        $this->checkFolder();
+
+        $fileData = $allVarJson[$section];
+
+        $data = '';
+        switch($section)
+        {
+            case 'publications':
+                $data = $this->getAllPublications();
+                break;
+            case 'studies':
+                $data = $this->getAllStudies();
+                break;
+            case 'journals':
+                $data = $this->getAllJournals();
+                break;
+            case 'congresses':
+                $data = $this->getAllCongresses();
+                break;
+            case 'tags':
+                $data = $this->getAllTags();
+                break;
+        }
+
+        $data = json_encode($data);
+
+        if(!$this->writeJsonFile($data, $fileData['path']))
+        {   
+            $result['error'] = "Something went wrong!";    
+        }
+
+        $result['complete'] = "'".$section."' cache has been successfully updated";
+        return $result;
     }
 
     /*
-     *  Check if folder/file exists
+     *  Check if folder/file exists,
+     *  if not create it
      *
      *  @param string $filepath
      */
-    protected function checkFileExists($filePath)
+    protected function checkFolder()
     {
-        
+        if(!file_exists('json/'))
+        {
+            mkdir('json/', 0755);
+        }
     }
 
     /*
@@ -80,5 +101,275 @@ class JsonService extends Component
         }
 
         return true;
+    }
+    
+    public function getAllPublications()
+    {
+        $dataArray = [];
+
+        $queryAll = Triton::getInstance()->jscImportService->getAllEntriesUntouched('publications');
+
+        foreach($queryAll as $query)
+        {
+            $id = '';
+
+            if(isset($query->id))
+            {
+                $id = $query->id;
+            }
+
+            $title = '';
+            if(isset($query->title))
+            {
+                $title = $query->title;
+            }
+
+            $citation = '';
+            if(isset($query->citation))
+            {
+                $citation = $query->citation;
+            }
+
+            $citationUrl = '';
+            if(isset($query->citationUrl))
+            {
+                $citationUrl = $query->citationUrl;
+            }
+
+            $status = '';
+            if(isset($query->documentStatus))
+            {   
+                $status = $query->documentStatus->value;
+            }
+
+            $docNum = '';
+            if(isset($query->title))
+            {
+                $docNum = $query->title;
+            }
+
+            $title = '';
+            if(isset($query->documentTitle))
+            {
+                $title = $query->documentTitle;
+            }
+
+            $keyPub = false;
+            if(isset($query->keyPublication))
+            {
+                $keyPub = $query->keyPublication;
+            }
+
+            $author = '';
+            if(isset($query->documentAuthor))
+            {
+                $author = $query->documentAuthor;
+            }
+
+            $congresses = [];
+            
+            if(isset($query->congress))
+            {
+                foreach ($query->congress as $congress)
+                {
+                    $congresses[] = $congress->id;
+                }
+            }
+
+            $journals = [];
+
+            if(isset($query->journal))
+            {
+                foreach($query->journal as $journal)
+                {
+                    $journals[] = $journal->id;
+                }
+            }
+
+            $studies = [];
+            if(isset($query->study))
+            {
+                foreach($query->study as $study)
+                {
+                    $studies[] = $study->id;
+                }
+            }
+
+            $categories = [];
+            if(isset($query->category))
+            {
+                foreach($query->category as $category)
+                {
+                    $categories[] = $category->id;
+                }
+            }
+
+            $related = [];
+            if(isset($query->relatedPubs))
+            {
+                foreach($query->relatedPubs as $relatedEntry)
+                {
+                    $related[] = $relatedEntry>id;
+                }
+            }
+
+            $pubTags = [];
+            if(isset($query->publicationTags))
+            {
+                foreach($query->publicationTags as $tags)
+                {
+                    $pubTags[] = $tags->id;
+                }
+            }
+
+            $docType = [];
+            if(isset($query->docType))
+            {
+                foreach($query->docType as $type)
+                {
+                    $docType[] = $type->id;
+                }
+            }
+
+            $publicationDate = '';
+            if($query->publicationDate)
+            {
+                $publicationDate = $query->publicationDate->format('d-m-Y'); 
+            }
+
+            $startDate = '';
+            if($query->startDate)
+            {
+                $startDate = $query->startDate->format('d-m-Y'); 
+            }
+
+            $submissionDate = '';
+            if($query->submissionDate)
+            {
+                $submissionDate = $query->submissionDate->format('d-m-Y'); 
+            }
+
+            $summary = '';
+            if(isset($query->summary))
+            {
+                $summary = $query->summary;
+            }
+
+            $objectives = '';
+            if(isset($query->objectives))
+            {
+                $objectives = $query->objectives;
+            }
+ 
+            $dataArray[] = [
+                'id' => $id,
+                'docNum' => $title,
+                'author' => $author,
+                'citation' => $citation,
+                'citationUrl' => $citationUrl,
+                'congress' => $congresses,
+                'journal' => $journals,
+                'status' => $status,
+                'title' => $title,
+                'type' => $docType,
+                'publicationDate' => $publicationDate,
+                'startDate' => $startDate,
+                'studies' => $studies,
+                'submissionDate' => $submissionDate,
+                'categories' => $categories,
+                'related' => $related,
+                'keyPublication' => $keyPub,
+                'summary' => $summary,
+                'objectives' => $objectives,
+                'tags' => $pubTags
+            ];
+        }
+        return $dataArray;
+    }
+
+    public function getAllJournals()
+    {
+        $dataArray = [];
+
+        // Get all journals
+        $queryAll = Triton::getInstance()->jscImportService->getAllEntriesUntouched('journals');
+
+        foreach($queryAll as $journal)
+        {
+            $dataArray[] = [
+                'id' => $journal->id,
+                'title' => $journal->title
+            ];
+        }
+
+        return $dataArray;
+    }
+
+    public function getAllCongresses()
+    {
+        $dataArray = [];
+
+        // Get all journals
+        $queryAll = Triton::getInstance()->jscImportService->getAllEntriesUntouched('congresses');       
+
+        foreach($queryAll as $journal)
+        {
+            $dueDate = '';
+            if($journal->abstractDueDate)
+            {
+                $dueDate = $journal->abstractDueDate->format('d-m-Y');
+            }
+
+            $fromDate = '';
+            if($journal->fromDate)
+            {
+                $fromDate = $journal->fromDate->format('d-m-Y');
+            }
+
+            $toDate = '';
+            if($journal->toDate)
+            {
+                $toDate = $journal->toDate->format('d-m-Y');
+            }
+
+            $dataArray[] = [
+                'id' => $journal->id,
+                'title' => $journal->title,
+                'acronym' => $journal->congressAcronym,
+                'dueDate' => $dueDate,
+                'fromDate' => $fromDate,
+                'toDate' => $toDate
+            ];
+        }
+
+        return $dataArray;
+    }
+
+    /*
+     *
+     */
+    public function getAllStudies()
+    {
+        $dataArray = [];
+
+        // Get all journals
+        $queryAll = Triton::getInstance()->jscImportService->getAllEntriesUntouched('studies');
+
+        foreach($queryAll as $studies)
+        {
+            $sacDate = '';
+            if($studies->sacDate)
+            {
+                $sacDate = $studies->sacDate->format('d-m-Y'); 
+            }
+            $dataArray[] = [
+                'id' => $studies->id,
+                'title' => $studies->title,
+                'sacDate' => $sacDate,
+                'studyTitle' => $studies->studyTitle
+            ];
+        }
+
+        return $dataArray;
     }
 }

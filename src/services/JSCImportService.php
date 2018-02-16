@@ -64,13 +64,22 @@ Class JSCImportService extends component
 
         // Change the keys to title for
         // easy searching!
-        $studyCleaned = [];
+        $dataCleaned = [];
         foreach($query as $craftData)
         {
             $dataCleaned[$craftData->title] = $craftData;
         }
 
         return $dataCleaned; 
+    }
+
+    public function getAllEntriesUntouched(string $sectionTitle)
+    {
+        $query = Entry::find()
+            ->section($sectionTitle)
+            ->all();
+
+        return $query;
     }
 
     /**

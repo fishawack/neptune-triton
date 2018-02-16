@@ -372,4 +372,27 @@ class JsonService extends Component
 
         return $dataArray;
     }
+
+    /*
+     *
+     */
+    public function getAllTags()
+    {
+        // Stop duplicates
+        $tags = [];
+        $dataArray = [];
+
+        // Get all journals
+        $queryAll = Triton::getInstance()->jscImportService->getAllCategoriesUntouched('publicationTags');
+
+        foreach($queryAll as $tag)
+        {
+            $dataArray[] = [
+                'id' => $tag->id,
+                'title' => $tag->title
+            ];
+        }
+
+        return $dataArray;
+    }
 }

@@ -109,44 +109,6 @@ class DefaultController extends Controller
     }
 
     /*
-     *
-     */
-    public function actionDynamic()
-    {
-        // Get all journals
-        $queryAll = Entry::find()
-            ->section('studies')
-            ->fields();        
-
-        return $this->asJson($queryAll);
-    }
-
-    /*
-     *  testing!
-     *  
-     * @return json
-     */
-    public function actionGetPubTitle()
-    {
-        $jsonArray = [];
-
-        // Get all journals
-        $queryAll = Entry::find()
-            ->section('publications')
-            ->type();        
-
-        foreach($queryAll as $journal)
-        {
-            $jsonArray[] = [
-                'id' => $journal->id,
-                'title' => $journal->title
-            ];
-        }
-
-        return $this->asJson($jsonArray);
-    }    
-
-    /*
      * Update our generated Json cache,
      * you can always use the live links
      * but the speed isn't instant.

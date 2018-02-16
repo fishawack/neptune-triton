@@ -21,6 +21,7 @@ use Craft;
 
 use yii\base\Component;
 use craft\elements\Entry;
+use craft\elements\Category;
 use craft\elements\db\EntryQuery;
 use craft\fields\Entries as BaseField;
 
@@ -77,6 +78,17 @@ Class JSCImportService extends component
     {
         $query = Entry::find()
             ->section($sectionTitle)
+            ->all();
+
+        return $query;
+    }
+
+    public function getAllCategoriesUntouched(string $categoryTitle)
+    {
+        // Find the correct group id
+        $group = Craft::$app->getCategories()->getGroupByHandle($categoryTitle);
+        $query = Category::find()
+            ->groupId($group->id)
             ->all();
 
         return $query;

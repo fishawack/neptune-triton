@@ -8,6 +8,8 @@
  * @copyright Copyright (c) 2018 GeeHim Siu
  *
  */
+ini_set('max_execution_time', 300);
+ini_set('memory_limit', '256M');
 
 namespace fishawack\triton\controllers;
 
@@ -25,7 +27,7 @@ use yii\web\UploadFailedException;
 use yii\web\UnsupportedMediaTypeHttpException;
 
 /**
- * Import Controller
+ * Impor Controller
  *
  * @author GeeHim Siu
  * @package Triton

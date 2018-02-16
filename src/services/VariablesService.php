@@ -74,6 +74,32 @@ Class VariablesService extends component
             'RA'
         ];
     }
+
+    public function getJsonLinks()
+    {
+        return [
+            'publications' => [
+                'url' => 'triton/publications', 
+                'path' => 'json/publication.json'
+            ],
+            'studies' => [
+                'url' => 'triton/studies',
+                'path' => 'json/studies.json'
+            ],
+            'journals' => [
+                'url' => 'triton/journals',
+                'path' => 'json/journals.json'
+            ],
+            'congresses' => [
+                'url' => 'triton/congresses',
+                'path' => 'json/congresses.json'
+            ],
+            'tags' => [
+                'url' => 'triton/tags',
+                'path' => 'json/tags.json'
+            ]
+        ];
+    }
 }
 
 

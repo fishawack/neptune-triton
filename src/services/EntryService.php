@@ -14,10 +14,6 @@ use craft\elements\Entry;
 use craft\fields\Entries as BaseField;
 
 ini_set('xdebug.var_display_max_depth', 1000);
-ini_set('xdebug.var_display_max_children', 256);
-ini_set('xdebug.var_display_max_data', 1024);
-ini_set('max_execution_time', 300);
-ini_set('memory_limit', '256M');
 
 /**
  *  Entry Controller

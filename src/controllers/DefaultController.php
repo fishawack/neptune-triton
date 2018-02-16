@@ -16,6 +16,9 @@ use Craft;
 use craft\web\Controller;
 use craft\elements\Entry;
 
+ini_set('max_execution_time', 300);
+ini_set('memory_limit', '256M');
+
 /**
  * Default Controller
  *
@@ -47,7 +50,7 @@ class DefaultController extends Controller
      *         The actions must be in 'kebab-case'
      * @access protected
      */
-    protected $allowAnonymous = ['index', 'do-something'];
+    protected $allowAnonymous = true;
 
     // Public Methods
     // =========================================================================
@@ -81,48 +84,124 @@ class DefaultController extends Controller
 
         foreach($queryAll as $query)
         {
-            $author = $query->author->firstName . " " . $query->author->lastName;
+            $id = '';
+
+            if(isset($query->id))
+            {
+                $id = $query->id;
+            }
+
+            $title = '';
+            if(isset($query->title))
+            {
+                $title = $query->title;
+            }
+
+            $citation = '';
+            if(isset($query->citation))
+            {
+                $citation = $query->citation;
+            }
+
+            $citationUrl = '';
+            if(isset($query->citationUrl))
+            {
+                $citationUrl = $query->citationUrl;
+            }
+
+            $status = '';
+            if(isset($query->documentStatus))
+            {   
+                $status = $query->documentStatus->value;
+            }
+
+            $docNum = '';
+            if(isset($query->title))
+            {
+                $docNum = $query->title;
+            }
+
+            $title = '';
+            if(isset($query->documentTitle))
+            {
+                $title = $query->documentTitle;
+            }
+
+            $keyPub = false;
+            if(isset($query->keyPublication))
+            {
+                $keyPub = $query->keyPublication;
+            }
+
+            $author = '';
+            if(isset($query->documentAuthor))
+            {
+                $author = $query->documentAuthor;
+            }
 
             $congresses = [];
-            foreach ($query->congress as $congress)
+            
+            if(isset($query->congress))
             {
-                $congresses[] = $congress->id;
+                foreach ($query->congress as $congress)
+                {
+                    $congresses[] = $congress->id;
+                }
             }
 
             $journals = [];
-            foreach($query->journal as $journal)
+
+            if(isset($query->journal))
             {
-                $journals[] = $journal->id;
+                foreach($query->journal as $journal)
+                {
+                    $journals[] = $journal->id;
+                }
             }
 
             $studies = [];
-            foreach($query->study as $study)
+            if(isset($query->study))
             {
-                $studies[] = $study->id;
+                foreach($query->study as $study)
+                {
+                    $studies[] = $study->id;
+                }
             }
 
             $categories = [];
-            foreach($query->category as $category)
+            if(isset($query->category))
             {
-                $categories[] = $category->id;
+                foreach($query->category as $category)
+                {
+                    $categories[] = $category->id;
+                }
             }
 
             $related = [];
-            foreach($query->relatedPubs as $relatedEntry)
+            if(isset($query->relatedPubs))
             {
-                $related[] = $relatedEntry>id;
+                foreach($query->relatedPubs as $relatedEntry)
+                {
+                    $related[] = $relatedEntry>id;
+                }
             }
 
             $pubTags = [];
-            foreach($query->publicationTags as $tags)
+            if(isset($query->publicationTags))
             {
-                $pubTags[] = $tags->id;
+                foreach($query->publicationTags as $tags)
+                {
+                    $pubTags[] = $tags->id;
+                }
             }
 
             $docType = [];
-            foreach($query->docType as $type)
+            if(isset($query->docType))
             {
-                $docType[] = $type->id;
+                foreach($query->docType as $type)
+                {
+                    $docType[] = $type->id;
+                }
             }
 
             $publicationDate = '';
@@ -144,40 +223,42 @@ class DefaultController extends Controller
             }
 
             $summary = '';
-            if($query->summary)
+            if(isset($query->summary))
             {
                 $summary = $query->summary;
             }
 
             $objectives = '';
-            if($query->objectives)
+            if(isset($query->objectives))
             {
                 $objectives = $query->objectives;
             }
  
             $jsonArray[] = [
-                'title' => $query->title,
+                'id' => $id,
+                'docNum' => $title,
                 'author' => $author,
-                'citation' => $query->citation,
-                'citationUrl' => $query->citationUrl,
-                'congresses' => $congresses,
-                'journals' => $journals,
-                'documentStatus' => $query->documentStatus->value,
-                'documentTitle' => $query->documentTitle,
-                'documentType' => $docType,
+                'citation' => $citation,
+                'citationUrl' => $citationUrl,
+                'congress' => $congresses,
+                'journal' => $journals,
+                'status' => $status,
+                'title' => $title,
+                'type' => $docType,
                 'publicationDate' => $publicationDate,
                 'startDate' => $startDate,
                 'studies' => $studies,
                 'submissionDate' => $submissionDate,
                 'categories' => $categories,
-                'relatedPublication' => $related,
-                'keyPublication' => $query->keyPublication,
+                'related' => $related,
+                'keyPublication' => $keyPub,
                 'summary' => $summary,
                 'objectives' => $objectives,
-                'publicationTags' => $pubTags
+                'tags' => $pubTags
             ];
         }
 
+        //return $this->asJson($queryAll);
         return $this->asJson($jsonArray);
     }
 
@@ -267,10 +348,15 @@ class DefaultController extends Controller
 
         foreach($queryAll as $studies)
         {
+            $sacDate = '';
+            if($studies->sacDate)
+            {
+                $sacDate = $studies->sacDate->format('d-m-Y'); 
+            }
             $jsonArray[] = [
-                'id' => $studies>id,
-                'title' => $studies>title,
-                'sacDate' => $studies->sacdate,
+                'id' => $studies->id,
+                'title' => $studies->title,
+                'sacDate' => $sacDate,
                 'studyTitle' => $studies->studyTitle
             ];
         }
@@ -315,4 +401,18 @@ class DefaultController extends Controller
 
         return $this->asJson($jsonArray);
     }    
+
+    /*
+     * Update our generated Json cache,
+     * you can always use the live links
+     * but the speed isn't instant
+     *
+     */
+    public function actionUpdateJsonCache()
+    {
+        $result = Triton::getInstance()->jsonService->updateAllJsonCache();
+        return $this->renderTemplate('triton/notifications', [
+           'results' => $results 
+        ]);
+    }
 }

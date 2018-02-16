@@ -78,6 +78,9 @@ class Triton extends Plugin
                 $event->rules['triton/congresses'] = 'triton/default/get-all-congresses';
                 $event->rules['triton/studies'] = 'triton/default/get-all-studies';
 
+                // Update Json Cache files
+                $event->rules['triton/updatejsonfiles'] = 'triton/default/update-json-cache';
+
                 $event->rules['triton/dynamic'] = 'triton/default/dynamic';
             }
         );
@@ -110,6 +113,7 @@ class Triton extends Plugin
             'entryChangeService' => services\EntryChangeService::class,
             'studiesService' => services\StudiesService::class,
             'jscImportService' => services\JSCImportService::class,
+            'jsonService' => services\JsonService::class,
             'variablesService' => services\VariablesService::class
         ]);
 

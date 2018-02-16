@@ -48,11 +48,7 @@
                     </div>
     </form>
 
-    <form action="/admin/triton/exportdb" enctype="mutlipart/form-data" method="POST">
-    <div style="width:25%; margin: 1.5em 0;">
-        <button style="padding:1em 0; width: 100%;">Export Database</button>
-    </div>
-    </form>
+    <button id="updatejson" style="padding:1em 0; width: 100%;">Update Json Cache</button>
 
     <p style="margin-bottom:1em; width:50%; text-align:justify;">
         <strong style="color:red;">Caution</strong><br>
@@ -63,5 +59,14 @@
         Make sure that each section has at least 1 entry - even if the entry only has a title!
         Our plugin needs a single entry to base the sections & types from.
     </p>
+    <script type="text/javascript">
+    var updateButton = document.querySelector('#updatejson');
+    
+    updateButton.addEventListener('click', runJsonUpdate());
 
+    function runJsonUpdate()
+    {   
+        
+    }
+    </script>
 {% endset %}

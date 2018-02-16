@@ -1,18 +1,16 @@
 <?php
 
 /**
- *  TODO
- *
- *  1MS, 2MS, RA starting titles are journals,
- *  everything else is congress
+ *  A simple class that will setup
+ *  and put our CSV values into a nice
+ *  array to be processed
+ *  
  */
 
 namespace fishawack\triton\services;
 
 use fishawack\triton\Triton;
-
 use Craft;
-
 use yii\base\Component;
 
 class CsvService extends Component

@@ -1,0 +1,49 @@
+{# @var craft \craft\web\twig\variables\CraftVariable #}
+{#
+/**
+ * Triton plugin for Craft CMS 3.x
+ *
+ * Triton notification.twig
+ *
+ * @author    GeeHim Siu
+ * @copyright Copyright (c) 2018 GeeHim Siu
+ * @link      www.fishawack.com
+ * @package   Triton
+ * @since     1.0.0
+ */
+#}
+
+{% extends "_layouts/cp" %}
+{% import "_includes/forms" as forms %}
+
+{# Link for the ? icon at the bottom of the page #}
+{% set docsUrl = "???" %}
+
+{# The title of this CP section #}
+{% set title = "Triton" %}
+
+{# The URL to this plugin's base CP section #}
+{% set pluginCpUrl = url('triton') %}
+
+{# Content that should appear in the page header#}
+{% set extraPageHeaderHtml %}
+    <div>
+        <!-- To do: dynamic success message -->
+        <h1>Import Successful!</h1>
+
+
+    </div>
+{% endset %}
+
+{# The content of the CP Section#}
+{% set content %}
+    {% if results.error is defined %}
+    <h1>Whoooops! Something bad has happened!</h1>
+    <p>{{ results.error }}</p>
+    {% else %}
+    <h1>Files Successfully Updated!</h1>
+    <p>
+    </p>
+{% endset %}
+
+

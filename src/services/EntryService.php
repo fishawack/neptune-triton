@@ -11,6 +11,7 @@ use Craft;
 
 use yii\base\Component;
 use craft\elements\Entry;
+use craft\elements\GlobalSet;
 use craft\fields\Entries as BaseField;
 
 ini_set('xdebug.var_display_max_depth', 1000);
@@ -43,6 +44,17 @@ class EntryService extends Component
      */
     public function importArrayToEntries(array $data)
     {
+        // Set the import date!
+        $DVDate = GlobalSet::find()
+            ->handle('datavisionExportDate')
+            ->one();
+
+        $DVDate->DVDate = date('Y-m-d H:i:s');
+
+        if(!Craft::$app->elements->saveElement($DVDate)) {
+            throw new \Exception("Saving failed: " . print_r($DVDate->getErrors(), true));
+        }
+
         $this->data = $data;
         // Set this last so that we get the
         // correct sectionId
@@ -167,7 +179,6 @@ class EntryService extends Component
         /**
          * Save Journal/Congress
          */
-
         unset($csvData['journal']);
         unset($csvData['congress']);
         unset($csvData['title']);

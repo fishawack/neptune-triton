@@ -102,7 +102,12 @@ class JsonService extends Component
 
         return true;
     }
-    
+
+    /*
+     *  Get all publication data
+     *
+     *  TODO refactor code to use variablesService
+     */
     public function getAllPublications()
     {
         $dataArray = [];
@@ -287,6 +292,11 @@ class JsonService extends Component
         return $dataArray;
     }
 
+    /*
+     *  Get all study data
+     *
+     *  TODO refactor code to use variablesService
+     */
     public function getAllJournals()
     {
         $dataArray = [];
@@ -305,6 +315,11 @@ class JsonService extends Component
         return $dataArray;
     }
 
+    /*
+     *  Get all congress data
+     *
+     *  TODO refactor code to use variablesService
+     */
     public function getAllCongresses()
     {
         $dataArray = [];
@@ -346,7 +361,9 @@ class JsonService extends Component
     }
 
     /*
+     *  Get all study data
      *
+     *  TODO refactor code to use variablesService
      */
     public function getAllStudies()
     {

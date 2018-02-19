@@ -18,7 +18,7 @@ To install the plugin, follow these instructions.
 
         cd /path/to/project
 
-2. Add this to craft's composer.json
+2. Add this to craft's composer.json (The ../ is dependant on how deep your craft is nested)
 
 ```
   "repositories": [

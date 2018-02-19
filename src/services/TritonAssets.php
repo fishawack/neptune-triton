@@ -19,9 +19,12 @@ use yii\base\Component;
 class TritonAssets extends Component
 {
     /*
+     * Save asset to folder
      *
+     * @param UploadedFile $file
+     * @param int $folderId
      */
-    public function saveAsset(UploadedFile $file, $folderId)
+    public function saveAsset(UploadedFile $file, int $folderId)
     {
         $assets = Craft::$app->getAssets();
 

@@ -74,10 +74,9 @@
         'http://localhost:8000/triton/updatejsonfiles?data=tags',
         'http://localhost:8000/triton/updatejsonfiles?data=publications'
     ];
-
-    current = 0;
    
     updateButton.addEventListener('click', function() {
+        current = 0;
         ajax(requestUrls[current]);
     });
 
@@ -95,10 +94,11 @@
                 notification(response.complete);
                 ++current;
 
-                if(current > requestUrls.length)
+                if(current >= requestUrls.length)
                 {
                     notification("All done!");
                 } else {
+                    console.log(current);
                     setTimeout(function(){
                        ajax(requestUrls[current]);
                     }, 1000);

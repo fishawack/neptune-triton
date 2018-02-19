@@ -36,7 +36,6 @@ Class VariablesService extends component
             'publicationDate',
             'study'    
         ];
-
     }
 
     public function getJournalHeaders()
@@ -66,6 +65,37 @@ Class VariablesService extends component
         ];
     }
 
+    public function getTagHeaders()
+    {
+        return [
+            'title'
+        ];
+    }
+
+    public function getGlobalHeaders()
+    {
+        return [
+            'DVDate'
+        ];
+    }
+
+    public function getDocTypeHeaders()
+    {
+        return [
+            'title'
+        ];
+    }
+
+    public function getCategoryHeaders()
+    {
+        return [
+            'title'
+        ];
+    }
+
+    // Array of search terms that needs to be
+    // matched. Matched variables will use
+    // journals instead of congresses
     public function journalPubs()
     {
         return [
@@ -98,6 +128,42 @@ Class VariablesService extends component
                 'url' => 'triton/tags',
                 'path' => 'json/tags.json'
             ]
+        ];
+    }
+
+    /*
+     *  Json formatting, the keys for our
+     *  json files differ to that of Craft
+     *
+     *  Place the structure of the json files
+     *  here
+     */
+
+    public function getPublicationJsonStruc()
+    {
+        return [
+            'id' => 'id',
+            'docNum' => 'title',
+            'author' => 'documentAuthor',
+            'citation' => 'citation',
+            'citationUrl' => 'citationUrl',
+            'congress' => 'congress',
+            'journal' => 'journal',
+            'status' => 'documentStatus',
+            'datavisionStatus' => 'dvStatus',
+            'title' => 'documentTitle',
+            'type' => 'documentType',
+            'publicationDate' => 'publicationDate',
+            'startDate' => 'startDate',
+            'studies' => 'study',
+            'submissionDate' => 'submissionDate',
+            'categories' => 'category',
+            'related' => 'relatedPubs',
+            'keyPublication' => 'keyPublication',
+            'summary' => 'summary',
+            'objectives' => 'objectives',
+            'tags' => 'publicationTags',
+            'lock' => 'lock'
         ];
     }
 }

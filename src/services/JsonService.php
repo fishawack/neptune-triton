@@ -108,7 +108,7 @@ class JsonService extends Component
      *
      *  TODO refactor code to use variablesService
      */
-    public function getAllPublications()
+    public function getAllPublicationsOld()
     {
         $dataArray = [];
 
@@ -116,11 +116,9 @@ class JsonService extends Component
 
         foreach($queryAll as $query)
         {
-            $id = '';
-
             if(isset($query->id))
             {
-                $id = $query->id;
+                $id = (int)$query->id;
             }
 
             $title = '';
@@ -146,6 +144,9 @@ class JsonService extends Component
             {   
                 $status = $query->documentStatus->value;
             }
+
+            $dvStatus = '';
+            // TODO
 
             $docNum = '';
             if(isset($query->title))
@@ -177,7 +178,7 @@ class JsonService extends Component
             {
                 foreach ($query->congress as $congress)
                 {
-                    $congresses[] = $congress->id;
+                    $congresses = (int)$congress->id;
                 }
             }
 
@@ -187,7 +188,7 @@ class JsonService extends Component
             {
                 foreach($query->journal as $journal)
                 {
-                    $journals[] = $journal->id;
+                    $journals = (int)$journal->id;
                 }
             }
 
@@ -196,7 +197,7 @@ class JsonService extends Component
             {
                 foreach($query->study as $study)
                 {
-                    $studies[] = $study->id;
+                    $studies[] = (int)$study->id;
                 }
             }
 
@@ -205,7 +206,7 @@ class JsonService extends Component
             {
                 foreach($query->category as $category)
                 {
-                    $categories[] = $category->id;
+                    $categories[] = (int)$category->id;
                 }
             }
 
@@ -214,7 +215,7 @@ class JsonService extends Component
             {
                 foreach($query->relatedPubs as $relatedEntry)
                 {
-                    $related[] = $relatedEntry>id;
+                    $related[] = (int)$relatedEntry->id;
                 }
             }
 
@@ -223,7 +224,7 @@ class JsonService extends Component
             {
                 foreach($query->publicationTags as $tags)
                 {
-                    $pubTags[] = $tags->id;
+                    $pubTags[] = (int)$tags->id;
                 }
             }
 
@@ -232,7 +233,7 @@ class JsonService extends Component
             {
                 foreach($query->docType as $type)
                 {
-                    $docType[] = $type->id;
+                    $docType = (int)$type->id;
                 }
             }
 
@@ -267,7 +268,7 @@ class JsonService extends Component
             }
  
             $dataArray[] = [
-                'id' => $id,
+                'id' => (int)$id,
                 'docNum' => $title,
                 'author' => $author,
                 'citation' => $citation,
@@ -275,6 +276,7 @@ class JsonService extends Component
                 'congress' => $congresses,
                 'journal' => $journals,
                 'status' => $status,
+                'datavisionStatus' => $dvStatus,
                 'title' => $title,
                 'type' => $docType,
                 'publicationDate' => $publicationDate,
@@ -292,6 +294,88 @@ class JsonService extends Component
         return $dataArray;
     }
 
+    /*
+     *  Refactored code for get all
+     *  publications
+     *
+     *  @param
+     */
+    public function getAllPublications()
+    {
+        $dataArray = [];
+
+        $queryAll = Triton::getInstance()->jscImportService->getAllEntriesUntouched('publications');
+
+        // Get our json structure
+        $jsonStructure = Triton::getInstance()->variablesService->getPublicationJsonStruc();
+
+        $dataArray = [];
+
+        foreach($queryAll as $query)
+        {
+            $structure = &$jsonStructure;
+
+            $entryId = (int)$query->id;
+
+            foreach($structure as $key => $value)
+            {
+                if(isset($query->$value))
+                {
+                    // We need to check for data needs to be 
+                    // filtered i.e Dates / booleans / arrays.
+                    // These need seperate preparation.
+                    if(is_a($query->$value, 'DateTime'))
+                    {
+                        $dataArray[$entryId][$key] = $query->$value->format('Y-m-d');
+                    } elseif(is_a($query->$value, 'craft\elements\db\EntryQuery') || is_a($query->$value, 'craft\elements\db\CategoryQuery')) {
+                        foreach($query->$value as $newVal)
+                        {
+                            $dataArray[$entryId][$key][] = (int)$newVal->id;
+                        }
+                    //} elseif(is_a($query->$value, 'craft\fields\data\SingleOptionFieldData') {
+                    //    $dataArray[$entryId][$key] = $query->$value;
+                    } else {
+                        if($query->$value !== null)
+                        {
+                            // Some craft object fields require you
+                            // to typecast to string before you get
+                            // the value
+                            $data = (string)$query->$value;
+
+                            // Check if the string has any characters,
+                            // if so they it's supposed to be a string else
+                            // we need to change it back to a integer for Mikes
+                            // front end build
+                            if(!preg_match("/[a-z]/i", $data) && strlen($data) >= 1)
+                            {
+                                $data = (int)$data;
+
+                                // Only fields that are
+                                // boolean will have the numbers
+                                // 1 & 0 so we need to transform
+                                // these back to bools
+                                switch($data)
+                                {
+                                    case 1:
+                                        $data = true;
+                                        break;
+                                    case 0:
+                                        $data = false;
+                                        break;
+                                }
+                            }
+
+                            $dataArray[$entryId][$key] = $data;
+                        }
+                    }
+                }
+            }
+        }
+
+
+        return $dataArray;
+    }
+    
     /*
      *  Get all study data
      *
@@ -411,5 +495,13 @@ class JsonService extends Component
         }
 
         return $dataArray;
+    }
+
+    /*
+     * Get all globals
+     */
+    public function getAllGlobals()
+    {
+        $headers = Triton::getInstance()->variablesService->getGlobalHeaders();
     }
 }

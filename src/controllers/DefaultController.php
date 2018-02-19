@@ -52,22 +52,6 @@ class DefaultController extends Controller
      */
     protected $allowAnonymous = true;
 
-    // Public Methods
-    // =========================================================================
-
-    /**
-     * Handle a request going to our plugin's index action URL,
-     * e.g.: actions/triton/default
-     *
-     * @return mixed
-     */
-    public function actionIndex()
-    {
-        $result = 'Welcome to the DefaultController actionIndex() method';
-
-        return $result;
-    }
-
     /**
      *  Grab all the publications from DB and lay the json
      *  data correctly
@@ -101,11 +85,33 @@ class DefaultController extends Controller
     }
 
     /*
+     * Get all studies
      *
+     * @return json
      */
     public function actionGetAllStudies()
     {
         return $this->asJson(Triton::getInstance()->jsonService->getAllCongresses());
+    }
+
+    /*
+     * Get all tags
+     * 
+     * @return json
+     */
+    public function actionGetAllTags()
+    {
+        return $this->asJson(Triton::getInstance()->jsonService->getAllTags());
+    }
+
+    /*
+     * Get all globals
+     *
+     * @return json
+     */
+    public function actionGetAllGlobals()
+    {
+        return $this->asJson(Triton::getInstance()->jsonService->getAllGlobals());
     }
 
     /*

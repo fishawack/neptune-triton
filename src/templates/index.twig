@@ -65,36 +65,44 @@
 
     <script type="text/javascript">
     var updateButton = document.querySelector('#updatejson');   
+
+    // AJAX Request URLs
+    var requestUrls = [
+        'http://localhost:8000/triton/updatejsonfiles?data=studies',
+        'http://localhost:8000/triton/updatejsonfiles?data=journals',
+        'http://localhost:8000/triton/updatejsonfiles?data=congresses',
+        'http://localhost:8000/triton/updatejsonfiles?data=tags',
+        'http://localhost:8000/triton/updatejsonfiles?data=publications'
+    ];
+
+    current = 0;
    
     updateButton.addEventListener('click', function() {
-        runJsonUpdate()
+        ajax(requestUrls[current]);
     });
 
-    function runJsonUpdate()
-    {   
-        // generate studies
-        ajax('http://localhost:8000/triton/updatejsonfiles?data=studies');
-        // generate journals
-        ajax('http://localhost:8000/triton/updatejsonfiles?data=journals');
-        // generate congresses
-        ajax('http://localhost:8000/triton/updatejsonfiles?data=congresses');
-        // generete tags
-        ajax('http://localhost:8000/triton/updatejsonfiles?data=tags');
-        // generate pubs
-        ajax('http://localhost:8000/triton/updatejsonfiles?data=publications');
-    }
-
-    function ajax(path)
+    function ajax(url)
     {
-        notification('Loading next file ...');
         var xobj = new XMLHttpRequest();
-        xobj.open('GET', path);
-        
+
+        xobj.open('GET', requestUrls[current], true);
+        notification('Loading next file ...');
+
         xobj.onreadystatechange = function () {
             if(xobj.readyState == 4 && xobj.status == "200")
             {
                 response = JSON.parse(xobj.responseText);
                 notification(response.complete);
+                ++current;
+
+                if(current > requestUrls.length)
+                {
+                    notification("All done!");
+                } else {
+                    setTimeout(function(){
+                       ajax(requestUrls[current]);
+                    }, 1000);
+                }
             }
         };
         xobj.send(null); 

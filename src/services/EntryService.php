@@ -49,10 +49,15 @@ class EntryService extends Component
             ->handle('datavisionExportDate')
             ->one();
 
-        $DVDate->DVDate = date('Y-m-d H:i:s');
+        // If we don't have the import date setup 
+        // then just skip this part
+        if($DVDate)
+        {
+            $DVDate->DVDate = date('Y-m-d H:i:s');
 
-        if(!Craft::$app->elements->saveElement($DVDate)) {
-            throw new \Exception("Saving failed: " . print_r($DVDate->getErrors(), true));
+            if(!Craft::$app->elements->saveElement($DVDate)) {
+                throw new \Exception("Saving failed: " . print_r($DVDate->getErrors(), true));
+            }
         }
 
         $this->data = $data;

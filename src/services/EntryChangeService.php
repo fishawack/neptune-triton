@@ -30,6 +30,11 @@ class EntryChangeService extends Component
         $this->document['Unchanged'][] = $title;
     }
 
+    public function addLocked($title)
+    {
+        $this->document['locked'][] = $title;
+    }
+
     public function addNewEntry($title)
     {
         $this->document['New'][] = $title;

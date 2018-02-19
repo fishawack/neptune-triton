@@ -8,9 +8,6 @@
  * @copyright Copyright (c) 2018 GeeHim Siu
  *
  */
-ini_set('max_execution_time', 300);
-ini_set('memory_limit', '256M');
-
 namespace fishawack\triton\controllers;
 
 use fishawack\triton\Triton;
@@ -26,6 +23,9 @@ use yii\web\BadRequestHttpException;
 use yii\web\UploadFailedException;
 use yii\web\UnsupportedMediaTypeHttpException;
 
+ini_set('max_execution_time', 300);
+ini_set('memory_limit', '256M');
+
 /**
  * Impor Controller
  *
@@ -40,6 +40,13 @@ class ImportController extends Controller
      */
     public function actionInitImport()
     {
+        // Script performation testing
+        //
+        // Method 1 = 192.3657
+        // Method 2 = 185.3
+        // Method 3 = 71.059
+        $scriptStart = microtime(true);
+
         // Set up variables
         // ================
         //
@@ -58,15 +65,7 @@ class ImportController extends Controller
             $uploadResult = Triton::getInstance()->tritonAssets->saveAsset($uploadedFile, $folderId);
             // Get our path to Asset
             $csvPath = Triton::getInstance()->tritonAssets->getAssetPath($uploadResult); 
-
             $csvType = Triton::getInstance()->csvService->checkCsvType($csvPath);
-
-            // Script performation testing
-            //
-            // Method 1 = 192.3657
-            // Method 2 = 185.3
-            // Method 3 = 71.059
-            $scriptStart = microtime(true);
 
             switch ($csvType)
             {
@@ -87,9 +86,7 @@ class ImportController extends Controller
                     $results = Triton::getInstance()->jscImportService->importArrayToEntries('congresses', $importData);
                     break;
             }
-
-            $performance = microtime(true) - $scriptStart;
-            
+                        
             if(!$results)
             {
                 $results['error'] = "The import was unsuccessful!";
@@ -97,6 +94,8 @@ class ImportController extends Controller
         } else {
             $results['error'] = "Please upload a file!";
         }
+
+        $performance = microtime(true) - $scriptStart;
 
         return $this->renderTemplate('triton/importchanges', [
             'results' => $results,

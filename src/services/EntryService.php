@@ -54,9 +54,15 @@ class EntryService extends Component
         // Check if there's any changes, if not add new entry
         foreach($data as $entry)
         {
-            if(isset($allPublications[$entry['title']]))
+            if(isset($allPublications[$entry['title']])) 
             {
-                $this->saveExisting($entry, $allPublications[$entry['title']]);
+                // Check if the record is locked
+                if($allPublications[$entry['title']]->lock === '1')
+                {
+                    Triton::getInstance()->entryChangeService->addLocked($entry['title']);
+                } else {
+                    $this->saveExisting($entry, $allPublications[$entry['title']]);
+                }
 
                 // delete from array so that we're
                 // left with publications that have been
@@ -64,7 +70,7 @@ class EntryService extends Component
                 unset($allPublications[$entry['title']]);
             } else {
                 $this->newEntry($entry);
-                Triton::getInstance()->entryChangeService->addNewEntry($entry['title'], $data);
+                Triton::getInstance()->entryChangeService->addNewEntry($entry['title']);
             }
         }
 
@@ -110,7 +116,6 @@ class EntryService extends Component
         return $publications;
     }
 
-
     /*
      * @param Entry 
      */
@@ -120,16 +125,6 @@ class EntryService extends Component
         {
             $this->publicationTitle[] = $pub->title; 
         }
-    }
-
-    /*
-     *  Get all entrie titles from publications
-     */
-    protected function getAllEntries($section)
-    {
-        $queryAll = Entry::find()
-        ->section($section)
-        ->all();
     }
 
     /*
@@ -171,9 +166,6 @@ class EntryService extends Component
 
         /**
          * Save Journal/Congress
-         *
-         * TODO
-         * Same theory applies to these fields as well.
          */
 
         unset($csvData['journal']);

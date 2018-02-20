@@ -58,7 +58,7 @@ class DefaultController extends Controller
      *
      * @return json
      */
-    public function actionGetAllPublications()
+    public function actionGetAllPublications($json = true)
     {
         $queryAll = Triton::getInstance()->jscImportService->getAllEntriesUntouched('publications');
 
@@ -66,8 +66,13 @@ class DefaultController extends Controller
         $jsonStructure = Triton::getInstance()->variablesService->getPublicationJsonStruc();
 
         $results = Triton::getInstance()->jsonService->getSectionDataFormatted($queryAll, $jsonStructure);
+        
+        if($json)
+        {
+            return $this->asJson($results);
+        }
 
-        return $this->asJson($results);
+        return $results;
     }
 
     /*
@@ -75,7 +80,7 @@ class DefaultController extends Controller
      *
      * @return json
      */
-    public function actionGetAllJournals()
+    public function actionGetAllJournals($json = true)
     {
         // Get all journals
         $queryAll = Triton::getInstance()->jscImportService->getAllEntriesUntouched('journals');
@@ -83,7 +88,12 @@ class DefaultController extends Controller
 
         $results = Triton::getInstance()->jsonService->getSectionDataFormatted($queryAll, $jsonStructure);
 
-        return $this->asJson($results);
+        if($json)
+        {
+            return $this->asJson($results);
+        }
+
+        return $results;
     }
 
     /*
@@ -91,14 +101,19 @@ class DefaultController extends Controller
      *
      *  @return json
      */
-    public function actionGetAllCongresses()
+    public function actionGetAllCongresses($json = true)
     {
         $queryAll = Triton::getInstance()->jscImportService->getAllEntriesUntouched('congresses');
         $jsonStructure = Triton::getInstance()->variablesService->getCongressJsonStruc();
 
         $results = Triton::getInstance()->jsonService->getSectionDataFormatted($queryAll, $jsonStructure);
 
-        return $this->asJson($results);
+        if($json)
+        {
+            return $this->asJson($results);
+        }
+
+        return $results;
     }
 
     /*
@@ -106,7 +121,7 @@ class DefaultController extends Controller
      *
      * @return json
      */
-    public function actionGetAllStudies()
+    public function actionGetAllStudies($json = true)
     {
         // Get all studies
         $queryAll = Triton::getInstance()->jscImportService->getAllEntriesUntouched('studies');
@@ -114,7 +129,12 @@ class DefaultController extends Controller
         $jsonStructure = Triton::getInstance()->variablesService->getStudiesJsonStruc();
         $results = Triton::getInstance()->jsonService->getSectionDataFormatted($queryAll, $jsonStructure);
 
-        return $this->asJson($results);
+        if($json)
+        {
+            return $this->asJson($results);
+        }
+
+        return $results;
     }
 
     /*
@@ -122,14 +142,19 @@ class DefaultController extends Controller
      * 
      * @return json
      */
-    public function actionGetAllTags()
+    public function actionGetAllTags($json = true)
     {
         // Get all Tags
         $queryAll = Triton::getInstance()->jscImportService->getAllCategoriesUntouched('publicationTags');
         $jsonStructure = Triton::getInstance()->variablesService->getTagsJsonStruc();
         $results = Triton::getInstance()->jsonService->getSectionDataFormatted($queryAll, $jsonStructure);
 
-        return $this->asJson($results);
+        if($json)
+        {
+            return $this->asJson($results);
+        }
+
+        return $results;
     }
 
     /*
@@ -137,7 +162,7 @@ class DefaultController extends Controller
      *
      * @return json
      */
-    public function actionGetAllGlobals()
+    public function actionGetAllGlobals($json = true)
     {
         // Add more globals as the application grows,
         // current we only have the Datavision import
@@ -150,7 +175,12 @@ class DefaultController extends Controller
 
         $results = Triton::getInstance()->jsonService->getSectionDataFormatted($queryDVDate, $jsonStructure, true);
         
-        return $this->asJson($results);
+        if($json)
+        {
+            return $this->asJson($results);
+        }
+
+        return $results;
     }
 
     /*
@@ -158,7 +188,7 @@ class DefaultController extends Controller
      *
      * @return json
      */
-    public function actionGetAllDoctypes()
+    public function actionGetAllDoctypes($json = true)
     {
         $queryAll = Triton::getInstance()->queryService->queryAllCategories('DocumentType');
 
@@ -166,7 +196,12 @@ class DefaultController extends Controller
 
         $results = Triton::getInstance()->jsonService->getSectionDataFormatted($queryAll, $jsonStructure, false, true);
         
-        return $this->asJson($results);
+        if($json)
+        {
+            return $this->asJson($results);
+        }
+
+        return $results;
     }
 
     /*
@@ -174,7 +209,7 @@ class DefaultController extends Controller
      *
      * @return json
      */
-    public function actionGetAllCategories()
+    public function actionGetAllCategories($json = true)
     {
         $queryAll = Triton::getInstance()->queryService->queryAllCategories('keyAreasOfKnowledge');
 
@@ -182,7 +217,12 @@ class DefaultController extends Controller
 
         $results = Triton::getInstance()->jsonService->getSectionDataFormatted($queryAll, $jsonStructure, false, true);
         
-        return $this->asJson($results);
+        if($json)
+        {
+            return $this->asJson($results);
+        }
+
+        return $results;
     }
 
     /*
@@ -199,7 +239,15 @@ class DefaultController extends Controller
     public function actionUpdateJsonCache()
     {
         $data = $_REQUEST['data'];
-        $result = Triton::getInstance()->jsonService->updateJsonFile($data);
+
+        // Get the function corresponding to
+        // the data being requested
+        $dataFunctionName = Triton::getInstance()->jsonService->findFunctionForData($data);
+
+        // Set json to false for the arrays
+        // to be brought back
+        $function = $this->$dataFunctionName(false);
+        $result = Triton::getInstance()->jsonService->updateJsonFile($function, $data);
         return $this->asJson($result);
     }
 }

@@ -17,7 +17,7 @@ ini_set("allow_url_fopen", 1);
 
 class JsonService extends Component
 {
-    public function updateJsonFile($section)
+    public function updateJsonFile($data, $section)
     {
         // Get SiteUrl
         $siteInfo = new UrlHelper;
@@ -35,35 +35,35 @@ class JsonService extends Component
 
         $fileData = $allVarJson[$section];
 
-        $data = '';
-        switch($section)
-        {
-            case 'publications':
-                $data = $this->getAllPublications();
-                break;
-            case 'studies':
-                $data = $this->getAllStudies();
-                break;
-            case 'journals':
-                $data = $this->getAllJournals();
-                break;
-            case 'congresses':
-                $data = $this->getAllCongresses();
-                break;
-            case 'tags':
-                $data = $this->getAllTags();
-                break;
-        }
+        $jsonData = json_encode($data);
 
-        $data = json_encode($data);
-
-        if(!$this->writeJsonFile($data, $fileData['path']))
+        if(!$this->writeJsonFile($jsonData, $fileData['path']))
         {   
             $result['error'] = "Something went wrong!";    
         }
 
         $result['complete'] = "'".$section."' cache has been successfully updated";
         return $result;
+    }
+
+    /**
+     *  Find what function corresponds to the data
+     *  i.e. $data = publications, we need to get our
+     *  variable list and pull up the functions that are 
+     *  available
+     *
+     *  @param string $data
+     */
+    public function findFunctionForData(string $data)
+    {
+        $functions = Triton::getInstance()->variablesService->getJsonCacheFunctionsStruc();
+
+        if(!isset($functions[$data]))
+        {
+            return false;
+        }
+
+        return $functions[$data];
     }
 
     /*

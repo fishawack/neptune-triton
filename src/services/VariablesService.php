@@ -124,6 +124,18 @@ Class VariablesService extends component
                 'url' => 'triton/congresses',
                 'path' => 'json/congresses.json'
             ],
+            'categories' => [
+                'url' => 'triton/categories',
+                'path' => 'json/categories.json'
+            ],            
+            'globals' => [
+                'url' => 'triton/globals',
+                'path' => 'json/globals'
+            ],
+            'doctypes' => [
+                'url' => 'triton/doctypes',
+                'path' => 'json/doctypes'
+            ],            
             'tags' => [
                 'url' => 'triton/tags',
                 'path' => 'json/tags.json'
@@ -219,6 +231,23 @@ Class VariablesService extends component
             'title' => 'title'
         ];
     }    
+
+    /*
+     * Json Function matching for update
+     * json cache
+     */
+    public function getJsonCacheFunctionsStruc()
+    {
+        return [
+            'publication' => 'actionGetAllPublications',
+            'studies' => 'actionGetAllStudies',
+            'journals' => 'actionGetAllJournals',
+            'congresses' => 'actionGetAllCongresses',
+            'globals' => 'actionGetAllGlobals',
+            'doctypes' => 'actionGetAllDoctypes',
+            'tags' => 'actionGetAllTags'
+        ];
+    }
 }
 
 

@@ -36,43 +36,24 @@ Class JSCImportService extends component
 
     public function __construct()
     {
-        $this->JSCObjects = $this->getAllJSC($this->sectionTitle);
+        $getEntries = Triton::getInstance()->queryService->queryAllEntries($this->sectionTitle);
+        $this->sectionId = $getEntries[0]->sectionId;
+        $this->entryType = $getEntries[0]->type;
+        $this->authorId = $currentUser = Craft::$app->getUser()->getIdentity()->id;
+
+        $this->JSCObjects = Triton::getInstance()->queryService->swapKeys($getEntries);
     }
 
     public function setJSCObjects(string $sectionTitle)
     {
-        $this->JSCObjects = $this->getAllJSC($sectionTitle);        
-    }
-
-    /*
-     * Get all the studies from Craft
-     */
-    public function getAllJSC(string $sectionTitle)
-    {        
-        $query = Entry::find()
-            ->section($sectionTitle)
-            ->all();
-
-        // We just need 1 entry as a base to
-        // grab the information we need.
-        //
-        // To save anything, craft depends on this
-        // so if you're saving in Entries, makes
-        // sure the getJSCList is initiated first
-        $this->sectionId = $query[0]->sectionId;
-        $this->entryType = $query[0]->type;
+        $getEntries = Triton::getInstance()->queryService->queryAllEntries($this->sectionTitle);
+        $this->sectionId = $getEntries[0]->sectionId;
+        $this->entryType = $getEntries[0]->type;
         $this->authorId = $currentUser = Craft::$app->getUser()->getIdentity()->id;
 
-        // Change the keys to title for
-        // easy searching!
-        $dataCleaned = [];
-        foreach($query as $craftData)
-        {
-            $dataCleaned[$craftData->title] = $craftData;
-        }
-
-        return $dataCleaned; 
+        $this->JSCObjects = Triton::getInstance()->queryService->swapKeys($getEntries);     
     }
+
 
     public function getAllEntriesUntouched(string $sectionTitle)
     {
@@ -102,7 +83,6 @@ Class JSCImportService extends component
     public function getJSCField(Entry $craftEntry, string $handle)
     {
         $fields = $craftEntry->getFieldLayout()->getFields();
-        //$fields = $craftEntry->getFieldByHandle($handle);
         $studyField = 0;
         foreach($fields as $field)
         {   
@@ -179,29 +159,29 @@ Class JSCImportService extends component
     {
         if(empty($list))
         {
-            $list = $this->JSCObjects;
+            $list = Triton::getInstance()->queryService->queryAllEntries($sectionTitle);
         }
-        
-        // Need to get section details
-        $section = Entry::find()
-            ->section($sectionTitle)
-            ->one();
 
+        // Need to get section details
+        $section = Triton::getInstance()->queryService->queryOneEntry($sectionTitle);
+
+        // Set new section id
         $this->sectionId = $section->sectionId;
         $this->typeId = $section->type->id;
 
-        // Set new section id
         $jscField = $this->getJSCField($craftEntry, $handle);
     
         $entryIds = [];
         foreach($jscData as $entry)
         {
+            // Find if there's already an existing record
             $find = Entry::find()->section($sectionTitle)->title($entry)->one();
 
             if(!empty($jscData))
             {
                 if($find)
                 {
+                    // Add the found record as a relation
                     $entryIds[] = $find->id;
                 } else {
                     // Save a the study as a new entry,

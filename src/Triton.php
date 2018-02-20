@@ -77,6 +77,10 @@ class Triton extends Plugin
                 $event->rules['triton/journals'] = 'triton/default/get-all-journals';
                 $event->rules['triton/congresses'] = 'triton/default/get-all-congresses';
                 $event->rules['triton/studies'] = 'triton/default/get-all-studies';
+                $event->rules['triton/tags'] = 'triton/default/get-all-tags';
+                $event->rules['triton/categories'] = 'triton/default/get-all-categories';
+                $event->rules['triton/globals'] = 'triton/default/get-all-globals';
+                $event->rules['triton/doctypes'] = 'triton/default/get-all-doctypes';
 
                 // Update Json Cache files
                 $event->rules['triton/updatejsonfiles'] = 'triton/default/update-json-cache';
@@ -114,7 +118,8 @@ class Triton extends Plugin
             'studiesService' => services\StudiesService::class,
             'jscImportService' => services\JSCImportService::class,
             'jsonService' => services\JsonService::class,
-            'variablesService' => services\VariablesService::class
+            'variablesService' => services\VariablesService::class,
+            'queryService' => services\QueryService::class
         ]);
 
 /**

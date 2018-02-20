@@ -138,7 +138,6 @@ Class VariablesService extends component
      *  Place the structure of the json files
      *  here
      */
-
     public function getPublicationJsonStruc()
     {
         return [
@@ -166,6 +165,60 @@ Class VariablesService extends component
             'lock' => 'lock'
         ];
     }
+
+    public function getCongressJsonStruc()
+    {
+        return [
+            'id' => 'id',
+            'title' => 'title',
+            'acronym' => 'congressAcronym',
+            'due' => 'dueDate',
+            'from' => 'fromDate',
+            'to' => 'toDate'
+        ];
+    }
+
+    public function getStudiesJsonStruc()
+    {
+        return [
+            'id' => 'id',
+            'studyNumber' => 'title',
+            'title' => 'studyTitle',
+            'sacDate' => 'sacDate'
+        ];
+    }
+
+    public function getTagsJsonStruc()
+    {
+        return [
+            'id' => 'id',
+            'title' => 'title'
+        ];
+    }
+
+    public function getGlobalsJsonStruc()
+    {
+        return [
+            'updatedDate' => 'DVDate'
+        ];
+    }      
+
+    public function getCategoryJsonStruc()
+    {
+        return [
+            'id' => 'id',
+            'title' => 'title',
+            'children' => 'children'
+        ];
+    }
+
+    public function getDocTypeJsonStruc()
+    {
+        return [
+            'id' => 'id',
+            'title' => 'title'
+        ];
+    }    
 }
 
 

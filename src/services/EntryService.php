@@ -41,6 +41,8 @@ class EntryService extends Component
      *  The array will finish with a list a titles that
      *  need to be deleted (or disabled), so do that 
      *  as well :)
+     *
+     *  @param array $data
      */
     public function importArrayToEntries(array $data)
     {
@@ -61,9 +63,21 @@ class EntryService extends Component
         }
 
         $this->data = $data;
+
         // Set this last so that we get the
         // correct sectionId
         $allPublications = $this->getAllEntries('publications');
+
+        // Set sectionId, entryTypeId, authorId
+        // grab the information we need, to do so we need
+        // to get a random record from our publications
+        $currentUser = Craft::$app->getUser()->getIdentity();
+        $key = key($allPublications);
+        $entryExample = $allPublications[$key];
+        
+        $this->sectionId = $entryExample->sectionId;
+        $this->entryType = $entryExample->type;
+        $this->authorId = $currentUser->id; 
 
         // Get all publications
         $this->setupPublicationTitles($allPublications);

@@ -60,8 +60,14 @@ class DefaultController extends Controller
      */
     public function actionGetAllPublications()
     {
-        //return $this->asJson($queryAll);
-        return $this->asJson(Triton::getInstance()->jsonService->getAllPublications());
+        $queryAll = Triton::getInstance()->jscImportService->getAllEntriesUntouched('publications');
+
+        // Get our json structure
+        $jsonStructure = Triton::getInstance()->variablesService->getPublicationJsonStruc();
+
+        $results = Triton::getInstance()->jsonService->getSectionDataFormatted($queryAll, $jsonStructure);
+
+        return $this->asJson($results);
     }
 
     /*
@@ -71,7 +77,13 @@ class DefaultController extends Controller
      */
     public function actionGetAllJournals()
     {
-        return $this->asJson(Triton::getInstance()->jsonService->getAllJournals());
+        // Get all journals
+        $queryAll = Triton::getInstance()->jscImportService->getAllEntriesUntouched('journals');
+        $jsonStructure = Triton::getInstance()->variablesService->getJournalsJsonStruc();
+
+        $results = Triton::getInstance()->jsonService->getSectionDataFormatted($queryAll, $jsonStructure);
+
+        return $this->asJson($results);
     }
 
     /*
@@ -81,7 +93,12 @@ class DefaultController extends Controller
      */
     public function actionGetAllCongresses()
     {
-        return $this->asJson(Triton::getInstance()->jsonService->getAllCongresses());
+        $queryAll = Triton::getInstance()->jscImportService->getAllEntriesUntouched('congresses');
+        $jsonStructure = Triton::getInstance()->variablesService->getCongressJsonStruc();
+
+        $results = Triton::getInstance()->jsonService->getSectionDataFormatted($queryAll, $jsonStructure);
+
+        return $this->asJson($results);
     }
 
     /*
@@ -91,7 +108,13 @@ class DefaultController extends Controller
      */
     public function actionGetAllStudies()
     {
-        return $this->asJson(Triton::getInstance()->jsonService->getAllCongresses());
+        // Get all studies
+        $queryAll = Triton::getInstance()->jscImportService->getAllEntriesUntouched('studies');
+
+        $jsonStructure = Triton::getInstance()->variablesService->getStudiesJsonStruc();
+        $results = Triton::getInstance()->jsonService->getSectionDataFormatted($queryAll, $jsonStructure);
+
+        return $this->asJson($results);
     }
 
     /*
@@ -101,7 +124,12 @@ class DefaultController extends Controller
      */
     public function actionGetAllTags()
     {
-        return $this->asJson(Triton::getInstance()->jsonService->getAllTags());
+        // Get all Tags
+        $queryAll = Triton::getInstance()->jscImportService->getAllCategoriesUntouched('publicationTags');
+        $jsonStructure = Triton::getInstance()->variablesService->getTagsJsonStruc();
+        $results = Triton::getInstance()->jsonService->getSectionDataFormatted($queryAll, $jsonStructure);
+
+        return $this->asJson($results);
     }
 
     /*
@@ -111,7 +139,50 @@ class DefaultController extends Controller
      */
     public function actionGetAllGlobals()
     {
-        return $this->asJson(Triton::getInstance()->jsonService->getAllGlobals());
+        // Add more globals as the application grows,
+        // current we only have the Datavision import
+        // date.
+        //
+        // Wrap our result in an array and set single
+        // to true
+        $queryDVDate = array(Triton::getInstance()->queryService->queryOneGlobalSet('datavisionExportDate'));
+        $jsonStructure = Triton::getInstance()->variablesService->getGlobalsJsonStruc();
+
+        $results = Triton::getInstance()->jsonService->getSectionDataFormatted($queryDVDate, $jsonStructure, true);
+        
+        return $this->asJson($results);
+    }
+
+    /*
+     * Get all globals
+     *
+     * @return json
+     */
+    public function actionGetAllDoctypes()
+    {
+        $queryAll = Triton::getInstance()->queryService->queryAllCategories('DocumentType');
+
+        $jsonStructure = Triton::getInstance()->variablesService->getCategoryJsonStruc();
+
+        $results = Triton::getInstance()->jsonService->getSectionDataFormatted($queryAll, $jsonStructure, false, true);
+        
+        return $this->asJson($results);
+    }
+
+    /*
+     * Get all globals
+     *
+     * @return json
+     */
+    public function actionGetAllCategories()
+    {
+        $queryAll = Triton::getInstance()->queryService->queryAllCategories('keyAreasOfKnowledge');
+
+        $jsonStructure = Triton::getInstance()->variablesService->getCategoryJsonStruc();
+
+        $results = Triton::getInstance()->jsonService->getSectionDataFormatted($queryAll, $jsonStructure, false, true);
+        
+        return $this->asJson($results);
     }
 
     /*

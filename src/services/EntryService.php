@@ -47,9 +47,7 @@ class EntryService extends Component
     public function importArrayToEntries(array $data)
     {
         // Set the import date!
-        $DVDate = GlobalSet::find()
-            ->handle('datavisionExportDate')
-            ->one();
+        $DVDate = Triton::getInstance()->queryService->queryOneGlobalSet('datavisionExportDate');
 
         // If we don't have the import date setup 
         // then just skip this part
@@ -66,7 +64,8 @@ class EntryService extends Component
 
         // Set this last so that we get the
         // correct sectionId
-        $allPublications = $this->getAllEntries('publications');
+        $allPublications = Triton::getInstance()->queryService->queryAllEntries('publications');
+        $allPublications = Triton::getInstance()->queryService->swapKeys($allPublications);
 
         // Set sectionId, entryTypeId, authorId
         // grab the information we need, to do so we need
@@ -332,9 +331,7 @@ class EntryService extends Component
 
         if($savedEntry = Craft::$app->elements->saveElement($entry)) {
             // Save Relationship with our other sections
-            $getEntry = Entry::find()
-                ->section('publications')
-                ->one();
+            $getEntry = Triton::getInstance()->queryService->queryOneEntry('publications');
 
             Triton::getInstance()->jscImportService->saveJSCRelation('studies', 'study', $relations['studies'], $getEntry, $this->studies);
 

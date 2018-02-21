@@ -152,7 +152,21 @@ class JsonService extends Component
 
             foreach($structure as $key => $value)
             {
-                if(isset($entry->$value))
+                if(is_array($value))
+                {
+                    foreach($value as $newValue)
+                    {
+                        // Get out function as a string
+                        $customFunction = $newValue['function'];
+
+                        // Setup our variable
+                        $craftName = $newValue['craftName'];
+                        $jsonName = $newValue['jsonName'];
+                        $craftHandle = $entry->$craftName;
+                        $result = Triton::getInstance()->jsonCustomService->$customFunction($craftHandle);
+                        $dataArray[$entryId][$jsonName] = $result;
+                    }
+                } elseif(isset($entry->$value))
                 {
                     // Check that the option is a dropdown or single
                     // option as craft calls it, also check to make sure

@@ -160,7 +160,7 @@ Class VariablesService extends component
             'citationUrl' => 'citationUrl',
             'congress' => 'congress',
             'journal' => 'journal',
-            'status' => 'documentStatus',
+            'statusDatavision' => 'documentStatus',
             'datavisionStatus' => 'dvStatus',
             'title' => 'documentTitle',
             'type' => 'documentType',
@@ -174,7 +174,29 @@ Class VariablesService extends component
             'summary' => 'summary',
             'objectives' => 'objectives',
             'tags' => 'publicationTags',
-            'lock' => 'lock'
+            'lock' => 'lock',
+            'custom' => [
+                'status' => [
+                    'function' => 'getCustomDocumentStatus',    
+                    'craftName' => 'documentStatus',
+                    'jsonName' => 'status'
+                ]
+            ]
+        ];
+    }
+
+    /*
+     *  Use this method to generate
+     *  any arrays needed for retrieving
+     *  data
+     *
+     */
+    public function getPubCustomVars()
+    {
+        return [
+            'Completed',
+            'Presented',
+            'Published'
         ];
     }
 

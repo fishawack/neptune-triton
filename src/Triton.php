@@ -118,6 +118,7 @@ class Triton extends Plugin
             'studiesService' => services\StudiesService::class,
             'jscImportService' => services\JSCImportService::class,
             'jsonService' => services\JsonService::class,
+            'jsonCustomService' => services\JsonCustomService::class,
             'variablesService' => services\VariablesService::class,
             'queryService' => services\QueryService::class
         ]);

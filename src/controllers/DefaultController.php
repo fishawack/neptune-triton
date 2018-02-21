@@ -244,9 +244,16 @@ class DefaultController extends Controller
         // the data being requested
         $dataFunctionName = Triton::getInstance()->jsonService->findFunctionForData($data);
 
+        if(!$dataFunctionName)
+        {
+            $result['error'] = "No section with this function!";
+            return $this->asJson($result);
+        }
+
         // Set json to false for the arrays
         // to be brought back
         $function = $this->$dataFunctionName(false);
+
         $result = Triton::getInstance()->jsonService->updateJsonFile($function, $data);
         return $this->asJson($result);
     }

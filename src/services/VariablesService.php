@@ -130,11 +130,11 @@ Class VariablesService extends component
             ],            
             'globals' => [
                 'url' => 'triton/globals',
-                'path' => 'json/globals'
+                'path' => 'json/globals.json'
             ],
             'doctypes' => [
                 'url' => 'triton/doctypes',
-                'path' => 'json/doctypes'
+                'path' => 'json/doctypes.json'
             ],            
             'tags' => [
                 'url' => 'triton/tags',
@@ -200,6 +200,14 @@ Class VariablesService extends component
         ];
     }
 
+    public function getJournalsJsonStruc()
+    {
+        return [
+            'id' => 'id',
+            'title' => 'title',
+        ];
+    }
+
     public function getTagsJsonStruc()
     {
         return [
@@ -243,6 +251,7 @@ Class VariablesService extends component
             'studies' => 'actionGetAllStudies',
             'journals' => 'actionGetAllJournals',
             'congresses' => 'actionGetAllCongresses',
+            'categories' => 'actionGetAllCategories',
             'globals' => 'actionGetAllGlobals',
             'doctypes' => 'actionGetAllDoctypes',
             'tags' => 'actionGetAllTags'

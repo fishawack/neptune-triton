@@ -35,7 +35,20 @@ class JsonService extends Component
 
         $fileData = $allVarJson[$section];
 
-        $jsonData = json_encode(array_values($data));
+        // TODO
+        // Look into implementing something here instead
+        // of just patching, only globals is an object(JS)
+        // everything else is an array
+        if($section === 'globals')
+        {
+            foreach($data as $jsObject)
+            {
+                $newData = $jsObject;
+            }
+            $jsonData = json_encode($newData);
+        } else {
+            $jsonData = json_encode(array_values($data));
+        }
 
         if(!$this->writeJsonFile($jsonData, $fileData['path']))
         {   

@@ -220,21 +220,7 @@ class JsonService extends Component
                             // front end build
                             if(!preg_match("/[a-z]/i", $data) && strlen($data) >= 1)
                             {
-                                $data = (int)$data;
-
-                                // Only fields that are
-                                // boolean will have the numbers
-                                // 1 & 0 so we need to transform
-                                // these back to bools
-                                switch($data)
-                                {
-                                    case 1:
-                                        $data = true;
-                                        break;
-                                    case 0:
-                                        $data = false;
-                                        break;
-                                }
+                                $data = (bool)$data;
                             }
                             if($single == false)
                             {

@@ -130,11 +130,11 @@ Class VariablesService extends component
             ],            
             'globals' => [
                 'url' => 'triton/globals',
-                'path' => 'json/globals.json'
+                'path' => 'json/global.json'
             ],
             'doctypes' => [
                 'url' => 'triton/doctypes',
-                'path' => 'json/doctypes.json'
+                'path' => 'json/doc-types.json'
             ],            
             'tags' => [
                 'url' => 'triton/tags',

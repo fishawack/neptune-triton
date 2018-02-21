@@ -173,11 +173,11 @@ class DefaultController extends Controller
         $queryDVDate = array(Triton::getInstance()->queryService->queryOneGlobalSet('datavisionExportDate'));
         $jsonStructure = Triton::getInstance()->variablesService->getGlobalsJsonStruc();
 
-        $results = Triton::getInstance()->jsonService->getSectionDataFormatted($queryDVDate, $jsonStructure, true);
+        $results = Triton::getInstance()->jsonService->getSectionDataFormatted($queryDVDate, $jsonStructure);
         
         if($json)
         {
-            return $this->asJson(array_values($results));
+            return $this->asJson($results);
         }
 
         return $results;

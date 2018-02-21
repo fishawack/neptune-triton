@@ -67,9 +67,7 @@ class Triton extends Plugin
     {
         parent::init();
         self::$plugin = $this;
-
-        Craft::$app->getResponse()->getHeaders()->set('Access-Control-Allow-Origin', '*');
-
+        
         // Register our site routes
         Event::on(
             UrlManager::class,

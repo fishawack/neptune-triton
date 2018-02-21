@@ -60,6 +60,7 @@ class DefaultController extends Controller
      */
     public function actionGetAllPublications($json = true)
     {
+        Craft::$app->getResponse()->getHeaders()->set('Access-Control-Allow-Origin', '*');
         $queryAll = Triton::getInstance()->jscImportService->getAllEntriesUntouched('publications');
 
         // Get our json structure

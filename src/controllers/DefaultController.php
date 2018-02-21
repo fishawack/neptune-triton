@@ -69,7 +69,7 @@ class DefaultController extends Controller
         
         if($json)
         {
-            return $this->asJson($results);
+            return $this->asJson(array_values($results));
         }
 
         return $results;
@@ -90,7 +90,7 @@ class DefaultController extends Controller
 
         if($json)
         {
-            return $this->asJson($results);
+            return $this->asJson(array_values($results));
         }
 
         return $results;
@@ -131,7 +131,7 @@ class DefaultController extends Controller
 
         if($json)
         {
-            return $this->asJson($results);
+            return $this->asJson(array_values($results));
         }
 
         return $results;
@@ -151,7 +151,7 @@ class DefaultController extends Controller
 
         if($json)
         {
-            return $this->asJson($results);
+            return $this->asJson(array_values($results));
         }
 
         return $results;
@@ -177,7 +177,7 @@ class DefaultController extends Controller
         
         if($json)
         {
-            return $this->asJson($results);
+            return $this->asJson(array_values($results));
         }
 
         return $results;
@@ -198,7 +198,7 @@ class DefaultController extends Controller
         
         if($json)
         {
-            return $this->asJson($results);
+            return $this->asJson(array_values($results));
         }
 
         return $results;
@@ -219,7 +219,7 @@ class DefaultController extends Controller
         
         if($json)
         {
-            return $this->asJson($results);
+            return $this->asJson(array_values($results));
         }
 
         return $results;

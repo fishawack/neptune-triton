@@ -35,7 +35,7 @@ class JsonService extends Component
 
         $fileData = $allVarJson[$section];
 
-        $jsonData = json_encode($data);
+        $jsonData = json_encode(array_values($data));
 
         if(!$this->writeJsonFile($jsonData, $fileData['path']))
         {   

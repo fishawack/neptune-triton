@@ -251,7 +251,9 @@ class DefaultController extends Controller
         }
 
         // Set json to false for the arrays
-        // to be brought back
+        // to be brought back. The dataFunctionName
+        // corresponds to the variables file which
+        // has a list of the methods in this file
         $function = $this->$dataFunctionName(false);
 
         $result = Triton::getInstance()->jsonService->updateJsonFile($function, $data);

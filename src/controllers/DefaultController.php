@@ -190,7 +190,7 @@ class DefaultController extends Controller
      */
     public function actionGetAllDoctypes($json = true)
     {
-        $queryAll = Triton::getInstance()->queryService->queryAllCategories('DocumentType');
+        $queryAll = Triton::getInstance()->queryService->queryCategoriesByTitle('DocumentType');
 
         $jsonStructure = Triton::getInstance()->variablesService->getCategoryJsonStruc();
 
@@ -211,7 +211,7 @@ class DefaultController extends Controller
      */
     public function actionGetAllCategories($json = true)
     {
-        $queryAll = Triton::getInstance()->queryService->queryAllCategories('keyAreasOfKnowledge');
+        $queryAll = Triton::getInstance()->queryService->queryCategoriesByTitle('keyAreasOfKnowledge');
 
         $jsonStructure = Triton::getInstance()->variablesService->getCategoryJsonStruc();
 

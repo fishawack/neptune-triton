@@ -66,7 +66,17 @@ class QueryService extends Component
     /*
      * @param string $sectionHandle
      */
-    public function queryAllCategories(string $categoryTitle)
+    public function queryAllCategories()
+    {
+        $query = Category::find()
+            ->all();
+
+        $results = $this->swapKeys($query);
+
+        return $results;
+    }
+
+    public function queryCategoriesByTitle(string $categoryTitle)
     {
         // Find the correct group id
         $group = Craft::$app->getCategories()->getGroupByHandle($categoryTitle);
@@ -74,6 +84,36 @@ class QueryService extends Component
             ->groupId($group->id)
             ->all();
 
+        return $query;
+    }
+
+    /*
+     * @param string $sectionHandle
+     */
+    public function queryOneCategory(string $categoryTitle)
+    {
+        var_dump($categoryTitle);
+        // Find the correct group id
+        $group = Craft::$app->getCategories()->getGroupByHandle($categoryTitle);
+        var_dump($group);die();
+        $query = Category::find()
+            ->groupId($group->id)
+            ->one();
+
+        return $query;
+    }
+
+    /*
+     *
+     * @param string $entryTitle
+     */
+    public function queryFindEntryCategory($category, string $entryTitle)
+    {
+        $query = Category::find()
+            ->search($entryTitle)
+            ->one();
+
+        var_dump($query);
         return $query;
     }
 

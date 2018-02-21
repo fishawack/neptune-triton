@@ -122,7 +122,11 @@ class JsonService extends Component
      * Setting single to true will put the
      * array data out of an array, this is only 
      * used when you have a single item in the 
-     * $craftEntries array
+     * $craftEntries array.
+     *
+     * This function will take our craft entry and
+     * the variable json structure set in 
+     * variablesService to create the json file needed
      *
      * @param array $craftEntries
      * @param array $jsonStructure
@@ -131,6 +135,13 @@ class JsonService extends Component
      */
     public function getSectionDataFormatted(array $craftEntries, array $jsonStructure, $single = false, $children = false)
     {
+        // Get list of all categories
+        // ==========================
+        //
+        // Fields can also be assigned to categories,
+        // we'll use this list to check out variables
+        // and also to keep a record of all the ids
+        $categories = Triton::getInstance()->queryService->queryAllCategories();
         $dataArray = [];
 
         foreach($craftEntries as $entry)
@@ -143,10 +154,18 @@ class JsonService extends Component
             {
                 if(isset($entry->$value))
                 {
-                    // We need to check for data needs to be // filtered i.e Dates / booleans / arrays.
-                    // These need seperate preparation.
-                    if(is_a($entry->$value, 'DateTime'))
+                    // Check that the option is a dropdown or single
+                    // option as craft calls it, also check to make sure
+                    // that it's attached to category
+                    if(is_a($entry->$value, 'craft\fields\data\SingleOptionFieldData') && isset($categories[(string)$entry->$value]))
                     {
+                        $data = $categories[(string)$entry->$value]->id;
+
+                        $dataArray[$entryId][$key] = (int)$data;
+
+                    } elseif(is_a($entry->$value, 'DateTime')) {
+                        // We need to check for data needs to be // filtered i.e Dates / booleans / arrays.
+                        // These need seperate preparation.
                         if($single == false)
                         {
                             $dataArray[$entryId][$key] = $entry->$value->format('Y-m-d');

@@ -77,13 +77,16 @@
         '/triton/updatejsonfiles?data=categories',
         '/triton/updatejsonfiles?data=publications'
     ];
+
+    var current = 0;
    
     updateButton.addEventListener('click', function() {
-        current = 0;
-        ajax(requestUrls[current]);
+        ajax(requestUrls[current], function(){
+        	notification("All done!");
+        });    
     });
 
-    function ajax(url)
+    function ajax(url, cb)
     {
         var xobj = new XMLHttpRequest();
 
@@ -91,20 +94,18 @@
         notification('Loading next file ...');
 
         xobj.onreadystatechange = function () {
-            if(xobj.readyState == 4 && xobj.status == "200")
+            if(xobj.readyState === 4 && xobj.status === 200)
             {
-                response = JSON.parse(xobj.responseText);
-                notification(response.complete);
+                var response = JSON.parse(xobj.responseText);
+                notification("Loaded " + requestUrls[current]);
                 ++current;
 
-                if(current >= requestUrls.length)
-                {
-                    notification("All done!");
-                } else {
-                    console.log(current);
+                if(current < requestUrls.length) {
                     setTimeout(function(){
-                       ajax(requestUrls[current]);
+						ajax(requestUrls[current], cb);
                     }, 1000);
+                } else {
+                	cb();
                 }
             }
         };
@@ -112,7 +113,8 @@
     }
 
     function notification(data, error = false)
-    {      
+    {   
+        console.log(data);
         var notification = document.querySelector('#notification');
         notification.innerHTML = '<p>'+data+'</p>';
     }

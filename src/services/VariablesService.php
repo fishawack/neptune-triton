@@ -110,7 +110,7 @@ Class VariablesService extends component
         return [
             'publications' => [
                 'url' => 'triton/publications', 
-                'path' => 'json/publication.json'
+                'path' => 'json/publications.json'
             ],
             'studies' => [
                 'url' => 'triton/studies',
@@ -247,7 +247,7 @@ Class VariablesService extends component
     public function getJsonCacheFunctionsStruc()
     {
         return [
-            'publication' => 'actionGetAllPublications',
+            'publications' => 'actionGetAllPublications',
             'studies' => 'actionGetAllStudies',
             'journals' => 'actionGetAllJournals',
             'congresses' => 'actionGetAllCongresses',

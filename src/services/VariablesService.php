@@ -170,6 +170,7 @@ Class VariablesService extends component
             'submissionDate' => 'submissionDate',
             'categories' => 'category',
             'related' => 'relatedPubs',
+            'enabled' => 'enabled',
             'keyPublication' => 'keyPublication',
             'summary' => 'summary',
             'objectives' => 'objectives',

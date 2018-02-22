@@ -45,7 +45,7 @@ class JsonCustomService extends Component
     {
         // if Publish status, we don't need the 
         // submission date
-        if($array['status'] === 'Published')
+        if(isset($array['status']) && $array['status'] === 'Published')
         {
             unset($array['submissionDate']);
             unset($array['statusDatavision']);

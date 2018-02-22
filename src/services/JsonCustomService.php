@@ -35,4 +35,21 @@ class JsonCustomService extends Component
         }
         return "Published";
     }
+
+    /**
+     * Use this to filter/minipulate your arrays,
+     * maybe we can make this file more dyanmic per
+     * install
+     */
+    public function filterArray(array $array)
+    {
+        // if Publish status, we don't need the 
+        // submission date
+        if($array['status'] === 'Published')
+        {
+            unset($array['submissionDate']);
+            unset($array['statusDatavision']);
+        }
+        return $array;
+    }
 }

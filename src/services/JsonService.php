@@ -250,6 +250,9 @@ class JsonService extends Component
                     }
                 }
             }
+            // Do some custom filtering via our
+            // custom method
+            $dataArray[$entryId] = Triton::getInstance()->jsonCustomService->filterArray($dataArray[$entryId]);
         }
 
         return $dataArray;

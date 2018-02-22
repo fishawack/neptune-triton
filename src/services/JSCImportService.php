@@ -119,6 +119,7 @@ Class JSCImportService extends component
         foreach($jscEntries as $entry)
         {
             $find = Entry::find()->title($entry['title'])->one();
+
             if($find)
             {
                 $this->saveExisting($sectionTitle, $entry, $this->JSCObjects[$entry['title']]);

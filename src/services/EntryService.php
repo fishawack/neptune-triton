@@ -192,7 +192,6 @@ class EntryService extends Component
          * it has been saved or not, it'll always return null
          */
 
-        /*
         $saveStudy = Triton::getInstance()->jscImportService->saveJSCRelation('studies', 'study', $csvData['study'], $craftData, $this->studies);
 
         if(isset($csvData['journal']) && strlen($csvData['journal']) > 0)
@@ -204,7 +203,6 @@ class EntryService extends Component
         {
             Triton::getInstance()->jscImportService->saveJSCRelation('congresses', 'congress', (array)$csvData['congress'], $craftData, $this->congresses);
         }
-         */
 
         unset($csvData['study']);
 
@@ -257,21 +255,8 @@ class EntryService extends Component
                     // Grab the id needed for our category type
                     $category = Triton::getInstance()->queryService->queryCategoryById($categoryGroupId);
 
-                    /*foreach($category as $value)
-                    {
-                        if((string)$value->title == (string)$csvData[$data])
-                        {
-                            $categoryValueId = $value;
-                            die($value);
-
-                            // Change the CSV value to reflect our findings
-                            $csvData[$data] = $categoryValueId;
-
-                        }
-                    }*/
                     Triton::getInstance()->jscImportService->saveCategoryRelation($data, (array)$csvData['docType'], $craftData);
                     $changed++;
-                    Triton::getInstance()->entryChangeService->addChanged($craftData->title, $data);
                 }
             } else {
                 if((string)$csvData[$data] !== (string)$craftData->$data)

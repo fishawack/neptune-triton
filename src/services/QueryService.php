@@ -80,8 +80,22 @@ class QueryService extends Component
     {
         // Find the correct group id
         $group = Craft::$app->getCategories()->getGroupByHandle($categoryTitle);
+        if(!$group)
+        {
+            return false;
+        }
         $query = Category::find()
             ->groupId($group->id)
+            ->all();
+
+        return $query;
+    }
+
+    public function queryCategoryById(int $categoryId)
+    {
+        // Find the correct group id
+        $query = Category::find()
+            ->groupId($categoryId)
             ->all();
 
         return $query;
@@ -92,10 +106,8 @@ class QueryService extends Component
      */
     public function queryOneCategory(string $categoryTitle)
     {
-        var_dump($categoryTitle);
         // Find the correct group id
         $group = Craft::$app->getCategories()->getGroupByHandle($categoryTitle);
-        var_dump($group);die();
         $query = Category::find()
             ->groupId($group->id)
             ->one();

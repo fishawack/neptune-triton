@@ -108,9 +108,20 @@ class EntryService extends Component
         // need to delete(disable) these records
         if(count($allPublications) > 0)
         {
-            foreach($allPublications as $deletedEntry)
+            foreach($allPublications as $remainingEntries)
             {
-                $this->deleteEntry($deletedEntry);
+                // change lock to boolean
+                $lock = (bool)$remainingEntries->lock;
+                if(!$remainingEntries->lock)
+                {
+                    // Some records are entered in
+                    // manually therefore we need
+                    // to check to make sure these
+                    // aren't locked before deleting
+                    $this->deleteEntry($remainingEntries);
+                } else {
+                    Triton::getInstance()->entryChangeService->addLocked($remainingEntries['title']);
+                }
             }
         }
 
@@ -180,6 +191,8 @@ class EntryService extends Component
          * Annoyingly saveRelation doesn't tell you if
          * it has been saved or not, it'll always return null
          */
+
+        /*
         $saveStudy = Triton::getInstance()->jscImportService->saveJSCRelation('studies', 'study', $csvData['study'], $craftData, $this->studies);
 
         if(isset($csvData['journal']) && strlen($csvData['journal']) > 0)
@@ -191,6 +204,7 @@ class EntryService extends Component
         {
             Triton::getInstance()->jscImportService->saveJSCRelation('congresses', 'congress', (array)$csvData['congress'], $craftData, $this->congresses);
         }
+         */
 
         unset($csvData['study']);
 
@@ -228,6 +242,34 @@ class EntryService extends Component
                 // change CraftEntry datetime for comparison
                 if($csvDate !== $craftTime)
                 {
+                    $changed++;
+                    Triton::getInstance()->entryChangeService->addChanged($craftData->title, $data);
+                }
+            } elseif(is_a($craftData->$data, 'craft\elements\db\CategoryQuery')) {
+                /* 
+                 * if our item is a Craft Category object 
+                 * then we need to sort it in a different way
+                 */
+                if((string)$craftData->$data->title !== (string)$csvData[$data])
+                {
+                    // Get Category group
+                    $categoryGroupId = $craftData->$data->groupId;
+                    // Grab the id needed for our category type
+                    $category = Triton::getInstance()->queryService->queryCategoryById($categoryGroupId);
+
+                    /*foreach($category as $value)
+                    {
+                        if((string)$value->title == (string)$csvData[$data])
+                        {
+                            $categoryValueId = $value;
+                            die($value);
+
+                            // Change the CSV value to reflect our findings
+                            $csvData[$data] = $categoryValueId;
+
+                        }
+                    }*/
+                    Triton::getInstance()->jscImportService->saveCategoryRelation($data, (array)$csvData['docType'], $craftData);
                     $changed++;
                     Triton::getInstance()->entryChangeService->addChanged($craftData->title, $data);
                 }
@@ -327,7 +369,6 @@ class EntryService extends Component
         unset($csvData['study']);
 
         $entry->setFieldValues($csvData);
-
 
         if($savedEntry = Craft::$app->elements->saveElement($entry)) {
             // Save Relationship with our other sections

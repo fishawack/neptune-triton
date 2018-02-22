@@ -17,6 +17,10 @@ ini_set("allow_url_fopen", 1);
 
 class JsonService extends Component
 {
+    /*
+     * @param array $data
+     * @param string $section
+     */
     public function updateJsonFile($data, $section)
     {
         // Get SiteUrl

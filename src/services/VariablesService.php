@@ -31,6 +31,7 @@ Class VariablesService extends component
             'submissionDate',
             'documentAuthor',
             'documentType',
+            'docType',
             'citation',
             'citationUrl',
             'publicationDate',
@@ -90,6 +91,18 @@ Class VariablesService extends component
     {
         return [
             'title'
+        ];
+    }
+
+    // CSV Import, ignored document types
+    public function acceptedDocTypes()
+    {
+        return [
+            'Abstract',
+            'HVT Abstract',
+            'Primary Manuscript',
+            'Secondary Manuscript',
+            'Review Article'
         ];
     }
 

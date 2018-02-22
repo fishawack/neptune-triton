@@ -161,14 +161,19 @@ Class JSCImportService extends component
         {
             $list = Triton::getInstance()->queryService->queryAllEntries($sectionTitle);
         }
-
+            
         // Need to get section details
         $section = Triton::getInstance()->queryService->queryOneEntry($sectionTitle);
 
         // Set new section id
+        // ------------------
+        //
+        // We need to set the section to whatever
+        // our relation is. i.e. journals, if not
+        // we will be saving our entries into publications
         $this->sectionId = $section->sectionId;
         $this->typeId = $section->type->id;
-
+                
         $jscField = $this->getJSCField($craftEntry, $handle);
     
         $entryIds = [];
@@ -200,6 +205,30 @@ Class JSCImportService extends component
 
         $saveRelation = Craft::$app->relations->saveRelations($jscField, $craftEntry, $entryIds);
         return $saveRelation;
+    }
+
+    /**
+     *
+     *
+     */
+    public function saveCategoryRelation(string $handle, array $jscData, Entry &$craftEntry)
+    {
+        $jscField = $this->getJSCField($craftEntry, $handle);
+
+        $categoryIds = [];
+
+        $getCategory = Triton::getInstance()->queryService->queryCategoryById($craftEntry->$handle->groupId);
+        // Swap Keys for easy searchign
+        $categoryList = Triton::getInstance()->queryService->swapKeys($getCategory);
+
+        foreach($jscData as $data)
+        {
+            if($categoryList[$data])
+            {
+                $categoryIds[] = $categoryList[$data]->id;
+            }
+        }
+        $saveRelation = Craft::$app->relations->saveRelations($jscField, $craftEntry, $categoryIds);
     }
 
     /**

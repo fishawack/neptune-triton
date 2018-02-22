@@ -40,6 +40,12 @@ class CsvService extends Component
      * Read file into memory and turn into
      * an array
      *
+     * TODO 
+     * 1.Change this is so that variables are read
+     * from our variablesService
+     * 2. Integrate hooking feature so that we can
+     * inject code to minipulate variables
+     *
      * @param string $filePath
      */
     public function publicationCsvToArray(string $filePath)
@@ -61,6 +67,22 @@ class CsvService extends Component
 
             // $expandCsv[0] is the title
             $expandCsv =  explode('`', $result);
+
+            /*
+             *  Benlysta specific
+             *
+             *  Check if the Document status
+             *  is accepted via our variables 
+             *  service
+             */
+            $acceptedValues = Triton::getInstance()->variablesService->acceptedDocTypes();
+
+            $docType = trim(mb_convert_encoding($expandCsv[7], "UTF-8"));
+
+            if(!in_array($docType, $acceptedValues))
+            {
+                continue;
+            }
 
             $startDate = null;
             if(strlen($expandCsv[3]) > 0)
@@ -86,13 +108,31 @@ class CsvService extends Component
             $data[$expandCsv[0]]['title'] = $title;
             $data[$expandCsv[0]]['documentTitle'] = trim(mb_convert_encoding($expandCsv[1], "UTF-8"));
             $data[$expandCsv[0]]['documentStatus'] = trim(mb_convert_encoding($expandCsv[2], "UTF-8"));
+            //
             $data[$expandCsv[0]]['startDate'] = $startDate;
             $data[$expandCsv[0]]['submissionDate'] = $submissionDate;
             $data[$expandCsv[0]]['documentAuthor'] = trim(mb_convert_encoding($expandCsv[5], "UTF-8"));
             $data[$expandCsv[0]]['documentType'] = trim(mb_convert_encoding($expandCsv[7], "UTF-8"));
+            $data[$expandCsv[0]]['docType'] = trim(mb_convert_encoding($expandCsv[7], "UTF-8"));
             $data[$expandCsv[0]]['citation'] = trim(mb_convert_encoding($expandCsv[8], "UTF-8"));
             $data[$expandCsv[0]]['citationUrl'] = trim(mb_convert_encoding($expandCsv[9], "UTF-8"));
             $data[$expandCsv[0]]['publicationDate'] = $publicationDate;
+
+            /*
+             * Benlysta specific implementation,
+             * this should also be in here for later 
+             * since no one knows what a HVT Abstract is
+             *
+             * TODO
+             * Further down the line maybe we should 
+             * implement some event system to inject code
+             * from a service
+             */
+            if($data[$expandCsv[0]]['documentType'] == 'HVT Abstract')
+            {
+                $data[$expandCsv[0]]['documentType'] = 'Abstract';
+                $data[$expandCsv[0]]['docType'] = 'Abstract';
+            }
 
             // Check if we need Journal or Congress
             if($this->strposa($title, Triton::getInstance()->variablesService->journalPubs()))

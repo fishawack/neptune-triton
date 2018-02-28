@@ -45,6 +45,11 @@ class EntryChangeService extends Component
         $this->document['Deleted'][] = $title;
     }
 
+    public function addIgnoredEntry($title)
+    {
+        $this->document['Ignored'][] = $title;
+    }
+
     public function getStatus()
     {
         return $this->document;

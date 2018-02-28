@@ -84,6 +84,7 @@ class Triton extends Plugin
 
                 // Update Json Cache files
                 $event->rules['triton/updatejsonfiles'] = 'triton/default/update-json-cache';
+                $event->rules['triton/updatelocked'] = 'triton/default/update-locked';
 
                 $event->rules['triton/dynamic'] = 'triton/default/dynamic';
             }

@@ -5,6 +5,7 @@
  *  and put our CSV values into a nice
  *  array to be processed
  *  
+ *  1MS, 2MS, RA use journals
  */
 
 namespace fishawack\triton\services;

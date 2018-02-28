@@ -64,7 +64,7 @@ class EntryService extends Component
 
         // Set this last so that we get the
         // correct sectionId
-        $allPublications = Triton::getInstance()->queryService->queryAllEntries('publications');
+        $allPublications = Triton::getInstance()->queryService->queryAllEntries('publications', null);
         $allPublications = Triton::getInstance()->queryService->swapKeys($allPublications);
 
         // Set sectionId, entryTypeId, authorId
@@ -81,26 +81,46 @@ class EntryService extends Component
         // Get all publications
         $this->setupPublicationTitles($allPublications);
 
+        // Get list of items to disregard
+        $disregards = Triton::getInstance()->variablesService->getDisregards();
+
         // Check if there's any changes, if not add new entry
         foreach($data as $entry)
         {
-            if(isset($allPublications[$entry['title']])) 
+            $bypass = false;
+            // TODO 
+            // Make this part more elegant, we cannot
+            // continue adding random conditional
+            // events 
+            foreach($disregards as $ignore)
             {
-                // Check if the record is locked
-                if($allPublications[$entry['title']]->lock === '1')
+                if(isset($entry[$ignore['handle']]) && in_array($entry[$ignore['handle']], $ignore['ignore']))
                 {
-                    Triton::getInstance()->entryChangeService->addLocked($entry['title']);
-                } else {
-                    $this->saveExisting($entry, $allPublications[$entry['title']]);
+                    $bypass = true;
+                    Triton::getInstance()->entryChangeService->addIgnoredEntry($entry['title']);
                 }
+            }
 
-                // delete from array so that we're
-                // left with publications that have been
-                // deleted.
-                unset($allPublications[$entry['title']]);
-            } else {
-                $this->newEntry($entry);
-                Triton::getInstance()->entryChangeService->addNewEntry($entry['title']);
+            if(!$bypass)
+            {
+                if(isset($allPublications[$entry['title']])) 
+                {
+                    // Check if the record is locked
+                    if(isset($allPublications[$entry['title']]->lock) && $allPublications[$entry['title']]->lock === '1')
+                    {
+                        Triton::getInstance()->entryChangeService->addLocked($entry['title']);
+                    } else {
+                        $this->saveExisting($entry, $allPublications[$entry['title']]);
+                    }
+
+                    // delete from array so that we're
+                    // left with publications that have been
+                    // deleted.
+                    unset($allPublications[$entry['title']]);
+                } else {
+                    $this->newEntry($entry);
+                    Triton::getInstance()->entryChangeService->addNewEntry($entry['title']);
+                }
             }
         }
 
@@ -152,7 +172,11 @@ class EntryService extends Component
 
         foreach($queryPublications as $publication)
         {
+            // Make sure titles are trimeed!
+            $publication->title = trim($publication->title);
+
             $publications[$publication->title] = $publication;
+
         }
         return $publications;
     }

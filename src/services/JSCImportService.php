@@ -122,6 +122,7 @@ Class JSCImportService extends component
 
             if($find)
             {
+                $find->title = trim($find->title);
                 $this->saveExisting($sectionTitle, $entry, $this->JSCObjects[$entry['title']]);
             } else {
                 $this->saveNewJSC($entry['title'], $entry, true);

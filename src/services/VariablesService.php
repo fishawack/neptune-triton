@@ -118,6 +118,20 @@ Class VariablesService extends component
         ];
     }
 
+    //  What entries we need to disregard
+    //  via status
+    public function getDisregards()
+    {
+        $list[] = [
+            'handle' => 'documentStatus',
+            'ignore' => [
+                'Canceled',
+                'Rejected'
+            ]
+        ];
+        return $list;
+    }
+
     public function getJsonLinks()
     {
         return [

@@ -259,4 +259,33 @@ class DefaultController extends Controller
         $result = Triton::getInstance()->jsonService->updateJsonFile($function, $data);
         return $this->asJson($result);
     }
+
+    /*
+     *  Lock all disabled entries
+     */
+    public function actionUpdateLocked()
+    {
+        $entries = Triton::getInstance()->queryService->queryAllEntries('publications', 'disabled');
+        $savedEntries = '';
+        foreach ($entries as $entry)
+        {
+            if(isset($entry->lock) && $entry->lock == '0')
+            {
+                $entry->lock = '1';
+            }
+
+            // Save entry
+            if(Craft::$app->elements->saveElement($entry)) {
+                $savedEntries[] = [
+                   'title' => $entry->title,
+                   'status' => $entry->status,
+                   'lock' => $entry->lock
+                ];
+            } else {
+                throw new \Exception("Saving failed: " . print_r($craftData>getErrors(), true));
+            }
+        }
+
+        return $this->asJson($savedEntries);
+    }
 }

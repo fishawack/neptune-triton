@@ -40,11 +40,17 @@ class QueryService extends Component
     /*
      * @param string $sectionHandle
      */
-    public function queryAllEntries(string $sectionHandle)
+    public function queryAllEntries(string $sectionHandle, $status = "live")
     {
         $entries = Entry::find()
             ->section($sectionHandle)
+            ->status($status)
             ->all();
+
+        for($i = 0; $i < count($entries); $i++)
+        {
+            $entries[$i]->title = trim($entries[$i]);
+        }
 
         return $entries;
     }

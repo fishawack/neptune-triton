@@ -81,6 +81,7 @@ class Triton extends Plugin
                 $event->rules['triton/categories'] = 'triton/default/get-all-categories';
                 $event->rules['triton/globals'] = 'triton/default/get-all-globals';
                 $event->rules['triton/doctypes'] = 'triton/default/get-all-doctypes';
+                $event->rules['triton/exportcsv'] = 'triton/default/export-csv';
 
                 // Update Json Cache files
                 $event->rules['triton/updatejsonfiles'] = 'triton/default/update-json-cache';
@@ -114,6 +115,7 @@ class Triton extends Plugin
         $this->setComponents([
             'tritonAssets' => services\TritonAssets::class,
             'csvService' => services\CsvService::class,
+            'csvExportService' => services\CsvExportService::class,
             'entryService' => services\EntryService::class,
             'entryChangeService' => services\EntryChangeService::class,
             'studiesService' => services\StudiesService::class,

@@ -261,6 +261,16 @@ class DefaultController extends Controller
     }
 
     /*
+     *  Export all entries as CSV
+     */
+    public function actionExportCsv()
+    {
+        $entries = Triton::getInstance()->csvExportService->exportCsv();
+        die(var_dump($entries));
+        return $this->asJson($entries);
+    }
+
+    /*
      *  Lock all disabled entries
      */
     public function actionUpdateLocked()
@@ -282,7 +292,7 @@ class DefaultController extends Controller
                    'lock' => $entry->lock
                 ];
             } else {
-                throw new \Exception("Saving failed: " . print_r($craftData>getErrors(), true));
+                throw new \Exception("Saving failed: " . print_r($craftData->getErrors(), true));
             }
         }
 

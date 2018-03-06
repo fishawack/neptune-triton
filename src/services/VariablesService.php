@@ -39,6 +39,30 @@ Class VariablesService extends component
         ];
     }
 
+    // Headers for CSV
+    public function getPublicationExportCsvHeaders()
+    {
+        return [
+            'title',
+            'documentTitle',
+            'documentStatus',
+            'startDate',
+            'submissionDate',
+            'documentAuthor',
+            'documentType',
+            'docType',
+            'citation',
+            'citationUrl',
+            'publicationDate',
+            'study',
+            'category',
+            'relatedPubs',
+            'summary',
+            'objectives',
+            'publicationTags'
+            
+        ];
+    }
     public function getJournalHeaders()
     {
         return [
@@ -166,6 +190,10 @@ Class VariablesService extends component
             'tags' => [
                 'url' => 'triton/tags',
                 'path' => 'json/tags.json'
+            ],
+            'exportcsv' => [
+                'url' => 'triton/csvexport',
+                'path' => 'csvexport/publication.csv'
             ]
         ];
     }

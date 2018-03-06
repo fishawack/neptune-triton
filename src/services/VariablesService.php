@@ -43,23 +43,24 @@ Class VariablesService extends component
     public function getPublicationExportCsvHeaders()
     {
         return [
-            'title',
-            'documentTitle',
-            'documentStatus',
-            'startDate',
-            'submissionDate',
-            'documentAuthor',
-            'documentType',
-            'docType',
-            'citation',
-            'citationUrl',
-            'publicationDate',
-            'study',
-            'category',
-            'relatedPubs',
-            'summary',
-            'objectives',
-            'publicationTags'
+            'Title',
+            'Document Title',
+            'Document Status',
+            'Start Date',
+            'Submission Date',
+            'Document Author',
+            'Document Type',
+            'Doc Type',
+            'Citation',
+            'Citation Url',
+            'Publication Dates',
+            'Study',
+            'Category',
+            'Related Pubs',
+            'Summary',
+            'Objectives',
+            'Publication Tags',
+            'Enabled'
             
         ];
     }

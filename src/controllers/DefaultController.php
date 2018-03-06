@@ -265,9 +265,13 @@ class DefaultController extends Controller
      */
     public function actionExportCsv()
     {
+        $filename = 'publication.csv';
         $entries = Triton::getInstance()->csvExportService->exportCsv();
-        die(var_dump($entries));
-        return $this->asJson($entries);
+        Triton::getInstance()->csvExportService->getDownloadHeaders($filename);
+        $fileLocation = Triton::getInstance()->variablesService->getJsonLinks();
+
+        readfile($fileLocation['exportcsv']['path']);
+        exit;
     }
 
     /*

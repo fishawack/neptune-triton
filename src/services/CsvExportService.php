@@ -153,6 +153,16 @@ class CsvExportService extends Component
             } else {
                 $data[$pub->id]['publicationTags'] = '';
             }
+
+            if($pub->enabled == '1')
+            {
+                $enabled = 'Enabled';
+            } else {
+                $enabled = 'Disabled';
+            }
+
+            $data[$pub->id]['enabled'] = $enabled;
+
         }
         return $data;
     }
@@ -195,5 +205,20 @@ class CsvExportService extends Component
         fclose($outputToFile);
 
         return true;
+    }
+
+    /*
+     *  Set download headers
+     */
+    public function getDownloadHeaders($filename)
+    {
+        // force download  
+        header("Content-Type: application/force-download");
+        header("Content-Type: application/octet-stream");
+        header("Content-Type: application/download");
+
+        // disposition / encoding on response body
+        header("Content-Disposition: attachment;filename={$filename}");
+        header("Content-Transfer-Encoding: binary");
     }
 }

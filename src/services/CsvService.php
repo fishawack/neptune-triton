@@ -68,7 +68,6 @@ class CsvService extends Component
 
             // $expandCsv[0] is the title
             $expandCsv =  explode('`', $result);
-
             /*
              *  Benlysta specific
              *
@@ -78,29 +77,32 @@ class CsvService extends Component
              */
             $acceptedValues = Triton::getInstance()->variablesService->acceptedDocTypes();
 
-            $docType = trim(mb_convert_encoding($expandCsv[7], "UTF-8"));
-
-            if(!in_array($docType, $acceptedValues))
+            if(isset($expandCsv[7]))
             {
-                continue;
+                $docType = trim(mb_convert_encoding($expandCsv[7], "UTF-8"));
+
+                if(!in_array($docType, $acceptedValues))
+                {
+                    continue;
+                }
             }
 
             $startDate = null;
-            if(strlen($expandCsv[3]) > 0)
+            if(isset($expandCsv[3]) && strlen($expandCsv[3]) > 0)
             {
                 $startDate = date('Y-m-d H:i:s', strtotime($expandCsv[3]));
             }
 
             $submissionDate = null;
-            if(strlen($expandCsv[4]) > 0)
+            if(isset($expandCsv[4]) && strlen($expandCsv[4]) > 0)
             {
                 $submissionDate = date('Y-m-d H:i:s', strtotime($expandCsv[4]));
             }
 
             $publicationDate = null;
-            if(strlen($expandCsv[10]) > 0)
+            if(isset($expandCsv[10]) && strlen($expandCsv[10]) > 0)
             {
-                $submissionDate = date('Y-m-d H:i:s', strtotime($expandCsv[10]));
+                $publicationDate = date('Y-m-d H:i:s', strtotime($expandCsv[10]));
             }            
 
             $title = trim(mb_convert_encoding($expandCsv[0], "UTF-8"));

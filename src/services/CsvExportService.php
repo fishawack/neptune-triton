@@ -63,6 +63,28 @@ class CsvExportService extends Component
             } else {
                 $data[$pub->id]['docType'] = '';
             }
+            if(isset($pub->journal))
+            {
+                $journalList = '';
+                foreach($pub->journal as $journal)
+                {
+                    $journalList .= (string)$journal->title;
+                }
+                $data[$pub->id]['journal'] = $journalList;
+            } else {
+                $data[$pub->id]['journal'] = '';
+            }
+            if(isset($pub->congress))
+            {
+                $congressList = '';
+                foreach($pub->congress as $congress)
+                {
+                    $congressList .= (string)$congress->title;
+                }
+                $data[$pub->id]['congress'] = $congressList;
+            } else {
+                $data[$pub->id]['congress'] = '';
+            }
             $data[$pub->id]['citation'] = (string)$pub->citation;
             $data[$pub->id]['citationUrl'] = (string)$pub->citationUrl;
             if($pub->publicationDate)
@@ -153,6 +175,15 @@ class CsvExportService extends Component
             } else {
                 $data[$pub->id]['publicationTags'] = '';
             }
+
+            if($pub->lock == '1')
+            {
+                $lock = 'Locked';
+            } else {
+                $lock = '';
+            }
+
+            $data[$pub->id]['lock'] = $lock;
 
             if($pub->enabled == '1')
             {

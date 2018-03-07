@@ -202,7 +202,6 @@ class EntryService extends Component
      */
     protected function saveExisting(array $csvData, Entry $craftData)
     {
-        //die(var_dump($csvData));
         $pubFields = Triton::getInstance()->variablesService->getPublicationHeaders();
 
         /*
@@ -394,6 +393,14 @@ class EntryService extends Component
             {
                 Triton::getInstance()->jscImportService->saveJSCRelation('congresses', 'congress', (array)$relations['congress'], $getEntry, $this->congresses);
             }
+
+            // Save our DocType which is a craft\Category
+            // Get Category group
+            $categoryGroupId = $getEntry->docType->groupId;
+            // Grab the id needed for our category type
+            $category = Triton::getInstance()->queryService->queryCategoryById($categoryGroupId);
+            Triton::getInstance()->jscImportService->saveCategoryRelation('docType', (array)$csvData['docType'], $getEntry);
+
             return $entry;
         } else {
             throw new \Exception("Saving failed: " . print_r($entry->getErrors(), true));

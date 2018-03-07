@@ -51,6 +51,8 @@ Class VariablesService extends component
             'Document Author',
             'Document Type',
             'Doc Type',
+            'Journals',
+            'Congresses',
             'Citation',
             'Citation Url',
             'Publication Dates',
@@ -60,6 +62,7 @@ Class VariablesService extends component
             'Summary',
             'Objectives',
             'Publication Tags',
+            'Lock',
             'Enabled'
             
         ];

@@ -68,6 +68,7 @@ class CsvService extends Component
 
             // $expandCsv[0] is the title
             $expandCsv =  explode('`', $result);
+
             /*
              *  Benlysta specific
              *
@@ -79,7 +80,7 @@ class CsvService extends Component
 
             if(isset($expandCsv[7]))
             {
-                $docType = trim(mb_convert_encoding($expandCsv[7], "UTF-8"));
+                $docType = trim(Triton::getInstance()->encodingService->toUTF8($expandCsv[7]));
 
                 if(!in_array($docType, $acceptedValues))
                 {
@@ -105,20 +106,20 @@ class CsvService extends Component
                 $publicationDate = date('Y-m-d H:i:s', strtotime($expandCsv[10]));
             }            
 
-            $title = trim(mb_convert_encoding($expandCsv[0], "UTF-8"));
+            $title = trim(utf8_encode($expandCsv[0]));
 
             // Setup all the keys correctly
             $data[$expandCsv[0]]['title'] = $title;
-            $data[$expandCsv[0]]['documentTitle'] = trim(mb_convert_encoding($expandCsv[1], "UTF-8"));
-            $data[$expandCsv[0]]['documentStatus'] = trim(mb_convert_encoding($expandCsv[2], "UTF-8"));
+            $data[$expandCsv[0]]['documentTitle'] = trim(Triton::getInstance()->encodingService->toUTF8($expandCsv[1]));
+            $data[$expandCsv[0]]['documentStatus'] = trim(Triton::getInstance()->encodingService->toUTF8($expandCsv[2]));
             //
             $data[$expandCsv[0]]['startDate'] = $startDate;
             $data[$expandCsv[0]]['submissionDate'] = $submissionDate;
-            $data[$expandCsv[0]]['documentAuthor'] = trim(mb_convert_encoding($expandCsv[5], "UTF-8"));
-            $data[$expandCsv[0]]['documentType'] = trim(mb_convert_encoding($expandCsv[7], "UTF-8"));
-            $data[$expandCsv[0]]['docType'] = trim(mb_convert_encoding($expandCsv[7], "UTF-8"));
-            $data[$expandCsv[0]]['citation'] = trim(mb_convert_encoding($expandCsv[8], "UTF-8"));
-            $data[$expandCsv[0]]['citationUrl'] = trim(mb_convert_encoding($expandCsv[9], "UTF-8"));
+            $data[$expandCsv[0]]['documentAuthor'] = trim(Triton::getInstance()->encodingService->toUTF8($expandCsv[5]));
+            $data[$expandCsv[0]]['documentType'] = trim(Triton::getInstance()->encodingService->toUTF8($expandCsv[7]));
+            $data[$expandCsv[0]]['docType'] = trim(Triton::getInstance()->encodingService->toUTF8($expandCsv[7]));
+            $data[$expandCsv[0]]['citation'] = trim(Triton::getInstance()->encodingService->toUTF8($expandCsv[8]));
+            $data[$expandCsv[0]]['citationUrl'] = trim(Triton::getInstance()->encodingService->toUTF8($expandCsv[9]));
             $data[$expandCsv[0]]['publicationDate'] = $publicationDate;
 
             /*
@@ -140,9 +141,9 @@ class CsvService extends Component
             // Check if we need Journal or Congress
             if($this->strposa($title, Triton::getInstance()->variablesService->journalPubs()))
             {
-                $data[$expandCsv[0]]['journal'] = trim(mb_convert_encoding($expandCsv[6], "UTF-8"));
+                $data[$expandCsv[0]]['journal'] = trim(Triton::getInstance()->encodingService->toUTF8($expandCsv[6]));
             } else {
-                $data[$expandCsv[0]]['congress'] = trim(mb_convert_encoding($expandCsv[6], "UTF-8"));
+                $data[$expandCsv[0]]['congress'] = trim(Triton::getInstance()->encodingService->toUTF8($expandCsv[6]));
             }
             
 
@@ -224,7 +225,7 @@ class CsvService extends Component
                 { 
                    $fusion[$key] = date('Y-m-d H:i:s', strtotime($value));
                 } else {
-                   $fusion[$key] = trim(mb_convert_encoding($value, "UTF-8"));
+                   $fusion[$key] = trim(Triton::getInstance()->encodingService->toUTF8($value));
                 }
             }
 
@@ -288,7 +289,7 @@ class CsvService extends Component
             // catch all the random white spaces
             if(strlen($data) > 2) 
             {
-                $returnArray[] = mb_convert_encoding($data, "UTF-8");
+                $returnArray[] = Triton::getInstance()->encodingService->toUTF8($data);
             }
         }
         return $returnArray;

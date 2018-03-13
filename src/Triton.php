@@ -123,7 +123,8 @@ class Triton extends Plugin
             'jsonService' => services\JsonService::class,
             'jsonCustomService' => services\JsonCustomService::class,
             'variablesService' => services\VariablesService::class,
-            'queryService' => services\QueryService::class
+            'queryService' => services\QueryService::class,
+            'encodingService' => services\EncodingService::class
         ]);
 
 /**

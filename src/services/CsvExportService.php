@@ -34,8 +34,8 @@ class CsvExportService extends Component
         $data = [];
         foreach($this->allPublications as $pub)
         {
-            $data[$pub->id]['title'] = (string)$pub->title;
-            $data[$pub->id]['documentTitle'] = (string)$pub->documentTitle;
+            $data[$pub->id]['title'] = Triton::getInstance()->encodingService->toUTF8((string)$pub->title);
+            $data[$pub->id]['documentTitle'] = Triton::getInstance()->encodingService->toUTF8((string)$pub->documentTitle);
             $data[$pub->id]['documentStatus'] = (string)$pub->documentStatus;
             if($pub->startDate)
             {
@@ -49,7 +49,7 @@ class CsvExportService extends Component
             } else {
                 $data[$pub->id]['submissionDate'] = '';
             }
-            $data[$pub->id]['documentAuthor'] = (string)$pub->documentAuthor;
+            $data[$pub->id]['documentAuthor'] = Triton::getInstance()->encodingService->toUTF8((string)$pub->documentAuthor);
             $data[$pub->id]['documentType'] = (string)$pub->documentType;
             if(isset($pub->docType))
             {

@@ -106,7 +106,7 @@ class CsvService extends Component
                 $publicationDate = date('Y-m-d H:i:s', strtotime($expandCsv[10]));
             }            
 
-            $title = trim(utf8_encode($expandCsv[0]));
+            $title = trim(Triton::getInstance()->encodingService->toUTF8($expandCsv[0]));
 
             // Setup all the keys correctly
             $data[$expandCsv[0]]['title'] = $title;
@@ -148,8 +148,19 @@ class CsvService extends Component
             
 
             // Clean & expand studies
-            $studies = $this->removeHTMLTags($this->removeHTMLTags($expandCsv[11]));
-            $studies = explode(' ', $studies);
+            $studies = $this->removeHTMLTags($expandCsv[11], '<br>');
+
+            $studies = explode('<br>', $studies);
+
+            for($i=0; $i < count($studies); $i++)
+            {
+                // studies come through as GHO-11-3366 GOAl, we only need 
+                // the number
+                $cleanStudies = explode(' ', $studies[$i]);
+                $studies[$i] = $cleanStudies[0];
+                //$studies[$i] = str_replace('  ', '-', $studies[$i]);
+            }
+
             $data[$expandCsv[0]]['study'] = $this->clearEmptyArrayValues($studies);
         } 
         return $data;
@@ -263,10 +274,11 @@ class CsvService extends Component
      * Remove HTML entities etc
      *
      * @param string $data
+     * @param string $excludeTags
      */
-    protected function removeHTMLTags($data)
+    protected function removeHTMLTags($data, string $excludeTags = '')
     {
-        $clean = strip_tags($data);
+        $clean = strip_tags($data, $excludeTags);
         return $clean;
     }
 

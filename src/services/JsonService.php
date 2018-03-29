@@ -121,6 +121,45 @@ class JsonService extends Component
     }
 
     /*
+     *  Since the categories work differently
+     *  to entries, this seperate function is 
+     *  to deal with that.
+     *
+     *  @param
+     */
+    public function getCategoryDataFormatted($craftCategories, array $jsonStructure)
+    {
+        $dataArray = [];
+        foreach($craftCategories as $categoryData)
+        {
+            var_dump($categoryData);
+            if(!$categoryData->parent) 
+            {
+                foreach($jsonStructure as $key => $value)
+                {
+                    if(is_array($categoryData[$value]) || is_a($categoryData[$value], 'craft\elements\db\CategoryQuery'))
+                    {
+                        foreach($categoryData[$value] as $data)
+                        {
+                            $dataArray[$categoryData->id][$value][] = [
+                                'id' => (string)$data->id,
+                                'title' => (string)$data->title
+                            ];
+                        }
+                    } else {
+                        $dataArray[$categoryData->id][$value] = $categoryData->$value;
+                    }
+                }
+            }
+        }
+
+        var_dump($dataArray);
+
+        die();
+        return $dataArray;
+    }
+
+    /*
      * Get Data formatted
      *
      * Setting single to true will put the
@@ -153,6 +192,16 @@ class JsonService extends Component
             $structure = &$jsonStructure;
 
             $entryId = (int)$entry->id;
+
+            // Check if this is a category, if so we need
+            // to ignore the results that have parents
+            if(is_a($entry, 'craft\elements\Category'))
+            {
+                if($entry->parent) 
+                {
+                    continue;    
+                }
+            }
 
             foreach($structure as $key => $value)
             {
@@ -201,9 +250,10 @@ class JsonService extends Component
                              */
                             if($single == false && $children)
                             {
-                                $dataArray[$entryId][$key]['id'] = (int)$newVal->id;
-                                $dataArray[$entryId][$key]['title'] = (string)$newVal->title;
-
+                                $dataArray[$entryId][$key][] = [
+                                    'id' => (int)$newVal->id,
+                                    'title' => (string)$newVal->title,
+                                ];
                             } elseif($single == false) {
                                 $dataArray[$entryId][$key][] = (int)$newVal->id;
                             } else {

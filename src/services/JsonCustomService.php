@@ -31,9 +31,9 @@ class JsonCustomService extends Component
 
         if(!in_array($docStatus, $publicationTypes))
         {
-            return "Planned";
+            return "planned";
         }
-        return "Published";
+        return "published";
     }
 
     /**
@@ -52,4 +52,8 @@ class JsonCustomService extends Component
         }
         return $array;
     }
+
+    /*
+     * Filter out duplicates
+     */
 }

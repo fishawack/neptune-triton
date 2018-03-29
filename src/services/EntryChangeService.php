@@ -50,6 +50,12 @@ class EntryChangeService extends Component
         $this->document['Ignored'][] = $title;
     }
 
+    public function addErrorEntry($title)
+    {
+        $this->document['Title Error'][] = $title;
+    }
+
+
     public function getStatus()
     {
         return $this->document;

@@ -87,6 +87,12 @@ class EntryService extends Component
         // Check if there's any changes, if not add new entry
         foreach($data as $entry)
         {
+            // check if there's any special characters
+            // that didn't pull through
+            if(strpos($entry['documentAuthor'], '?') !== false) {
+                Triton::getInstance()->entryChangeService->addErrorEntry($entry['title']);
+            }            
+
             $bypass = false;
             // TODO 
             // Make this part more elegant, we cannot
@@ -103,6 +109,12 @@ class EntryService extends Component
 
             if(!$bypass)
             {
+                // check if there's any special characters
+                // that didn't pull through
+                if(strpos($entry['documentAuthor'], '?') !== false) {
+                    Triton::getInstance()->entryChangeService->addErrorEntry($entry['title']);
+                }
+
                 if(isset($allPublications[$entry['title']])) 
                 {
                     // Check if the record is locked

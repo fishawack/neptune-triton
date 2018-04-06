@@ -59,6 +59,7 @@ Class JSCImportService extends component
     {
         $query = Entry::find()
             ->section($sectionTitle)
+            ->status(null)
             ->all();
 
         return $query;

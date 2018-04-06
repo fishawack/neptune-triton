@@ -152,10 +152,6 @@ class JsonService extends Component
                 }
             }
         }
-
-        var_dump($dataArray);
-
-        die();
         return $dataArray;
     }
 
@@ -170,6 +166,17 @@ class JsonService extends Component
      * This function will take our craft entry and
      * the variable json structure set in 
      * variablesService to create the json file needed
+     *
+     * -------------------------------------
+     *
+     * How does it work?
+     *
+     * The json file sets out all the variables
+     * that you would like to get from the entry, i.e.
+     * relatedPubs etc, this means better code reusablility
+     * we can put in a structure for another plant implementation
+     * that doesn't use the same structure i.e. it might have
+     * projectCode instead
      *
      * @param array $craftEntries
      * @param array $jsonStructure
@@ -193,21 +200,15 @@ class JsonService extends Component
 
             $entryId = (int)$entry->id;
 
-            // Check if this is a category, if so we need
-            // to ignore the results that have parents
-            if(is_a($entry, 'craft\elements\Category'))
-            {
-                if($entry->parent) 
-                {
-                    continue;    
-                }
-            }
-
+            /*
+             * Go through our Json structure and match
+             * the values to our craft entry
+             */
             foreach($structure as $key => $value)
             {
                 if(is_array($value))
                 {
-                    foreach($value as $newValue)
+                   foreach($value as $newValue)
                     {
                         // Get out function as a string
                         $customFunction = $newValue['function'];
@@ -240,8 +241,20 @@ class JsonService extends Component
                             $dataArray[$key] = $entry->$value->format('Y-m-d');
                         }
                     } elseif(is_a($entry->$value, 'craft\elements\db\EntryQuery') || is_a($entry->$value, 'craft\elements\db\CategoryQuery')) {
+
+                        /*
+                         *  get all entries even if they're disabled
+                         */
+                        $entry->$value->status(null)->find();
                         foreach($entry->$value as $newVal)
                         {
+                            /*
+                             * Benlysta specific code - we need
+                             * a list of the disabled publications
+                             * so that we can merge them in
+                             */
+
+
                             /**
                              *  Bit annoying here - 
                              *  Some categories etc has a nesting system which

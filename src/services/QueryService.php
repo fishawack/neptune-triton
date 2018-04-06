@@ -70,6 +70,21 @@ class QueryService extends Component
     }
 
     /*
+     * Get one entry whether it's enabled or not
+     *
+     * @param string $entryId
+     */
+    public function queryEntryById($entryId)
+    {
+        $query = Entry::find()
+            ->status(null)
+            ->id($entryId)
+            ->one();
+
+        return $query;
+    }
+
+    /*
      * @param string $sectionHandle
      */
     public function queryAllCategories()

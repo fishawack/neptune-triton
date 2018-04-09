@@ -60,9 +60,15 @@ class JsonCustomService extends Component
         // filter the docs
         if(Triton::getInstance()->csvService->strposa($array['docNum'], Triton::getInstance()->variablesService->journalPubs()))
         {
-            unset($array['journal']);
+            if(isset($array['congress']))
+            {
+                unset($array['congress']);
+            }
         } else {
-            unset($array['congress']);
+            if(isset($array['journal']))
+            {
+                unset($array['journal']);
+            }
         }
 
         return $array;

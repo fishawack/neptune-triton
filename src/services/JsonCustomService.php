@@ -61,16 +61,19 @@ class JsonCustomService extends Component
         // filter meta
 
         // filter the docs
-        if(Triton::getInstance()->csvService->strposa($array['docNum'], Triton::getInstance()->variablesService->journalPubs()))
+        if(isset($array['docNum'])) 
         {
-            if(isset($array['congress']))
+            if(Triton::getInstance()->csvService->strposa($array['docNum'], Triton::getInstance()->variablesService->journalPubs()))
             {
-                unset($array['congress']);
-            }
-        } else {
-            if(isset($array['journal']))
-            {
-                unset($array['journal']);
+                if(isset($array['congress']))
+                {
+                    unset($array['congress']);
+                }
+            } else {
+                if(isset($array['journal']))
+                {
+                    unset($array['journal']);
+                }
             }
         }
 

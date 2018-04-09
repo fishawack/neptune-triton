@@ -45,17 +45,20 @@ class JsonCustomService extends Component
     {
         // if Publish status, we don't need the 
         // submission date
-        if(isset($array['status']) && $array['status'] === 'Published')
+        if(isset($array['status']) && $array['status'] === 'published')
         {
+            $array['objectives'] = '';
             unset($array['submissionDate']);
             unset($array['statusDatavision']);
         }
 
-        // filter meta
-        if($array['status'] === 'planned') 
+        if(isset($array['status']) && $array['status'] === 'planned')
         {
             $array['summary'] = '';
-        }       
+        }
+
+
+        // filter meta
 
         // filter the docs
         if(Triton::getInstance()->csvService->strposa($array['docNum'], Triton::getInstance()->variablesService->journalPubs()))

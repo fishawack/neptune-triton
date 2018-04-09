@@ -248,13 +248,6 @@ class JsonService extends Component
                         $entry->$value->status(null)->find();
                         foreach($entry->$value as $newVal)
                         {
-                            /*
-                             * Benlysta specific code - we need
-                             * a list of the disabled publications
-                             * so that we can merge them in
-                             */
-
-
                             /**
                              *  Bit annoying here - 
                              *  Some categories etc has a nesting system which
@@ -271,6 +264,24 @@ class JsonService extends Component
                                 $dataArray[$entryId][$key][] = (int)$newVal->id;
                             } else {
                                 $dataArray[$key][] = (int)$newVal->id;
+                            }
+                            
+                            /*
+                             * Benlysta specific code - we need
+                             * a list of the disabled publications
+                             * so that we can merge them in
+                             */
+                            if($value === 'journal')
+                            {
+                                //var_dump($newVal);
+                                //die();
+                                $dataArray[$entryId][$key] = (int)$newVal->id;
+                            }
+                            if($value === 'congress')
+                            {
+                                //var_dump($newVal);
+                                //die();
+                                $dataArray[$entryId][$key] = (int)$newVal->id;
                             }
                         }
                     } else {
@@ -313,6 +324,7 @@ class JsonService extends Component
                     }
                 }
             }
+
             // Do some custom filtering via our
             // custom method
             $dataArray[$entryId] = Triton::getInstance()->jsonCustomService->filterArray($dataArray[$entryId]);

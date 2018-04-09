@@ -50,10 +50,21 @@ class JsonCustomService extends Component
             unset($array['submissionDate']);
             unset($array['statusDatavision']);
         }
+
+        // filter meta
+        if($array['status'] === 'planned') 
+        {
+            $array['summary'] = '';
+        }       
+
+        // filter the docs
+        if(Triton::getInstance()->csvService->strposa($array['docNum'], Triton::getInstance()->variablesService->journalPubs()))
+        {
+            unset($array['journal']);
+        } else {
+            unset($array['congress']);
+        }
+
         return $array;
     }
-
-    /*
-     * Filter out duplicates
-     */
 }

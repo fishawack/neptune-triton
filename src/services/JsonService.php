@@ -271,16 +271,8 @@ class JsonService extends Component
                              * a list of the disabled publications
                              * so that we can merge them in
                              */
-                            if($value === 'journal')
+                            if($value === 'journal' || $value === 'congress')
                             {
-                                //var_dump($newVal);
-                                //die();
-                                $dataArray[$entryId][$key] = (int)$newVal->id;
-                            }
-                            if($value === 'congress')
-                            {
-                                //var_dump($newVal);
-                                //die();
                                 $dataArray[$entryId][$key] = (int)$newVal->id;
                             }
                         }

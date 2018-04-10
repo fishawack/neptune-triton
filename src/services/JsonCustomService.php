@@ -57,9 +57,7 @@ class JsonCustomService extends Component
             $array['summary'] = '';
         }
 
-
         // filter meta
-
         // filter the docs
         if(isset($array['docNum'])) 
         {
@@ -67,12 +65,12 @@ class JsonCustomService extends Component
             {
                 if(isset($array['congress']))
                 {
-                    $array['congress'] = '';
+                    unset($array['congress']);
                 }
             } else {
                 if(isset($array['journal']))
                 {
-                    $array['journal'] = '';
+                    unset($array['journal']);
                 }
             }
         }

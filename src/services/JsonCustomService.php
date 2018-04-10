@@ -67,12 +67,12 @@ class JsonCustomService extends Component
             {
                 if(isset($array['congress']))
                 {
-                    unset($array['congress']);
+                    $array['congress'] = '';
                 }
             } else {
                 if(isset($array['journal']))
                 {
-                    unset($array['journal']);
+                    $array['journal'] = '';
                 }
             }
         }

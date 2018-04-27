@@ -132,7 +132,7 @@ class JsonService extends Component
         $dataArray = [];
         foreach($craftCategories as $categoryData)
         {
-            var_dump($categoryData);
+            //var_dump($categoryData);
             if(!$categoryData->parent) 
             {
                 foreach($jsonStructure as $key => $value)

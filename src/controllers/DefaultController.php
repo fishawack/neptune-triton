@@ -147,6 +147,7 @@ class DefaultController extends Controller
         // Get all Tags
         $queryAll = Triton::getInstance()->jscImportService->getAllCategoriesUntouched('publicationTags');
         $jsonStructure = Triton::getInstance()->variablesService->getTagsJsonStruc();
+
         $results = Triton::getInstance()->jsonService->getSectionDataFormatted($queryAll, $jsonStructure);
 
         if($json)
@@ -215,7 +216,12 @@ class DefaultController extends Controller
 
         $jsonStructure = Triton::getInstance()->variablesService->getCategoryJsonStruc();
 
-        $results = Triton::getInstance()->jsonService->getSectionDataFormatted($queryAll, $jsonStructure, false, true);
+        // Using new function
+        // ==================
+        //
+        // Using seperate function to deal with categories
+        //
+        $results = Triton::getInstance()->jsonService->getCategoryDataFormatted($queryAll, $jsonStructure);
         
         if($json)
         {

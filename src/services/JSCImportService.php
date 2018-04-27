@@ -39,8 +39,13 @@ Class JSCImportService extends component
         $getEntries = Triton::getInstance()->queryService->queryAllEntries($this->sectionTitle);
         $this->sectionId = $getEntries[0]->sectionId;
         $this->entryType = $getEntries[0]->type;
-        $this->authorId = $currentUser = Craft::$app->getUser()->getIdentity()->id;
 
+        if(!isset(Craft::$app->getUser()->getIdentity()->id))
+        {
+            throw new \Exception('You are not logged in as Admin');
+        }
+        $currentUser = Craft::$app->getUser()->getIdentity()->id;
+        $this->authorId = $currentUser;
         $this->JSCObjects = Triton::getInstance()->queryService->swapKeys($getEntries);
     }
 

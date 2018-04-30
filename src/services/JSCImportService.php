@@ -42,10 +42,11 @@ Class JSCImportService extends component
 
         if(!isset(Craft::$app->getUser()->getIdentity()->id))
         {
-            throw new \Exception('You are not logged in as Admin');
+            throw new \Exception("Please login as admin");
         }
         $currentUser = Craft::$app->getUser()->getIdentity()->id;
         $this->authorId = $currentUser;
+
         $this->JSCObjects = Triton::getInstance()->queryService->swapKeys($getEntries);
     }
 
@@ -57,28 +58,6 @@ Class JSCImportService extends component
         $this->authorId = $currentUser = Craft::$app->getUser()->getIdentity()->id;
 
         $this->JSCObjects = Triton::getInstance()->queryService->swapKeys($getEntries);     
-    }
-
-
-    public function getAllEntriesUntouched(string $sectionTitle)
-    {
-        $query = Entry::find()
-            ->section($sectionTitle)
-            ->status(null)
-            ->all();
-
-        return $query;
-    }
-
-    public function getAllCategoriesUntouched(string $categoryTitle)
-    {
-        // Find the correct group id
-        $group = Craft::$app->getCategories()->getGroupByHandle($categoryTitle);
-        $query = Category::find()
-            ->groupId($group->id)
-            ->all();
-
-        return $query;
     }
 
     /**

@@ -60,7 +60,7 @@ class DefaultController extends Controller
      */
     public function actionGetAllPublications($json = true)
     {
-        $queryAll = Triton::getInstance()->jscImportService->getAllEntriesUntouched('publications');
+        $queryAll = Triton::getInstance()->queryService->getAllEntriesUntouched('publications');
 
         // Get our json structure
         $jsonStructure = Triton::getInstance()->variablesService->getPublicationJsonStruc();
@@ -83,7 +83,7 @@ class DefaultController extends Controller
     public function actionGetAllJournals($json = true)
     {
         // Get all journals
-        $queryAll = Triton::getInstance()->jscImportService->getAllEntriesUntouched('journals');
+        $queryAll = Triton::getInstance()->queryService->getAllEntriesUntouched('journals');
         $jsonStructure = Triton::getInstance()->variablesService->getJournalsJsonStruc();
 
         $results = Triton::getInstance()->jsonService->getSectionDataFormatted($queryAll, $jsonStructure);
@@ -103,7 +103,7 @@ class DefaultController extends Controller
      */
     public function actionGetAllCongresses($json = true)
     {
-        $queryAll = Triton::getInstance()->jscImportService->getAllEntriesUntouched('congresses');
+        $queryAll = Triton::getInstance()->queryService->getAllEntriesUntouched('congresses');
         $jsonStructure = Triton::getInstance()->variablesService->getCongressJsonStruc();
 
         $results = Triton::getInstance()->jsonService->getSectionDataFormatted($queryAll, $jsonStructure);
@@ -124,7 +124,7 @@ class DefaultController extends Controller
     public function actionGetAllStudies($json = true)
     {
         // Get all studies
-        $queryAll = Triton::getInstance()->jscImportService->getAllEntriesUntouched('studies');
+        $queryAll = Triton::getInstance()->queryService->getAllEntriesUntouched('studies');
 
         $jsonStructure = Triton::getInstance()->variablesService->getStudiesJsonStruc();
         $results = Triton::getInstance()->jsonService->getSectionDataFormatted($queryAll, $jsonStructure);
@@ -145,7 +145,7 @@ class DefaultController extends Controller
     public function actionGetAllTags($json = true)
     {
         // Get all Tags
-        $queryAll = Triton::getInstance()->jscImportService->getAllCategoriesUntouched('publicationTags');
+        $queryAll = Triton::getInstance()->queryService->getAllCategoriesUntouched('publicationTags');
         $jsonStructure = Triton::getInstance()->variablesService->getTagsJsonStruc();
 
         $results = Triton::getInstance()->jsonService->getSectionDataFormatted($queryAll, $jsonStructure);

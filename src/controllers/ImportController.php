@@ -34,7 +34,6 @@ ini_set('memory_limit', '256M');
  */
 class ImportController extends Controller
 {
-    protected $allowAnonymous = true;
     /*
      *  Upload CSV file to folder
      */

@@ -97,6 +97,27 @@ class QueryService extends Component
         return $results;
     }
 
+    public function getAllEntriesUntouched(string $sectionTitle)
+    {
+        $query = Entry::find()
+            ->section($sectionTitle)
+            ->status(null)
+            ->all();
+
+        return $query;
+    }
+
+    public function getAllCategoriesUntouched(string $categoryTitle)
+    {
+        // Find the correct group id
+        $group = Craft::$app->getCategories()->getGroupByHandle($categoryTitle);
+        $query = Category::find()
+            ->groupId($group->id)
+            ->all();
+
+        return $query;
+    }
+
     public function queryCategoriesByTitle(string $categoryTitle)
     {
         // Find the correct group id

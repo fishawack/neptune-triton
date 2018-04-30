@@ -165,35 +165,35 @@ Class VariablesService extends component
         return [
             'publications' => [
                 'url' => 'triton/publications', 
-                'path' => 'json/publications.json'
+                'path' => 'json/publications'
             ],
             'studies' => [
                 'url' => 'triton/studies',
-                'path' => 'json/studies.json'
+                'path' => 'json/studies'
             ],
             'journals' => [
                 'url' => 'triton/journals',
-                'path' => 'json/journals.json'
+                'path' => 'json/journals'
             ],
             'congresses' => [
                 'url' => 'triton/congresses',
-                'path' => 'json/congresses.json'
+                'path' => 'json/congresses'
             ],
             'categories' => [
                 'url' => 'triton/categories',
-                'path' => 'json/categories.json'
+                'path' => 'json/categories'
             ],            
             'globals' => [
                 'url' => 'triton/globals',
-                'path' => 'json/global.json'
+                'path' => 'json/global'
             ],
             'doctypes' => [
                 'url' => 'triton/doctypes',
-                'path' => 'json/doc-types.json'
+                'path' => 'json/doc-types'
             ],            
             'tags' => [
                 'url' => 'triton/tags',
-                'path' => 'json/tags.json'
+                'path' => 'json/tags'
             ],
             'exportcsv' => [
                 'url' => 'triton/csvexport',

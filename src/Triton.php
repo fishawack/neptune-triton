@@ -79,7 +79,7 @@ class Triton extends Plugin
                 $event->rules['triton/studies'] = 'triton/default/get-all-studies';
                 $event->rules['triton/tags'] = 'triton/default/get-all-tags';
                 $event->rules['triton/categories'] = 'triton/default/get-all-categories';
-                $event->rules['triton/globals'] = 'triton/default/get-all-globals';
+                $event->rules['triton/global'] = 'triton/default/get-all-globals';
                 $event->rules['triton/doctypes'] = 'triton/default/get-all-doctypes';
                 $event->rules['triton/exportcsv'] = 'triton/default/export-csv';
 
@@ -153,6 +153,8 @@ class Triton extends Plugin
             ),
             __METHOD__
         );
+
+        Craft::$app->getResponse()->getHeaders()->set('Access-Control-Allow-Origin', '*');
     }
 
     public function getCpNavItem()

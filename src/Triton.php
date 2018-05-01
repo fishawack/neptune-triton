@@ -80,7 +80,7 @@ class Triton extends Plugin
                 $event->rules['triton/tags'] = 'triton/default/get-all-tags';
                 $event->rules['triton/categories'] = 'triton/default/get-all-categories';
                 $event->rules['triton/global'] = 'triton/default/get-all-globals';
-                $event->rules['triton/doctypes'] = 'triton/default/get-all-doctypes';
+                $event->rules['triton/doc-types'] = 'triton/default/get-all-doctypes';
                 $event->rules['triton/exportcsv'] = 'triton/default/export-csv';
 
                 // Update Json Cache files

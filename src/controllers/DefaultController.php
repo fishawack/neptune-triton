@@ -175,10 +175,19 @@ class DefaultController extends Controller
         $jsonStructure = Triton::getInstance()->variablesService->getGlobalsJsonStruc();
 
         $results = Triton::getInstance()->jsonService->getSectionDataFormatted($queryDVDate, $jsonStructure);
-        
+
+        // Little hack to get data into simple json
+        // object, if there's ever going to be more
+        // Global values in Neptune, we will need rework
+        // this part
+        foreach($results as $result)
+        {
+            $data = $result;
+        }
+
         if($json)
         {
-            return $this->asJson(array_values($results));
+            return $this->asJson($data);
         }
 
         return $results;

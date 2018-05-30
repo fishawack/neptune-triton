@@ -128,20 +128,24 @@ class CsvExportService extends Component
             } else {
                 $data[$pub->id]['category'] = '';
             }
+
             if(isset($pub->relatedPubs))
             {
                 $related = '';
-                for($i=0; $i < count($pub->relatedPubs); $i++)
+
+                $relatedEntries = $pub->relatedPubs->status(null)->find();
+
+                for($i=0; $i < count($relatedEntries); $i++)
                 {
-                    $studies .= (string)$pub->relatedPubcs[$i]->title;
+                    $related .= (string)$relatedEntries[$i]->title;
                     // Make sure we seperate the data with commas
                     // unless we're at the 2nd to last
                     if($i < (count($pub->relatedPubs) - 1))
                     {
-                        $studies .= ", ";
+                        $related .= ", ";
                     }
                 }
-
+                
                 $data[$pub->id]['related'] = $related;
             } else {
                 $data[$pub->id]['related'] = '';

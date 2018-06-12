@@ -90,6 +90,12 @@ Class JSCImportService extends component
      */
     public function importArrayToEntries(string $sectionTitle, array $jscEntries)
     {
+        $test = Entry::find()->section($sectionTitle)->search("National Conference on Management, Economics and Policies of Health - 9th")->one();
+
+
+        
+        var_dump($test);
+        die();
         $this->sectionTitle = $sectionTitle;
 
         // Constructor doesn't construct
@@ -103,7 +109,7 @@ Class JSCImportService extends component
         // Check if there's any changes, if not add new entry
         foreach($jscEntries as $entry)
         {
-            $find = Entry::find()->title($entry['title'])->one();
+            $find = Entry::find()->search($entry['title'])->one();
 
             if($find)
             {
@@ -162,12 +168,12 @@ Class JSCImportService extends component
         $this->typeId = $section->type->id;
                 
         $jscField = $this->getJSCField($craftEntry, $handle);
-    
+
         $entryIds = [];
         foreach($jscData as $entry)
         {
             // Find if there's already an existing record
-            $find = Entry::find()->section($sectionTitle)->title($entry)->one();
+            $find = Entry::find()->section($sectionTitle)->search($entry)->one();
 
             if(!empty($jscData))
             {
@@ -179,9 +185,22 @@ Class JSCImportService extends component
                     // Save a the study as a new entry,
                     // find the studyId and put it into
                     // our list
-                    $this->saveNewJSC($entry);
+                    $result = $this->saveNewJSC($entry);
 
-                    $getId = Entry::find()->section($sectionTitle)->title($entry)->one();
+                    /*
+                     * There seems to be problem with finding 
+                     * a certain entry within congresses, luckily
+                     * using Entry::find we will get the latest
+                     * entry. So if we have a problem looking for
+                     * the specific entry, we will find it in another
+                     * way
+                     */
+                    $getId = Entry::find()->section($sectionTitle)->search($entry)->one();
+
+                    if(!$getId) {
+                        $getId = Entry::find()->section($sectionTitle)->one();
+                    }
+
                     if(isset($getId->id))
                     {
                         $entryIds[] = $getId->id;

@@ -226,8 +226,7 @@ class EntryService extends Component
          * Annoyingly saveRelation doesn't tell you if
          * it has been saved or not, it'll always return null
          */
-
-        $saveStudy = Triton::getInstance()->jscImportService->saveJSCRelation('studies', 'study', $csvData['study'], $craftData, $this->studies);
+        //$saveStudy = Triton::getInstance()->jscImportService->saveJSCRelation('studies', 'study', $csvData['study'], $craftData, $this->studies);
 
         if(isset($csvData['journal']) && strlen($csvData['journal']) > 0)
         {

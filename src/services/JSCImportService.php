@@ -90,9 +90,10 @@ Class JSCImportService extends component
      */
     public function importArrayToEntries(string $sectionTitle, array $jscEntries)
     {
-        $test = Entry::all()->section($sectionTitle)->search("National Conference on Management, Economics and Policies of Health - 9th")->one();
+        /* Problematic entry for BPubs will look later*/
+        /*$test = Entry::find()->section($sectionTitle)->search("National Conference on Management, Economics and Policies of Health - 9th")->one();
         var_dump($test);
-        die();
+        die();*/
         $this->sectionTitle = $sectionTitle;
 
         // Constructor doesn't construct

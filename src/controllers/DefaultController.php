@@ -84,6 +84,7 @@ class DefaultController extends Controller
     {
         // Get all journals
         $queryAll = Triton::getInstance()->queryService->getAllEntriesUntouched('journals');
+
         $jsonStructure = Triton::getInstance()->variablesService->getJournalsJsonStruc();
 
         $results = Triton::getInstance()->jsonService->getSectionDataFormatted($queryAll, $jsonStructure);

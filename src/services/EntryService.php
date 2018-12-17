@@ -337,18 +337,17 @@ class EntryService extends Component
     /*
      *
      * Delete Entry
+     * ---
+     *
+     * This has been reworked so that we
+     * show a list of what has been removed or doesn't
+     * exist anymore however the entry will still be 
+     * enabled, it shouldn't be used by anything
      *
      */
     public function deleteEntry(Entry $craftEntry)
     {
         Triton::getInstance()->entryChangeService->addDeletedEntry((string)$craftEntry->title);
-
-        $craftEntry->enabled = '0';
-        if(Craft::$app->elements->saveElement($craftEntry)) {
-            return true;
-        } else {
-            throw new \Exception("Saving failed: " . print_r($entry->getErrors(), true));
-        }
     }
 
     /**

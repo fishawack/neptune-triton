@@ -107,12 +107,11 @@ Class JSCImportService extends component
         // Check if there's any changes, if not add new entry
         foreach($jscEntries as $entry)
         {
-            $find = Entry::find()->search($entry['title'])->one();
-
+            $find = Entry::find()->search('*'.$entry['title'].'*')->one();
             if($find)
             {
                 $find->title = trim($find->title);
-                $this->saveExisting($sectionTitle, $entry, $this->JSCObjects[$entry['title']]);
+                $this->saveExisting($sectionTitle, $entry, $find);
             } else {
                 $this->saveNewJSC($entry['title'], $entry, true);
                 Triton::getInstance()->entryChangeService->addNewEntry($entry['title']);

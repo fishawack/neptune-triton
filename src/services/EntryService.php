@@ -214,6 +214,7 @@ class EntryService extends Component
      */
     protected function saveExisting(array $csvData, Entry $craftData)
     {
+        var_dump($csvData);
         $pubFields = Triton::getInstance()->variablesService->getPublicationHeaders();
 
         /*
@@ -317,7 +318,7 @@ class EntryService extends Component
         if(Craft::$app->elements->saveElement($craftData)) {
             return true;
         } else {
-            throw new \Exception("Saving failed: " . print_r($craftData>getErrors(), true));
+            throw new \Exception("Saving failed: " . print_r($craftData->getErrors(), true));
         }
     }
 
@@ -355,6 +356,7 @@ class EntryService extends Component
      */
     protected function newEntry(Array $csvData)
     {
+        var_dump($csvData);
         $entry = new Entry();
 
         // Set all variables needed to save an 

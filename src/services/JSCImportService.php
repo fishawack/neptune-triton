@@ -108,16 +108,28 @@ Class JSCImportService extends component
         {
             $find = Entry::find()
                 ->section($sectionTitle)
-                ->search('*'.$entry['title'].'*')
+                ->title($entry['title'])
                 ->one();
 
-            if($find)
+            if($find && isset($this->JSCObjects[$entry['title']]) && $find->title === $entry['title'])
             {
                 $find->title = trim($find->title);
                 $this->saveExisting($sectionTitle, $entry, $this->JSCObjects[$find->title]);
             } else {
-                $this->saveNewJSC($entry['title'], $entry, true);
-                Triton::getInstance()->entryChangeService->addNewEntry($entry['title']);
+                // Seems like some records we have to use another search, just some stray records
+                // which we cannot search via ->title()
+                $extendedFind = Entry::find()
+                ->section($sectionTitle)
+                ->search($entry['title'])
+                ->one();
+
+                if($extendedFind && $extendedFind->title === $entry['title']) {
+                    $extendedFind->title = trim($extendedFind->title);
+                    $this->saveExisting($sectionTitle, $entry, $this->JSCObjects[$extendedFind->title]);
+                } else {
+                    $this->saveNewJSC($entry['title'], $entry, true);
+                    Triton::getInstance()->entryChangeService->addNewEntry($entry['title']);
+                }
             }
 
             // delete from array so that we're
@@ -150,8 +162,6 @@ Class JSCImportService extends component
      */
     public function saveJSCRelation(string $sectionTitle, string $handle, array $jscData, Entry &$craftEntry, $list = [])
     {
-
-        var_dump($jscData);
         if(empty($list))
         {
             $list = Triton::getInstance()->queryService->queryAllEntries($sectionTitle);
@@ -175,7 +185,7 @@ Class JSCImportService extends component
         foreach($jscData as $entry)
         {
             // Find if there's already an existing record
-            $find = Entry::find()->section($sectionTitle)->title($entry)->one();
+            $find = Entry::find()->section($sectionTitle)->search($entry)->one();
 
             if(!empty($jscData))
             {
@@ -370,7 +380,4 @@ Class JSCImportService extends component
             throw new \Exception("Saving failed: " . print_r($craftData->getErrors(), true));
         }
     }
-
 }
-
-

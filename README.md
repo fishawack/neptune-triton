@@ -35,6 +35,11 @@ To install the plugin, follow these instructions.
 
 4. In the Control Panel, go to Settings → Plugins and click the “Install” button for Triton.
 
+## Import
+
+Must knows!
+- Make sure you remove the empty row from Journals.csv
+
 ## Configuring Triton
 
 This tool is so automated that there's only one thing you have to do!

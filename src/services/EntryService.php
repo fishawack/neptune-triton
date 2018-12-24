@@ -214,7 +214,6 @@ class EntryService extends Component
      */
     protected function saveExisting(array $csvData, Entry $craftData)
     {
-        var_dump($csvData);
         $pubFields = Triton::getInstance()->variablesService->getPublicationHeaders();
 
         /*
@@ -356,7 +355,6 @@ class EntryService extends Component
      */
     protected function newEntry(Array $csvData)
     {
-        var_dump($csvData);
         $entry = new Entry();
 
         // Set all variables needed to save an 

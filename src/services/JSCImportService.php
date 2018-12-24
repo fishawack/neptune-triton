@@ -194,28 +194,36 @@ Class JSCImportService extends component
                     // Add the found record as a relation
                     $entryIds[] = $find->id;
                 } else {
-                    // Save a the study as a new entry,
-                    // find the studyId and put it into
-                    // our list
-                    $result = $this->saveNewJSC($entry);
+                    $extendedFind = Entry::find()->section($sectionTitle)->title($entry)->one();
 
-                    /*
-                     * There seems to be problem with finding 
-                     * a certain entry within congresses, luckily
-                     * using Entry::find we will get the latest
-                     * entry. So if we have a problem looking for
-                     * the specific entry, we will find it in another
-                     * way
-                     */
-                    $getId = Entry::find()->section($sectionTitle)->search($entry)->one();
-
-                    if(!$getId) {
-                        $getId = Entry::find()->section($sectionTitle)->one();
-                    }
-
-                    if(isset($getId->id))
+                    if($extendedFind && $extendedFind->title === $entry)
                     {
-                        $entryIds[] = $getId->id;
+                        $entryIds[] = $extendedFind->id;
+                    } else {
+                        // Save a the study as a new entry,
+                        // find the studyId and put it into
+                        // our list
+                        $result = $this->saveNewJSC($entry);
+
+                        /*
+                         * There seems to be problem with finding 
+                         * a certain entry within congresses, luckily
+                         * using Entry::find we will get the latest
+                         * entry. So if we have a problem looking for
+                         * the specific entry, we will find it in another
+                         * way
+                         */
+                        $getId = Entry::find()->section($sectionTitle)->search($entry)->one();
+
+                        if(!$getId) {
+                            $getId = Entry::find()->section($sectionTitle)->one();
+                        }
+
+                        if(isset($getId->id))
+                        {
+                            $entryIds[] = $getId->id;
+                        }
+
                     }
                 }
             }

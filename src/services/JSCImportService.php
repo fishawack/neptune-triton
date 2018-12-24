@@ -246,7 +246,7 @@ Class JSCImportService extends component
         $getCategory = Triton::getInstance()->queryService->queryCategoryById($craftEntry->$handle->groupId);
         // Swap Keys for easy searchign
         $categoryList = Triton::getInstance()->queryService->swapKeys($getCategory);
-
+        
         foreach($jscData as $data)
         {
             if($categoryList[$data])

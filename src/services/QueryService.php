@@ -40,10 +40,11 @@ class QueryService extends Component
     /*
      * @param string $sectionHandle
      */
-    public function queryAllEntries(string $sectionHandle, $status = "live")
+    public function queryAllEntries(string $sectionHandle, $product = '', $status = "live")
     {
         $entries = Entry::find()
             ->section($sectionHandle)
+            ->product($product)
             ->status($status)
             ->all();
 
@@ -167,7 +168,6 @@ class QueryService extends Component
             ->search($entryTitle)
             ->one();
 
-        var_dump($query);
         return $query;
     }
 
@@ -181,7 +181,7 @@ class QueryService extends Component
     {
         $dataCleaned = [];
         foreach($originalData as $newData)
-        {
+        { 
             $dataCleaned[$newData->title] = $newData;
         }
 

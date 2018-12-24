@@ -35,6 +35,7 @@ class CsvExportService extends Component
         foreach($this->allPublications as $pub)
         {
             $data[$pub->id]['title'] = Triton::getInstance()->encodingService->toUTF8((string)$pub->title);
+            $data[$pub->id]['product'] = Triton::getInstance()->encodingService->toUTF8((string)$pub->product);
             $data[$pub->id]['documentTitle'] = Triton::getInstance()->encodingService->toUTF8((string)$pub->documentTitle);
             $data[$pub->id]['documentStatus'] = (string)$pub->documentStatus;
             if($pub->startDate)

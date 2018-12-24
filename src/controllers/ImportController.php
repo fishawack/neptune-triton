@@ -14,9 +14,11 @@ use fishawack\triton\Triton;
 
 use Craft;
 use craft\web\Controller;
-use craft\elements\Entry;
 use craft\web\UploadedFile;
+use craft\web\Request;
 use craft\elements\Asset;
+use craft\elements\Entry;
+
 use craft\helpers\Assets as AssetHelper;
 
 use yii\web\BadRequestHttpException;
@@ -59,6 +61,15 @@ class ImportController extends Controller
          */
         $uploadedFile = UploadedFile::getInstanceByName('tritonupload');
 
+        /*
+         * Get the product name from POST
+         */
+        $product = '';
+        if(isset($_POST['product']))
+        {
+            $product = (string)$_POST['product'];
+        }
+
         if($uploadedFile)
         {
             $uploadResult = Triton::getInstance()->tritonAssets->saveAsset($uploadedFile, $folderId);
@@ -70,7 +81,7 @@ class ImportController extends Controller
             {
                 case "Publications":
                     $importData = Triton::getInstance()->csvService->publicationCsvToArray($csvPath);
-                    $results = Triton::getInstance()->entryService->importArrayToEntries($importData);
+                    $results = Triton::getInstance()->entryService->importArrayToEntries($importData, $product);
                     break;
                 case "Studies":
                      $importData = Triton::getInstance()->csvService->jscCsvToArray('studies', $csvPath);

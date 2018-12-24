@@ -28,6 +28,7 @@ class EntryService extends Component
         $publicationTitle = [],
         $sectionId,
         $entryType,
+        $product,
         $authorId,
         $studies,
         $journals,
@@ -43,9 +44,12 @@ class EntryService extends Component
      *  as well :)
      *
      *  @param array $data
+     *  @param string $product
      */
-    public function importArrayToEntries(array $data)
+    public function importArrayToEntries(array $data, string $product = '')
     {
+        // Set our product
+        $this->product = $product;
         // Set the import date!
         $DVDate = Triton::getInstance()->queryService->queryOneGlobalSet('datavisionExportDate');
 
@@ -64,7 +68,7 @@ class EntryService extends Component
 
         // Set this last so that we get the
         // correct sectionId
-        $allPublications = Triton::getInstance()->queryService->queryAllEntries('publications', null);
+        $allPublications = Triton::getInstance()->queryService->queryAllEntries('publications', $this->product, null);
         $allPublications = Triton::getInstance()->queryService->swapKeys($allPublications);
 
         // Set sectionId, entryTypeId, authorId
@@ -72,6 +76,7 @@ class EntryService extends Component
         // to get a random record from our publications
         $currentUser = Craft::$app->getUser()->getIdentity();
         $key = key($allPublications);
+
         $entryExample = $allPublications[$key];
         
         $this->sectionId = $entryExample->sectionId;
@@ -252,7 +257,6 @@ class EntryService extends Component
         unset($pubFields[0]);
         unset($pubFields[10]);
         unset($pubFields[11]);
-
      
         /**
          *  Track Changes
@@ -362,8 +366,8 @@ class EntryService extends Component
         $entry->sectionId = $this->sectionId;
         $entry->authorId = $this->authorId;
         $entry->typeId = $this->entryType->id;
-
         $entry->title = $csvData['title'];
+        $entry->product = $this->product;
         $entry->slug = str_replace(' ', '-', $csvData['title']);
 
         // Setup relations to be imported

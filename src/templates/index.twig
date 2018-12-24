@@ -41,6 +41,23 @@
     <form action="/admin/triton/upload" enctype="multipart/form-data" method="POST">
         <div style="width:100%; margin: 1.5em 0;">
             <input type="file" name="tritonupload" />
+
+            {% set field = craft.app.fields.getFieldByHandle('product') %}
+
+            <select name="product">
+                {% for option in field.options %}
+
+                {% set selected = entry is defined
+                ? entry.product.value == option.value
+                : option.default %}
+
+                <option value="{{ option.value }}"
+                        {% if selected %}selected{% endif %}>
+                {{ option.label }}
+                </option>
+                {% endfor %}
+            </select>
+
         </div>
         {{ getCsrfInput() }}
         <div style="width:25%; margin: 1.5em 0;">

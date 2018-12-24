@@ -44,6 +44,7 @@ Class VariablesService extends component
     {
         return [
             'Title',
+            'Product',
             'Document Title',
             'Document Status',
             'Start Date',
@@ -232,6 +233,7 @@ Class VariablesService extends component
             'enabled' => 'enabled',
             'keyPublication' => 'keyPublication',
             'summary' => 'summary',
+            'product' => 'product',
             'objectives' => 'objectives',
             'tags' => 'publicationTags',
             'lock' => 'lock',

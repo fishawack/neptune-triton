@@ -145,7 +145,6 @@ class CsvService extends Component
             } else {
                 $data[$expandCsv[0]]['congress'] = trim(Triton::getInstance()->encodingService->toUTF8($expandCsv[6]));
             }
-            
 
             // Clean & expand studies
             $studies = $this->removeHTMLTags($expandCsv[11], '<br>');

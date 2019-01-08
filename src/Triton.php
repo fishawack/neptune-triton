@@ -83,6 +83,13 @@ class Triton extends Plugin
                 $event->rules['triton/doc-types'] = 'triton/default/get-all-doctypes';
                 $event->rules['triton/exportcsv'] = 'triton/default/export-csv';
 
+                // Duplicates checker
+                $event->rules['triton/checker/duplicates'] = 'triton/checker/duplicates';
+                $event->rules['triton/deleteduplicates'] = 'triton/checker/delete-duplicates';
+
+                $event->rules['triton/test'] = 'triton/checker/test';
+                $event->rules['triton/clean'] = 'triton/checker/clean-titles';
+
                 // Update Json Cache files
                 $event->rules['triton/updatejsonfiles'] = 'triton/default/update-json-cache';
                 $event->rules['triton/updatelocked'] = 'triton/default/update-locked';
@@ -115,6 +122,7 @@ class Triton extends Plugin
         $this->setComponents([
             'tritonAssets' => services\TritonAssets::class,
             'csvService' => services\CsvService::class,
+            'checkerService' => services\CheckerService::class,
             'csvExportService' => services\CsvExportService::class,
             'entryService' => services\EntryService::class,
             'entryChangeService' => services\EntryChangeService::class,

@@ -160,7 +160,7 @@ Class JSCImportService extends component
      *  @param array $jscData
      *  @param Entry $craftEntry
      */
-    public function saveJSCRelation(string $sectionTitle, string $handle, array $jscData, Entry &$craftEntry, $list = [])
+    public function saveJSCRelation(string $sectionTitle, string $handle, array $jscData, Entry $craftEntry, $list = [])
     {
         if(empty($list))
         {
@@ -200,10 +200,19 @@ Class JSCImportService extends component
                     {
                         $entryIds[] = $extendedFind->id;
                     } else {
-                        // Save a the study as a new entry,
-                        // find the studyId and put it into
-                        // our list
-                        $result = $this->saveNewJSC($entry);
+                        /* Save a the study as a new entry,
+                         * find the studyId and put it into
+                         * our list
+                         *
+                         * $result = $this->saveNewJSC($entry);
+                         */
+
+                        /*
+                         * Changing the way this works, instead of creating a new
+                         * entry we just list out the entries that couldn't be found
+                         * and saved so that we can reimport them instead
+                         */
+                        Triton::getInstance()->entryChangeService->addMissingEntry($entry);
 
                         /*
                          * There seems to be problem with finding 
@@ -213,6 +222,10 @@ Class JSCImportService extends component
                          * the specific entry, we will find it in another
                          * way
                          */
+
+                        /* Disregard for now */
+
+                        /*
                         $getId = Entry::find()->section($sectionTitle)->search($entry)->one();
 
                         if(!$getId) {
@@ -223,7 +236,7 @@ Class JSCImportService extends component
                         {
                             $entryIds[] = $getId->id;
                         }
-
+                        */
                     }
                 }
             }

@@ -86,6 +86,21 @@ class QueryService extends Component
     }
 
     /*
+     * Get one entry whether it's enabled or not
+     *
+     * @param string $entryId
+     */
+    public function queryEntryByTitle($title)
+    {
+        $query = Entry::find()
+            ->status(null)
+            ->title($title)
+            ->one();
+
+        return $query;
+    }
+
+    /*
      * @param string $sectionHandle
      */
     public function queryAllCategories()
@@ -96,6 +111,17 @@ class QueryService extends Component
         $results = $this->swapKeys($query);
 
         return $results;
+    }
+
+    public function getAllEntriesUntouchedWithProduct(string $sectionTitle, $product = '')
+    {
+        $entries = Entry::find()
+            ->section($sectionTitle)
+            ->product($product)
+            ->status(null)
+            ->all();
+
+        return $entries;
     }
 
     public function getAllEntriesUntouched(string $sectionTitle)

@@ -166,3 +166,12 @@ php -S localhost:8000
 5. Create an export of the CSV via the button (/admin/triton), this is a csv of the whole dataset joined with together
 
 6. Export SQL data to be imported onto internal version
+
+### Testing
+
+This tool really should have some testing (PHPUnit) in place however when we first took Craft3 on it did not have tests implemented, never the less! I've created a CheckerController where you can write some
+items which people usually ask for. I've started this out by writing tests for duplicate data, you can see this here: http://UrlGoeshere/triton/checker/duplicates?section=publications&status=true
+
+Please feel free to implement anymore so that we can do run throughs to find out if the data integerity is up to scratch!
+
+

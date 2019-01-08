@@ -341,6 +341,20 @@ Class VariablesService extends component
             'tags' => 'actionGetAllTags'
         ];
     }
+
+
+    /**
+     * Checker variables
+     */
+    public function getSectionTitles()
+    {
+        return [
+            'publications',
+            'studies',
+            'journals',
+            'congresses'
+        ];
+    }
 }
 
 

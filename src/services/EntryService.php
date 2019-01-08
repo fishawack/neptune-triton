@@ -68,7 +68,7 @@ class EntryService extends Component
 
         // Set this last so that we get the
         // correct sectionId
-        $allPublications = Triton::getInstance()->queryService->queryAllEntries('publications', $this->product, null);
+        $allPublications = Triton::getInstance()->queryService->getAllEntriesUntouchedWithProduct('publications', $this->product);
         $allPublications = Triton::getInstance()->queryService->swapKeys($allPublications);
 
         // Set sectionId, entryTypeId, authorId
@@ -76,9 +76,8 @@ class EntryService extends Component
         // to get a random record from our publications
         $currentUser = Craft::$app->getUser()->getIdentity();
         $key = key($allPublications);
-
         $entryExample = $allPublications[$key];
-        
+                
         $this->sectionId = $entryExample->sectionId;
         $this->entryType = $entryExample->type;
         $this->authorId = $currentUser->id; 
@@ -120,14 +119,21 @@ class EntryService extends Component
                     Triton::getInstance()->entryChangeService->addErrorEntry($entry['title']);
                 }
 
-                if(isset($allPublications[$entry['title']])) 
+                /*
+                 * All objects were saved into an array so we could access the key however
+                 * there seems to be a problem with certain entries, sadly we will have to revert back
+                 * to using the full query!
+                 */
+                $lookup = Triton::getInstance()->queryService->queryEntryByTitle($entry['title']);
+
+                if(isset($lookup->title)) 
                 {
                     // Check if the record is locked
                     if(isset($allPublications[$entry['title']]->lock) && $allPublications[$entry['title']]->lock === '1')
                     {
                         Triton::getInstance()->entryChangeService->addLocked($entry['title']);
                     } else {
-                        $this->saveExisting($entry, $allPublications[$entry['title']]);
+                        $this->saveExisting($entry, $lookup);
                     }
 
                     // delete from array so that we're
@@ -371,7 +377,8 @@ class EntryService extends Component
         $entry->slug = str_replace(' ', '-', $csvData['title']);
 
         // Setup relations to be imported
-        $relations['studies'] = &$csvData['study'];
+        $relations = [];
+        $relations['studies'] = $csvData['study'];
 
         if(isset($csvData['journal']))
         {
@@ -384,7 +391,7 @@ class EntryService extends Component
             $relations['congress'] = $csvData['congress'];
             unset($csvData['congress']);
         }
-        
+
         // New way of seting fields, need to remove our title
         // for set fields to work
         unset($csvData['title']);
@@ -394,7 +401,7 @@ class EntryService extends Component
 
         if($savedEntry = Craft::$app->elements->saveElement($entry)) {
             // Save Relationship with our other sections
-            $getEntry = Triton::getInstance()->queryService->queryOneEntry('publications');
+            $getEntry = Triton::getInstance()->queryService->queryEntryByTitle($entry->title);
 
             Triton::getInstance()->jscImportService->saveJSCRelation('studies', 'study', $relations['studies'], $getEntry, $this->studies);
 
@@ -403,7 +410,7 @@ class EntryService extends Component
                 Triton::getInstance()->jscImportService->saveJSCRelation('journals', 'journal', (array)$relations['journal'], $getEntry, $this->journals);
 
             }
-            if(!empty($relations['congresses']))
+            if(!empty($relations['congress']))
             {
                 Triton::getInstance()->jscImportService->saveJSCRelation('congresses', 'congress', (array)$relations['congress'], $getEntry, $this->congresses);
             }

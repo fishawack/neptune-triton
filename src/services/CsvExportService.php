@@ -13,8 +13,7 @@ use yii\base\Component;
 
 class CsvExportService extends Component
 {
-    private $allPublications;
-
+    private $allPublications; 
     public function __construct()
     {
         $this->allPublications = Triton::getInstance()->queryService->queryAllEntries('publications', $status = null);
@@ -35,7 +34,12 @@ class CsvExportService extends Component
         foreach($this->allPublications as $pub)
         {
             $data[$pub->id]['title'] = Triton::getInstance()->encodingService->toUTF8((string)$pub->title);
-            $data[$pub->id]['product'] = Triton::getInstance()->encodingService->toUTF8((string)$pub->product);
+
+            foreach($pub->product as $product)
+            {
+                $data[$pub->id]['product'] = Triton::getInstance()->encodingService->toUTF8((string)$product->title);
+            }
+            
             $data[$pub->id]['documentTitle'] = Triton::getInstance()->encodingService->toUTF8((string)$pub->documentTitle);
             $data[$pub->id]['documentStatus'] = (string)$pub->documentStatus;
             if($pub->startDate)

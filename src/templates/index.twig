@@ -42,7 +42,23 @@
         <div style="width:100%; margin: 1.5em 0;">
             <input type="file" name="tritonupload" />
 
-            {% set field = craft.app.fields.getFieldByHandle('product') %}
+            {% set field = craft.entries().section('products').all() %}
+
+            <select name="product">
+                {% for option in field %}
+
+                {% set selected = entry is defined
+                ? entry.product.value == option.value
+                %}
+
+                <option value="{{ option.title }}"
+                        {% if selected %}selected{% endif %}>
+                {{ option.title }}
+                </option>
+                {% endfor %}
+            </select>
+
+            {#% set field = craft.app.fields.getFieldByHandle('product') %}
 
             <select name="product">
                 {% for option in field.options %}
@@ -57,6 +73,8 @@
                 </option>
                 {% endfor %}
             </select>
+
+            #}
 
         </div>
         {{ getCsrfInput() }}

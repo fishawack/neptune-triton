@@ -68,7 +68,7 @@ class EntryService extends Component
 
         // Set this last so that we get the
         // correct sectionId
-        $allPublications = Triton::getInstance()->queryService->getAllEntriesUntouchedWithProduct('publications', $this->product);
+        $allPublications = Triton::getInstance()->queryService->getAllEntriesUntouched('publications');
         $allPublications = Triton::getInstance()->queryService->swapKeys($allPublications);
 
         // Set sectionId, entryTypeId, authorId
@@ -168,8 +168,6 @@ class EntryService extends Component
             }
         }
 
-        //die(var_dump($this->journals));
-
         return Triton::getInstance()->entryChangeService->getStatus();    
     }
 
@@ -237,7 +235,7 @@ class EntryService extends Component
          * Annoyingly saveRelation doesn't tell you if
          * it has been saved or not, it'll always return null
          */
-        //$saveStudy = Triton::getInstance()->jscImportService->saveJSCRelation('studies', 'study', $csvData['study'], $craftData, $this->studies);
+        $saveStudy = Triton::getInstance()->jscImportService->saveJSCRelation('studies', 'study', $csvData['study'], $craftData, $this->studies);
 
         if(isset($csvData['journal']) && strlen($csvData['journal']) > 0)
         {
@@ -288,11 +286,23 @@ class EntryService extends Component
                     Triton::getInstance()->entryChangeService->addChanged($craftData->title, $data);
                 }
             } elseif(is_a($craftData->$data, 'craft\elements\db\CategoryQuery')) {
+                $fieldValue = '';
+                /*
+                 * Since some fields can have multiple values,
+                 * we need to loop through and find out if any
+                 * are the same
+                 */
+                foreach($craftData->$data as $fieldData)
+                {
+                    $fieldValue = $fieldData->title;
+                }
+
                 /* 
                  * if our item is a Craft Category object 
                  * then we need to sort it in a different way
                  */
-                if((string)$craftData->$data->title !== (string)$csvData[$data])
+                //if((string)$craftData->$data->title !== (string)$csvData[$data])
+                if($fieldValue !== (string)$csvData[$data])
                 {
                     // Get Category group
                     $categoryGroupId = $craftData->$data->groupId;
@@ -300,6 +310,7 @@ class EntryService extends Component
                     $category = Triton::getInstance()->queryService->queryCategoryById($categoryGroupId);
 
                     Triton::getInstance()->jscImportService->saveCategoryRelation($data, (array)$csvData['docType'], $craftData);
+                    Triton::getInstance()->entryChangeService->addChanged($craftData->title, $data);
                     $changed++;
                 }
             } else {
@@ -357,7 +368,27 @@ class EntryService extends Component
      */
     public function deleteEntry(Entry $craftEntry)
     {
-        Triton::getInstance()->entryChangeService->addDeletedEntry((string)$craftEntry->title);
+        // All custom fields in Craft requires you to run a foreach
+        // to get the value 
+        foreach($craftEntry->product as $product)
+        {
+            $associatedProduct = (string)$product->title;
+        }
+
+        // Check if entry and product is what we're dealing with
+        if($associatedProduct === $this->product)
+        {
+            Triton::getInstance()->entryChangeService->addDeletedEntry((string)$craftEntry->title);
+
+            // Disable the entry
+            $craftEntry->enabled = 0;
+
+            if(Craft::$app->elements->saveElement($craftEntry)) {
+                return true;
+            } else {
+                throw new \Exception("Saving failed: " . print_r($craftEntry->getErrors(), true));
+            }
+        }
     }
 
     /**
@@ -373,7 +404,7 @@ class EntryService extends Component
         $entry->authorId = $this->authorId;
         $entry->typeId = $this->entryType->id;
         $entry->title = $csvData['title'];
-        $entry->product = $this->product;
+        //$entry->product = $this->product;
         $entry->slug = str_replace(' ', '-', $csvData['title']);
 
         // Setup relations to be imported
@@ -403,7 +434,12 @@ class EntryService extends Component
             // Save Relationship with our other sections
             $getEntry = Triton::getInstance()->queryService->queryEntryByTitle($entry->title);
 
-            Triton::getInstance()->jscImportService->saveJSCRelation('studies', 'study', $relations['studies'], $getEntry, $this->studies);
+            // Save the product field
+            Triton::getInstance()->jscImportService->saveJSCRelation('products', 'product', (array)$this->product, $getEntry);
+            if(!empty($relations['studies']))
+            {
+                Triton::getInstance()->jscImportService->saveJSCRelation('studies', 'study', $relations['studies'], $getEntry, $this->studies);
+            }
 
             if(!empty($relations['journal']))
             {

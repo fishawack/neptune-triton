@@ -37,8 +37,8 @@ Class JSCImportService extends component
     public function __construct()
     {
         $getEntries = Triton::getInstance()->queryService->queryAllEntries($this->sectionTitle);
-        $this->sectionId = $getEntries[0]->sectionId;
-        $this->entryType = $getEntries[0]->type;
+        //$this->sectionId = $getEntries[0]->sectionId;
+        //$this->entryType = $getEntries[0]->type;
 
         if(!isset(Craft::$app->getUser()->getIdentity()->id))
         {
@@ -162,11 +162,6 @@ Class JSCImportService extends component
      */
     public function saveJSCRelation(string $sectionTitle, string $handle, array $jscData, Entry $craftEntry, $list = [])
     {
-        if(empty($list))
-        {
-            $list = Triton::getInstance()->queryService->queryAllEntries($sectionTitle);
-        }
-            
         // Need to get section details
         $section = Triton::getInstance()->queryService->queryOneEntry($sectionTitle);
 

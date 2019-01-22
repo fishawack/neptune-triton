@@ -284,6 +284,14 @@ Class VariablesService extends component
         ];
     }
 
+    public function getProductsJsonStruc()
+    {
+        return [
+            'id' => 'id',
+            'product' => 'product'
+        ];
+    }
+
     public function getJournalsJsonStruc()
     {
         return [

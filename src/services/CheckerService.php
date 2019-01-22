@@ -51,12 +51,15 @@ class CheckerService extends Component
 
             $duplicates[$title]['title'] = $title;
             foreach($query as $key => $data) {
-                $duplicates[$title]['status_' . $key] = $data->enabled;
-
-                // If the entry is disabled but not locked, it should be!
-                if($data->enabled === '0' && $data->lock === 0)
+                if(isset($data->enabled))
                 {
-                    //$this->lockEntry($data); 
+                    $duplicates[$title]['status_' . $key] = $data->enabled;
+
+                    // If the entry is disabled but not locked, it should be!
+                    if($data->enabled === '0' && $data->lock === 0)
+                    {
+                        //$this->lockEntry($data); 
+                    }
                 }
             }
         }

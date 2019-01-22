@@ -77,6 +77,7 @@ class Triton extends Plugin
                 $event->rules['triton/journals'] = 'triton/default/get-all-journals';
                 $event->rules['triton/congresses'] = 'triton/default/get-all-congresses';
                 $event->rules['triton/studies'] = 'triton/default/get-all-studies';
+                $event->rules['triton/products'] = 'triton/default/get-all-products';
                 $event->rules['triton/tags'] = 'triton/default/get-all-tags';
                 $event->rules['triton/categories'] = 'triton/default/get-all-categories';
                 $event->rules['triton/global'] = 'triton/default/get-all-globals';

@@ -139,6 +139,19 @@ class DefaultController extends Controller
     }
 
     /*
+     * Get all Products
+     *
+     * @return json
+     */
+    public function actionGetAllProducts($json = true)
+    {
+        $field = Craft::$app->fields->getFieldByHandle('product');
+
+        var_dump($field); die(); 
+
+        return $results;
+    }
+    /*
      * Get all tags
      * 
      * @return json

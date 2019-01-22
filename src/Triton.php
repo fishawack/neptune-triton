@@ -90,6 +90,8 @@ class Triton extends Plugin
 
                 $event->rules['triton/test'] = 'triton/checker/test';
                 $event->rules['triton/clean'] = 'triton/checker/clean-titles';
+                $event->rules['triton/setproduct'] = 'triton/checker/set-all-entry-products';
+
 
                 // Update Json Cache files
                 $event->rules['triton/updatejsonfiles'] = 'triton/default/update-json-cache';

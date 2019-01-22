@@ -139,15 +139,41 @@ class DefaultController extends Controller
     }
 
     /*
+     * DEPRECIATED!
+     * ===
+     *
+     * Get all Products (Field with dropdown not entries)
+     *
+     * @return json
+     */
+    //public function actionGetAllProducts($json = true)
+    //{
+    //    $field = Craft::$app->fields->getFieldByHandle('product');
+
+    //    var_dump($field); die(); 
+
+    //    return $results;
+    //}
+
+    /*
      * Get all Products
      *
      * @return json
      */
     public function actionGetAllProducts($json = true)
     {
-        $field = Craft::$app->fields->getFieldByHandle('product');
+        $queryAll = Triton::getInstance()->queryService->getAllEntriesUntouched('products');
+        $jsonStructure = Triton::getInstance()->variablesService->getProductsJsonStruc();
 
-        var_dump($field); die(); 
+        $results = Triton::getInstance()->jsonService->getSectionDataFormatted($queryAll, $jsonStructure);
+
+        if($json)
+        {
+            return $this->asJson(array_values($results));
+        }
+
+        return $results;
+
 
         return $results;
     }

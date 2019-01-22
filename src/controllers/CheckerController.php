@@ -135,4 +135,49 @@ class CheckerController extends Controller
         var_dump('Finished');
         die();
     }
+
+    /**
+     * 
+     *
+     * @return void
+     */
+    public function actionSetAllEntryProducts()
+    {
+        $json = [];
+
+        if(!isset($_GET['productname']))
+        {
+            $message = 'No product name specified';
+            $json['error'] = $message;
+            return $this->asJson($json);
+        }
+
+        $productName = (string)$_GET['productname'];
+
+        // Check if the product exists!
+        $name = Triton::getInstance()->queryService->queryEntryByTitle($productName);
+
+        if(!isset($name->title))
+        {
+            $message = 'Product doesn\'t exist!';
+            $json['error'] = $message;
+            return $this->asJson($json);
+        }
+
+        $name = (string)$name->title;
+
+        $queryAll = Triton::getInstance()->queryService->getAllEntriesUntouched('publications');
+    
+        foreach($queryAll as $entry)
+        {
+            Triton::getInstance()->jscImportService->saveJSCRelation('products', 'product', (array)$name, $entry);
+        }
+
+        $json = [
+            'Completed'
+        ];
+
+        return $this->asJson($json);
+    }
+    
 }

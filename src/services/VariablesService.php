@@ -188,6 +188,10 @@ Class VariablesService extends component
                 'url' => 'triton/global',
                 'path' => 'json/global'
             ],
+            'products' => [
+                'url' => 'triton/products',
+                'path' => 'json/products'
+            ],
             'doctypes' => [
                 'url' => 'triton/doc-types',
                 'path' => 'json/doc-types'
@@ -288,7 +292,7 @@ Class VariablesService extends component
     {
         return [
             'id' => 'id',
-            'product' => 'product'
+            'title' => 'title'
         ];
     }
 
@@ -345,6 +349,7 @@ Class VariablesService extends component
             'congresses' => 'actionGetAllCongresses',
             'categories' => 'actionGetAllCategories',
             'globals' => 'actionGetAllGlobals',
+            'products' => 'actionGetAllProducts',
             'doctypes' => 'actionGetAllDoctypes',
             'tags' => 'actionGetAllTags'
         ];

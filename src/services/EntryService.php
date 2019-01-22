@@ -370,6 +370,7 @@ class EntryService extends Component
     {
         // All custom fields in Craft requires you to run a foreach
         // to get the value 
+        $associatedProduct = '';
         foreach($craftEntry->product as $product)
         {
             $associatedProduct = (string)$product->title;

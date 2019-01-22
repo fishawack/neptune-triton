@@ -40,11 +40,10 @@ class QueryService extends Component
     /*
      * @param string $sectionHandle
      */
-    public function queryAllEntries(string $sectionHandle, $product = '', $status = "live")
+    public function queryAllEntries(string $sectionHandle, $status = "live")
     {
         $entries = Entry::find()
             ->section($sectionHandle)
-            ->product($product)
             ->status($status)
             ->all();
 

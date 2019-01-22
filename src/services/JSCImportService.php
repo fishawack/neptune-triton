@@ -52,11 +52,11 @@ Class JSCImportService extends component
 
     public function setJSCObjects(string $sectionTitle)
     {
-        $getEntries = Triton::getInstance()->queryService->queryAllEntries($this->sectionTitle);
+        $getEntries = Triton::getInstance()->queryService->queryAllEntries($sectionTitle);
         $this->sectionId = $getEntries[0]->sectionId;
         $this->entryType = $getEntries[0]->type;
         $this->authorId = $currentUser = Craft::$app->getUser()->getIdentity()->id;
-
+        
         $this->JSCObjects = Triton::getInstance()->queryService->swapKeys($getEntries);     
     }
 
@@ -140,13 +140,16 @@ Class JSCImportService extends component
 
         // If anything is left in the array then we
         // need to delete(disable) these records
+        //
+        // v1.1 No need to remove or disable any of our JSC
+        /*
         if(count($jscList) > 0)
         {
             foreach($jscList as $deletedEntry)
             {
                 Triton::getInstance()->entryService->deleteEntry($deletedEntry);
             }
-        }
+        }*/
 
         return Triton::getInstance()->entryChangeService->getStatus();
     }

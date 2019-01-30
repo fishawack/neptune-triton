@@ -262,6 +262,8 @@ Class VariablesService extends component
         return [
             'Completed',
             'Presented',
+            'ePub Only',
+            'ePub Ahead of Print',
             'Published'
         ];
     }

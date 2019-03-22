@@ -68,6 +68,8 @@ Class VariablesService extends component
             
         ];
     }
+
+    
     public function getJournalHeaders()
     {
         return [
@@ -250,6 +252,22 @@ Class VariablesService extends component
             ]
         ];
     }
+
+    /*
+     * Structure of arrays coming from appends
+     */
+    public function getAppendDataStructure() 
+    {
+        return [
+            'title',
+            'product',
+            'summary',
+            'objectives',
+            'publicationTags',
+            'download'
+        ];
+    }
+
 
     /*
      *  Use this method to generate

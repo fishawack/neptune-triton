@@ -1,5 +1,6 @@
 <?php
 
+namespace fishawack\triton\services;
 /**
  *  A simple class that will setup
  *  and put our CSV values into a nice
@@ -7,9 +8,6 @@
  *  
  *  1MS, 2MS, RA use journals
  */
-
-namespace fishawack\triton\services;
-
 use fishawack\triton\Triton;
 use Craft;
 use yii\base\Component;
@@ -37,6 +35,14 @@ class CsvService extends Component
         return $csvType[1];
     } 
 
+    /**
+     *  Read CSV into PHP memory
+     */
+    public function readCsvIntoArray(string $filePath)
+    {
+        return file($filePath);
+    }
+
     /*
      * Read file into memory and turn into
      * an array
@@ -51,7 +57,7 @@ class CsvService extends Component
      */
     public function publicationCsvToArray(string $filePath)
     {
-        $csvFile = file($filePath);
+        $csvFile = $this->readCsvIntoArray($filePath);
 
         // Remove the misc fields from dv
         $cleanData = $this->cleanCsv($csvFile);
@@ -163,11 +169,12 @@ class CsvService extends Component
                     // the number
                     $cleanStudies = explode(' ', $studies[$i]);
                     $studies[$i] = $cleanStudies[0];
-                }
 
-                $data[$expandCsv[0]]['study'] = $this->clearEmptyArrayValues($studies);
-            }
-        } 
+
+                    $data[$expandCsv[0]]['study'] = $this->clearEmptyArrayValues($studies);
+                }
+            } 
+        }
         return $data;
     }
 
@@ -250,6 +257,7 @@ class CsvService extends Component
 
         return $data;
     }
+
 
     /*
      *  Check if it's a Chai datavision export,

@@ -40,6 +40,7 @@
 
     <form action="/admin/triton/upload" enctype="multipart/form-data" method="POST">
         <div style="width:100%; margin: 1.5em 0;">
+            <div class="field__group" style="width:100%; padding: 1em;">
             <input type="file" name="tritonupload" />
 
             {% set field = craft.entries().section('products').all() %}
@@ -57,7 +58,19 @@
                 </option>
                 {% endfor %}
             </select>
+            </div>
 
+            <div style="padding: 1em;">
+                <div class="field__group" style="width:100%; margin-bottom: 0.5em;">
+                    <input id="append" type="checkbox" name="append"/>
+                    <label for="append">Append import to current results</label>
+                </div>
+
+                <div class="field__group" style="width:100%;">
+                    <input id="custom_csv" type="checkbox" name="custom_csv"/>
+                    <label for="custom_csv">Use custom CSV template</label>
+                </div>
+            </div>
         </div>
         
         <!--

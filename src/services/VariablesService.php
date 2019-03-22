@@ -242,6 +242,7 @@ Class VariablesService extends component
             'product' => 'product',
             'objectives' => 'objectives',
             'tags' => 'publicationTags',
+            'download' => 'download',
             'lock' => 'lock',
             'custom' => [
                 'status' => [
@@ -312,7 +313,8 @@ Class VariablesService extends component
     {
         return [
             'id' => 'id',
-            'title' => 'title'
+            'title' => 'title',
+            'image' => 'image'
         ];
     }
 
@@ -354,7 +356,7 @@ Class VariablesService extends component
             'id' => 'id',
             'title' => 'title'
         ];
-    }    
+    }
 
     /*
      * Json Function matching for update

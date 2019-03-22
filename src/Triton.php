@@ -73,6 +73,7 @@ class Triton extends Plugin
             UrlManager::class,
             UrlManager::EVENT_REGISTER_SITE_URL_RULES,
             function (RegisterUrlRulesEvent $event) {
+ 
                 $event->rules['triton/publications'] = 'triton/default/get-all-publications';
                 $event->rules['triton/journals'] = 'triton/default/get-all-journals';
                 $event->rules['triton/congresses'] = 'triton/default/get-all-congresses';
@@ -106,6 +107,7 @@ class Triton extends Plugin
             UrlManager::class,
             UrlManager::EVENT_REGISTER_CP_URL_RULES,
             function (RegisterUrlRulesEvent $event) {
+                $event->rules['/triton/custom/convert-kogenate'] = 'triton/custom-method/convert-kogenate';
                 $event->rules['/triton/upload'] = 'triton/import/init-import';
             }
         );

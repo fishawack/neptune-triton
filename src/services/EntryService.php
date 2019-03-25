@@ -48,10 +48,10 @@ class EntryService extends Component
         $this->entryType = $entryExample->type;
         $this->authorId = $currentUser->id; 
 
-        $this->product = $product;
 
         $import = [];
         foreach($csvData as $index => $data) {
+            $this->product = $product;
             $delimit = explode('`', $data);
 
             $study = [];
@@ -65,37 +65,57 @@ class EntryService extends Component
                         $study[$index] = trim($studyItem);
                     }
                 }
-
             }
 
             $tags = [];
             if(isset($delimit[19]))
             {
-                $tags = explode("  ", str_replace('"','', $delimit[19]));
+                $tags = explode("  ", $this->clearQuotes(trim($delimit[19])));
                 $availableTags = Triton::getInstance()->jscImportService->checkCategoryItems('publicationTags', $tags);
+
                 $tagRelations = [];
                 foreach($tags as $item) 
                 {
-                    if(!isset($availableTags[$item])) {
-                        $tagRelations[] = Triton::getInstance()->jscImportService->saveNewCategoryEntry('publicationTags', $item);
-                    } else {
+                    if(isset($availableTags[$item])) {
                         $tagRelations[] = (int)$availableTags[$item];
+                    } else {
+                        if($item !== '')
+                        {
+                            $tagRelations[] = Triton::getInstance()->jscImportService->saveNewCategoryEntry('publicationTags', $item);
+                        }
                     }
                 }
             }
 
+            // We only have one column for this table
+            $download = [];
+            if(isset($delimit[20]))
+            {
+                $files = explode('  ', $delimit[20]);
+                foreach($files as $file) 
+                {
+                    $download[] = [
+                        'col1' => $this->clearQuotes($file)
+                    ];
+                }
+            }
+
             // Check to see if we have the special section!
-            $special = array(trim($delimit[15]));
+            $special = array(trim($this->clearQuotes($delimit[15])));
             $availableCats = Triton::getInstance()->jscImportService->checkCategoryItems('keyAreasOfKnowledge', $special);
             $category = [];
 
             if(!isset($availableCats[$special[0]])) {
-                $category[] = Triton::getInstance()->jscImportService->saveNewCategoryEntry('keyAreasOfKnowledge', $special[0]);
+                $category[] = Triton::getInstance()->jscImportService->saveNewCategoryEntry('keyAreasOfKnowledge', $this->clearQuotes($special[0]));
             } else {
                 $category[] = (int)$availableCats[$special[0]];
             }
 
-            
+            if($delimit[1] !== '') 
+            {
+                $product = trim($this->clearQuotes($delimit[1]));
+                $this->product = $product; 
+            }
 
             $entry = [
                 'title' => $this->clearQuotes($delimit[0]),
@@ -119,7 +139,7 @@ class EntryService extends Component
                 'objectives'=> $this->clearQuotes($delimit[18]),
                 'category' => $category,
                 'publicationTags' => $tagRelations,
-                'download' => $delimit[20],
+                'download' => $download,
                 'lock'=> true
             ];
 

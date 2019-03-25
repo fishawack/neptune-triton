@@ -242,7 +242,7 @@ Class VariablesService extends component
             'product' => 'product',
             'objectives' => 'objectives',
             'tags' => 'publicationTags',
-            'download' => 'download',
+            'file' => 'file',
             'lock' => 'lock',
             'custom' => [
                 'status' => [

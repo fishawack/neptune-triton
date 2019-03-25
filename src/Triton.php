@@ -108,6 +108,9 @@ class Triton extends Plugin
             UrlManager::EVENT_REGISTER_CP_URL_RULES,
             function (RegisterUrlRulesEvent $event) {
                 $event->rules['/triton/custom/convert-kogenate'] = 'triton/custom-method/convert-kogenate';
+                $event->rules['/triton/custom/change-links'] = 'triton/custom-method/change-links-to-tables';
+                $event->rules['/triton/custom/clear-empty-files'] = 'triton/custom-method/clear-empty-files';
+
                 $event->rules['/triton/upload'] = 'triton/import/init-import';
             }
         );

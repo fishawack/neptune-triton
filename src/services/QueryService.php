@@ -313,6 +313,7 @@ class QueryService extends Component
     public function changeTitleToSlug($title) {
         $title = str_replace(' ', '-', $title);
         $slug = preg_replace('/[^A-Za-z0-9\-]/', '-', $title);
+        $slug = strtolower($slug);
         return $slug;
     }
 }

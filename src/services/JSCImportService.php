@@ -338,6 +338,12 @@ Class JSCImportService extends component
         return $found;
     }
 
+    public function checkCategoryItem(string $handle, string $item) 
+    {
+        $tags = Category::find()->group($handle)->title($item);
+        return $tags->id;
+    }
+
     private function getCategorySimpleItems(array $categoryItems)
     {
         $simple = [];

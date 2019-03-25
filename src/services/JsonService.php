@@ -276,6 +276,15 @@ class JsonService extends Component
                                 $dataArray[$entryId][$key] = (int)$newVal->id;
                             }
                         }
+                    } elseif(is_array($entry->$value)) {
+                        /*
+                         * If the field is a table     
+                         */
+                        foreach($entry->$value as $index => $item) {
+                            $dataArray[$entryId][$key][] = $item[$value];
+                        }
+
+                        //$dataArray[$entryId][$key][] = $entry->$value[$value];
                     } else {
                         if($entry->$value !== null)
                         {

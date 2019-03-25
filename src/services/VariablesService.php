@@ -265,7 +265,8 @@ Class VariablesService extends component
             'summary',
             'objectives',
             'publicationTags',
-            'download'
+            'file',
+            'congress'
         ];
     }
 

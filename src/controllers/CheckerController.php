@@ -179,5 +179,4 @@ class CheckerController extends Controller
 
         return $this->asJson($json);
     }
-    
 }

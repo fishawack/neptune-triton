@@ -130,28 +130,56 @@ class CustomMethodController extends Controller
 
     public function actionClearEmptyFiles() 
     {
-        $allEntries = Entry::find()->section('publications')->all();
-        foreach($allEntries as $entry)
+
+        $entries = Entry::find()->section('publications')->all();
+
+        foreach($entries as $entry) 
         {
-            if(isset($entry->file))
+            $files = [];
+
+            if($entry->file)
             {
-                foreach($entry->file as $index => $item)
+                foreach($entry->file as $file)
                 {
-                    if($item['file'] === '.pdf.pdf' || $item['file'] === '.pdf')
+                    //var_dump($file['file']);
+                    if($file['file'] !== '')
                     {
-                        $entry->file = [];
+                        $files[] = $file; 
                     }
 
-                    if((strpos($item['file'], '.pdf.pdf') !== false))
-                    {
+                    $entry->file = $files;
+//                    var_dump($entry->title);
+
+                    if(!Craft::$app->elements->saveElement($entry)) {
+                        throw new \Exception("Saving failed: " . print_r($entry->getErrors(), true));
                     }
                 }
 
-                if(!Craft::$app->elements->saveElement($entry)) {
-                    throw new \Exception("Saving failed: " . print_r($entry->getErrors(), true));
-                }
             }
         }
+
+//        $allEntries = Entry::find()->section('publications')->all();
+//        foreach($allEntries as $entry)
+//        {
+//            if(isset($entry->file))
+//            {
+//                foreach($entry->file as $index => $item)
+//                {
+//                    if($item['file'] === '.pdf.pdf' || $item['file'] === '.pdf')
+//                    {
+//                        $entry->file = [];
+//                    }
+//
+//                    if((strpos($item['file'], '.pdf.pdf') !== false))
+//                    {
+//                    }
+//                }
+//
+//                if(!Craft::$app->elements->saveElement($entry)) {
+//                    throw new \Exception("Saving failed: " . print_r($entry->getErrors(), true));
+//                }
+//            }
+//        }
 
         var_dump('finished');
     }

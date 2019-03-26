@@ -142,7 +142,7 @@ class JsonService extends Component
                         foreach($categoryData[$value] as $data)
                         {
                             $dataArray[$categoryData->id][$value][] = [
-                                'id' => (string)$data->id,
+                                'id' => (int)$data->id,
                                 'title' => (string)$data->title
                             ];
                         }

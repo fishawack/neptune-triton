@@ -283,8 +283,6 @@ Class JSCImportService extends component
             return false;
         }
 
-        die(); 
-
         $jscField = $this->getJSCField($craftEntry, $handle);
 
         $categoryIds = [];

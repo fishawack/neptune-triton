@@ -261,7 +261,8 @@ class DefaultController extends Controller
      */
     public function actionGetAllCategories($json = true)
     {
-        $queryAll = Triton::getInstance()->queryService->queryCategoriesByTitle('keyAreasOfKnowledge');
+        //$queryAll = Triton::getInstance()->queryService->queryCategoriesByTitle('keyAreasOfKnowledge');
+        $queryAll = Triton::getInstance()->queryService->getAllCategoriesUntouched('keyAreasOfKnowledge');
 
         $jsonStructure = Triton::getInstance()->variablesService->getCategoryJsonStruc();
 
@@ -270,7 +271,8 @@ class DefaultController extends Controller
         //
         // Using seperate function to deal with categories
         //
-        $results = Triton::getInstance()->jsonService->getCategoryDataFormatted($queryAll, $jsonStructure);
+        //$results = Triton::getInstance()->jsonService->getCategoryDataFormatted($queryAll, $jsonStructure);
+        $results = Triton::getInstance()->jsonService->getSectionDataFormatted($queryAll, $jsonStructure);
         
         if($json)
         {

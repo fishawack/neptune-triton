@@ -70,12 +70,13 @@ class EntryService extends Component
             $tags = [];
             if(isset($delimit[19]))
             {
-                $tags = explode("  ", $this->clearQuotes(trim($delimit[19])));
+                $tags = explode("  ", trim($this->clearQuotes($delimit[19])));
                 $availableTags = Triton::getInstance()->jscImportService->checkCategoryItems('publicationTags', $tags);
 
                 $tagRelations = [];
                 foreach($tags as $item) 
                 {
+                    $item = trim($item);
                     if(isset($availableTags[$item])) {
                         $tagRelations[] = (int)$availableTags[$item];
                     } else {
@@ -104,9 +105,7 @@ class EntryService extends Component
             $docTypeData = array(trim($this->clearQuotes($delimit[8])));
             $availableDocType = Triton::getInstance()->jscImportService->checkCategoryItems('documentType', $docTypeData);
             $docType = [];
-            if(!isset($availableDocType[$docTypeData[0]])) {
-                throw new \Exception("Saving failed: " . print_r('DocType unavailable!', true));
-            } else {
+            if(isset($availableDocType[$docTypeData[0]])) {
                 $docType[] = (int)$availableDocType[$docTypeData[0]];
             }
 
@@ -121,6 +120,8 @@ class EntryService extends Component
             $availableCats = Triton::getInstance()->jscImportService->checkCategoryItems('keyAreasOfKnowledge', $special);
             $category = [];
 
+            // Had a spreadhseet that somehow contained double spaces in the entry,
+            // craft will remove double spaces therefore it's not recognised
             if(!isset($availableCats[$special[0]])) {
                 $category[] = Triton::getInstance()->jscImportService->saveNewCategoryEntry('keyAreasOfKnowledge', $this->clearQuotes($special[0]));
             } else {
@@ -138,7 +139,7 @@ class EntryService extends Component
                 'product' => $product,
                 'documentTitle' => $this->clearQuotes($delimit[2]),
                 'documentStatus' => array($this->clearQuotes($delimit[3])),
-                'startDate' => $delimit[4],
+                'startDate' => date('Y-m-d H:i:s', strtotime($delimit[4])),
                 'submissionDate' => $this->clearQuotes($delimit[5]),
                 'documentAuthor' => $this->clearQuotes($delimit[6]),
                 'documentType' => $this->clearQuotes($delimit[7]),
@@ -494,12 +495,34 @@ class EntryService extends Component
         }
 
         $tags = $data['publicationTags'];
+        $areas = $data['category'];
         $product = array($data['product']);
         $congress = $data['congress'];
 
         unset($data['product']);
         unset($data['title']);
         unset($data['congress']);
+
+        if($areas)
+        {
+            $availableAreas = Triton::getInstance()->jscImportService->checkCategoryItems('keyAreasOfKnowledge', $areas);
+            $areaRelations = [];
+            foreach($areas as $area) 
+            {
+                $area = trim($area);
+                if(isset($availableAreas[$area]))
+                {
+                    $areaRelations[] = (int)$availableAreas[$area];
+                } else {
+                    if($area !== '')
+                    {
+                        $areaRelations[] = Triton::getInstance()->jscImportService->saveNewCategoryEntry('keyAreasOfKnowledge', $area);
+                    }
+                }
+            }
+
+            $data['category'] = $areaRelations;
+        }
 
         if($tags)
         {
@@ -521,6 +544,9 @@ class EntryService extends Component
             $data['publicationTags'] = $tagRelations;
         }
 
+        // Clear all Objectives
+        // Bayer specific, to be remove
+        $data['objectives'] = '';
 
         $record->setFieldValues($data);
 
@@ -634,8 +660,21 @@ class EntryService extends Component
 
                     $newData['publicationTags'] = $tags;
                 }
-            }
 
+                if($key === 'category') 
+                {
+                    $areas = [];
+                    $allAreas = explode('  ', $value);
+                    foreach($allAreas as $area)
+                    {
+                        $areas[] = trim($area);
+                    }
+
+                    $newData['category'] = $areas;
+                }
+
+            }
+            var_dump($newData);
             $this->appendData($newData);
         }
 
@@ -725,7 +764,11 @@ class EntryService extends Component
             $categoryGroupId = $getEntry->docType->groupId;
             // Grab the id needed for our category type
             $category = Triton::getInstance()->queryService->queryCategoryById($categoryGroupId);
-            Triton::getInstance()->jscImportService->saveCategoryRelation('docType', (array)$csvData['docType'], $getEntry);
+
+            if(isset($csvData['docType']))
+            {
+                Triton::getInstance()->jscImportService->saveCategoryRelation('docType', (array)$csvData['docType'], $getEntry);
+            }
 
             return $entry;
         } else {

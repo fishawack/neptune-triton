@@ -263,7 +263,7 @@ Class VariablesService extends component
             'title',
             'product',
             'summary',
-            'objectives',
+            'category',
             'publicationTags',
             'file',
             'congress'

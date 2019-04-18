@@ -336,7 +336,7 @@ class DefaultController extends Controller
      */
     public function actionUpdateLocked()
     {
-        $entries = Triton::getInstance()->queryService->queryAllEntries('publications', 'disabled');
+        $entries = Triton::getInstance()->queryService->queryAllEntries('publications');
         $savedEntries = '';
         foreach ($entries as $entry)
         {

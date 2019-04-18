@@ -727,9 +727,24 @@ class EntryService extends Component
 
         if(isset($csvData['docType']))
         {
-            $relations['docType'] = $csvData['docType'];
-        }
+            $array = (array)$csvData['docType'];
+            $availableTypes = Triton::getInstance()->jscImportService->checkCategoryItems('documentType', $array);
+            $typesRelations = [];
+            foreach($array as $item) 
+            {
+                $item = trim($item);
+                if(isset($availableTypes[$item])) {
+                    $typesRelations[] = (int)$availableTypes[$item];
+                } else {
+                    if($item !== '')
+                    {
+                        $typesRelations[] = Triton::getInstance()->jscImportService->saveNewCategoryEntry('documentType', $item);
+                    }
+                }
+            }
 
+            $csvData['docType'] = $typesRelations;
+        }
         // New way of seting fields, need to remove our title
         // for set fields to work
         unset($csvData['title']);

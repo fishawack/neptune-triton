@@ -200,6 +200,7 @@ class JsonService extends Component
 
             $entryId = (int)$entry->id;
 
+
             /*
              * Go through our Json structure and match
              * the values to our craft entry
@@ -230,7 +231,6 @@ class JsonService extends Component
                         $data = $categories[(string)$entry->$value]->id;
 
                         $dataArray[$entryId][$key] = (int)$data;
-
                     } elseif(is_a($entry->$value, 'DateTime')) {
                         // We need to check for data needs to be // filtered i.e Dates / booleans / arrays.
                         // These need seperate preparation.
@@ -285,6 +285,22 @@ class JsonService extends Component
                         }
 
                         //$dataArray[$entryId][$key][] = $entry->$value[$value];
+                    } elseif (is_a($entry->$value, 'craft\redactor\FieldData')) {
+                        /*
+                         * Summaries!
+                         */
+                        $dataArray[$entryId][$value] = (string)$entry->$value;
+                        if($entry->title === 'B94-ABS-015487')
+                        {
+                            //var_dump($entry->summary);
+                            //var_dump((string)$entry->summary);
+//                            var_dump($key);
+//                            var_dump($dataArray[$entryId][$key] = (string)$entry->$value);
+//                            die();
+                        }
+                        //var_dump($dataArray[$entryId][$key] = (string)$entry->$value);
+                        //var_dump($value);
+                        //var_dump($entry->$value); die();
                     } else {
                         if($entry->$value !== null)
                         {

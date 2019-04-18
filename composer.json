@@ -10,17 +10,7 @@
         "craft-plugin",
         "triton"
     ],
-    "support": {
-        "docs": "",
-        "issues": ""
-    },
     "license": "MIT",
-    "authors": [
-        {
-            "name": "GeeHim Siu",
-            "homepage": "www.fishawack.com"
-        }
-    ],
     "require": {
         "craftcms/cms": "^3.0.0-RC1"
     },

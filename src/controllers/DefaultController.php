@@ -360,4 +360,15 @@ class DefaultController extends Controller
 
         return $this->asJson($savedEntries);
     }
+
+    /**
+     * undocumented function
+     *
+     * @return void
+     */
+    public function actionExportDb()
+    {
+        return null;
+    }
+    
 }

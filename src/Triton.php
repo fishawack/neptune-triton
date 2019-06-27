@@ -131,6 +131,7 @@ class Triton extends Plugin
             'tritonAssets' => services\TritonAssets::class,
             'csvService' => services\CsvService::class,
             'checkerService' => services\CheckerService::class,
+            'DbExportService' => services\DbExportService::class,
             'csvExportService' => services\CsvExportService::class,
             'entryService' => services\EntryService::class,
             'entryChangeService' => services\EntryChangeService::class,

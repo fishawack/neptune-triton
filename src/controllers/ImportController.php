@@ -119,6 +119,9 @@ class ImportController extends Controller
 
         $performance = microtime(true) - $scriptStart;
 
+        // Export results to file
+        Triton::getInstance()->csvExportService->exportTxt('csvexport/'.$csvType.'.txt', $results);
+
         return $this->renderTemplate('triton/importchanges', [
             'results' => $results,
             'performance' => $performance

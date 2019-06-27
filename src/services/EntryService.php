@@ -787,6 +787,7 @@ class EntryService extends Component
 
             return $entry;
         } else {
+            var_dump($csvData);
             throw new \Exception("Saving failed: " . print_r($entry->getErrors(), true));
         }
     }

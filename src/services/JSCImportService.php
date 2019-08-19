@@ -24,6 +24,7 @@ use craft\elements\Entry;
 use craft\elements\Category;
 use craft\elements\db\EntryQuery;
 use craft\fields\Entries as BaseField;
+use craft\helpers\ElementHelper as Helper;
 
 Class JSCImportService extends component
 {
@@ -37,8 +38,8 @@ Class JSCImportService extends component
     public function __construct()
     {
         $getEntries = Triton::getInstance()->queryService->queryAllEntries($this->sectionTitle);
-        $this->sectionId = $getEntries[0]->sectionId;
-        $this->entryType = $getEntries[0]->type;
+        //$this->sectionId = $getEntries[0]->sectionId;
+        //$this->entryType = $getEntries[0]->type;
 
         if(!isset(Craft::$app->getUser()->getIdentity()->id))
         {
@@ -52,11 +53,11 @@ Class JSCImportService extends component
 
     public function setJSCObjects(string $sectionTitle)
     {
-        $getEntries = Triton::getInstance()->queryService->queryAllEntries($this->sectionTitle);
+        $getEntries = Triton::getInstance()->queryService->queryAllEntries($sectionTitle);
         $this->sectionId = $getEntries[0]->sectionId;
         $this->entryType = $getEntries[0]->type;
         $this->authorId = $currentUser = Craft::$app->getUser()->getIdentity()->id;
-
+        
         $this->JSCObjects = Triton::getInstance()->queryService->swapKeys($getEntries);     
     }
 
@@ -90,12 +91,9 @@ Class JSCImportService extends component
      */
     public function importArrayToEntries(string $sectionTitle, array $jscEntries)
     {
-        $test = Entry::find()->section($sectionTitle)->search("National Conference on Management, Economics and Policies of Health - 9th")->one();
-
-
-        
-        var_dump($test);
-        die();
+        /* Problematic entry for BPubs will look later*/
+        /*$test = Entry::find()->section($sectionTitle)->search("National Conference on Management, Economics and Policies of Health - 9th")->one();
+        die();*/
         $this->sectionTitle = $sectionTitle;
 
         // Constructor doesn't construct
@@ -109,15 +107,30 @@ Class JSCImportService extends component
         // Check if there's any changes, if not add new entry
         foreach($jscEntries as $entry)
         {
-            $find = Entry::find()->search($entry['title'])->one();
+            $find = Entry::find()
+                ->section($sectionTitle)
+                ->title($entry['title'])
+                ->one();
 
-            if($find)
+            if($find && isset($this->JSCObjects[$entry['title']]) && $find->title === $entry['title'])
             {
                 $find->title = trim($find->title);
-                $this->saveExisting($sectionTitle, $entry, $this->JSCObjects[$entry['title']]);
+                $this->saveExisting($sectionTitle, $entry, $this->JSCObjects[$find->title]);
             } else {
-                $this->saveNewJSC($entry['title'], $entry, true);
-                Triton::getInstance()->entryChangeService->addNewEntry($entry['title']);
+                // Seems like some records we have to use another search, just some stray records
+                // which we cannot search via ->title()
+                $extendedFind = Entry::find()
+                ->section($sectionTitle)
+                ->search($entry['title'])
+                ->one();
+
+                if($extendedFind && $extendedFind->title === $entry['title']) {
+                    $extendedFind->title = trim($extendedFind->title);
+                    $this->saveExisting($sectionTitle, $entry, $this->JSCObjects[$extendedFind->title]);
+                } else {
+                    $this->saveNewJSC($entry['title'], $entry, true);
+                    Triton::getInstance()->entryChangeService->addNewEntry($entry['title']);
+                }
             }
 
             // delete from array so that we're
@@ -128,13 +141,16 @@ Class JSCImportService extends component
 
         // If anything is left in the array then we
         // need to delete(disable) these records
+        //
+        // v1.1 No need to remove or disable any of our JSC
+        /*
         if(count($jscList) > 0)
         {
             foreach($jscList as $deletedEntry)
             {
                 Triton::getInstance()->entryService->deleteEntry($deletedEntry);
             }
-        }
+        }*/
 
         return Triton::getInstance()->entryChangeService->getStatus();
     }
@@ -148,14 +164,10 @@ Class JSCImportService extends component
      *  @param array $jscData
      *  @param Entry $craftEntry
      */
-    public function saveJSCRelation(string $sectionTitle, string $handle, array $jscData, Entry &$craftEntry, $list = [])
+    public function saveJSCRelation(string $sectionTitle, string $handle, array $jscData, Entry $craftEntry, $list = [], $createNew = false)
     {
-        if(empty($list))
-        {
-            $list = Triton::getInstance()->queryService->queryAllEntries($sectionTitle);
-        }
-            
         // Need to get section details
+        $this->sectionTitle = $sectionTitle;
         $section = Triton::getInstance()->queryService->queryOneEntry($sectionTitle);
 
         // Set new section id
@@ -177,33 +189,79 @@ Class JSCImportService extends component
 
             if(!empty($jscData))
             {
-                if($find)
+                if($find && $find->title === $entry)
                 {
                     // Add the found record as a relation
                     $entryIds[] = $find->id;
                 } else {
-                    // Save a the study as a new entry,
-                    // find the studyId and put it into
-                    // our list
-                    $result = $this->saveNewJSC($entry);
+                    // Extended find was still not as useful, changing to use slug!
+                    //$extendedFind = Entry::find()->section($sectionTitle)->title($entry)->one();
+                    //
+                    $slug = Triton::getInstance()->queryService->changeTitleToSlug($entry);
+                    $extendedFind = Triton::getInstance()->queryService->queryEntryBySlugAndSection($slug, $sectionTitle);
 
-                    /*
-                     * There seems to be problem with finding 
-                     * a certain entry within congresses, luckily
-                     * using Entry::find we will get the latest
-                     * entry. So if we have a problem looking for
-                     * the specific entry, we will find it in another
-                     * way
-                     */
-                    $getId = Entry::find()->section($sectionTitle)->search($entry)->one();
-
-                    if(!$getId) {
-                        $getId = Entry::find()->section($sectionTitle)->one();
-                    }
-
-                    if(isset($getId->id))
+                    if($extendedFind && $extendedFind->title === $entry)
                     {
-                        $entryIds[] = $getId->id;
+                        $entryIds[] = $extendedFind->id;
+                    } else {
+                        /* Save a the study as a new entry,
+                         * find the studyId and put it into
+                         * our list
+                         *
+                         * $result = $this->saveNewJSC($entry);
+                         */
+
+                        if($createNew)
+                        {
+                            /*
+                             * Craft search is very weird, we definitely should have
+                             * an ID when we save!!
+                             */
+                            $result = $this->saveNewJSC($entry);
+                            if(!isset($result->id))
+                            {
+                                $searchAgain = Triton::getInstance()->queryService->queryEntryByTitle($entry);
+                                $result = $searchAgain;
+                            }
+
+                            if($result)
+                            {
+                                $entryIds[] = $result->id;
+                            } else {
+                                Triton::getInstance()->entryChangeService->addMissingEntry($entry);
+                            }
+                        }
+
+                        /*
+                         * Changing the way this works, instead of creating a new
+                         * entry we just list out the entries that couldn't be found
+                         * and saved so that we can reimport them instead
+                         */
+
+                        /*
+                         * There seems to be problem with finding 
+                         * a certain entry within congresses, luckily
+                         * using Entry::find we will get the latest
+                         * entry. So if we have a problem looking for
+                         * the specific entry, we will find it in another
+                         * way
+                         */
+
+                        /* Disregard for now */
+                        /*
+                        if($createNew)
+                        {
+                            $getId = Entry::find()->section($sectionTitle)->search($entry)->one();
+
+                            if(!$getId) {
+                                $getId = Entry::find()->section($sectionTitle)->one();
+                            }
+
+                            if(isset($getId->id))
+                            {
+                                $entryIds[] = $getId->id;
+                            }
+                        }*/
                     }
                 }
             }
@@ -215,10 +273,16 @@ Class JSCImportService extends component
 
     /**
      *
+     * THis shouldn't be working however BPubs works,
+     * requires more testing before using 
      *
      */
     public function saveCategoryRelation(string $handle, array $jscData, Entry &$craftEntry)
     {
+        if(!empty($jscData)) {
+            return false;
+        }
+
         $jscField = $this->getJSCField($craftEntry, $handle);
 
         $categoryIds = [];
@@ -226,15 +290,67 @@ Class JSCImportService extends component
         $getCategory = Triton::getInstance()->queryService->queryCategoryById($craftEntry->$handle->groupId);
         // Swap Keys for easy searchign
         $categoryList = Triton::getInstance()->queryService->swapKeys($getCategory);
-
+        
         foreach($jscData as $data)
         {
-            if($categoryList[$data])
+            if(isset($data) && $categoryList[$data])
             {
                 $categoryIds[] = $categoryList[$data]->id;
             }
         }
         $saveRelation = Craft::$app->relations->saveRelations($jscField, $craftEntry, $categoryIds);
+    }
+
+    /*
+     * Written for Bayer
+     */
+    public function saveCategoryRelations(string $handle, array $jscData, Entry $craftEntry) {
+        if(empty($jscData)) {
+            return false;
+        }
+
+        $jscField = Craft::$app->fields->getFieldByHandle($handle);
+
+        $saveRelation = Craft::$app->relations->saveRelations($jscField, $craftEntry, $jscData);
+    }
+
+    /**
+     * Check if items exists in Categories
+     * 
+     * Return a list of items that exists
+     */
+    public function checkCategoryItems(string $handle, array $items) 
+    {
+        $tags = Category::find()->group($handle)->asArray()->all();
+        $tags = $this->getCategorySimpleItems($tags);
+        $found = [];
+        foreach($items as $item)
+        {
+            $item = trim($item);
+            if(isset($tags[$item]))
+            {
+                $found[$item] = $tags[$item];
+            }
+        }
+
+        return $found;
+    }
+
+    public function checkCategoryItem(string $handle, string $item) 
+    {
+        $tags = Category::find()->group($handle)->title($item);
+        return $tags->id;
+    }
+
+    private function getCategorySimpleItems(array $categoryItems)
+    {
+        $simple = [];
+        foreach($categoryItems as $item)
+        {
+            $simple[$item['title']] = $item['id'];
+        }
+
+        return $simple;
     }
 
     /**
@@ -261,7 +377,7 @@ Class JSCImportService extends component
             $newJSC->typeId = $this->entryType->id;
 
             $newJSC->title = $jscTitle;
-            $newJSC->slug = str_replace(' ', '-', $jscTitle);
+            $newJSC->slug = Triton::getInstance()->queryService->changeTitleToSlug($jscTitle);
 
             unset($jscData['title']);
             //unset($jscData['slug']);
@@ -280,19 +396,32 @@ Class JSCImportService extends component
             $newJSC->typeId = $this->typeId;
 
             $newJSC->title = $jscTitle;
-
-            // Not sure why DV gives out their fields with
-            // a random space in the document titles
-            //
-            // TODO
-            // Remove the space for slugs
-            $newJSC->slug = str_replace(' ', '-', $jscTitle);
+            $newJSC->slug = Triton::getInstance()->queryService->changeTitleToSlug($jscTitle);
 
             if($saveResult = Craft::$app->elements->saveElement($newJSC)) {
-                return $saveResult;
+                $slug = Triton::getInstance()->queryService->changeTitleToSlug($newJSC->title);
+                return Triton::getInstance()->queryService->queryEntryBySlug($slug);
+                //return $saveResult;
             } else {
                 throw new \Exception("Saving failed: " . print_r($newJSC->getErrors(), true));
             }
+        }
+    }
+
+    /*
+     * Test adding categories
+     */
+    public function saveNewCategoryEntry(string $categoryHandle, string $item)
+    {
+        $categoryId = Triton::getInstance()->queryService->getCategory($categoryHandle)->id;
+        //$category = Triton::getInstance()->queryService->getAllCategoriesUntouched($categoryHandle);
+
+        $entryModel = new Category();
+        $entryModel->groupId = $categoryId;
+        $entryModel->title = trim($item);
+
+        if(Craft::$app->elements->saveElement($entryModel)) {
+            return $entryModel->id;
         }
     }
 
@@ -365,10 +494,7 @@ Class JSCImportService extends component
         if(Craft::$app->elements->saveElement($craftData)) {
             return true;
         } else {
-            throw new \Exception("Saving failed: " . print_r($craftData>getErrors(), true));
+            throw new \Exception("Saving failed: " . print_r($craftData->getErrors(), true));
         }
     }
-
 }
-
-

@@ -70,6 +70,22 @@ class QueryService extends Component
     }
 
     /*
+     * Get one entry from selected section
+     *
+     * WIP / Don't use
+     * @param string $sectionHandle
+     */
+    public function queryOneEntryByProducts(string $product)
+    {
+        $entries = Entry::find()
+            ->section('publications')
+            ->product($product)
+            ->one();
+
+        return $entries;
+    }
+
+    /*
      * Get one entry whether it's enabled or not
      *
      * @param string $entryId
@@ -79,6 +95,97 @@ class QueryService extends Component
         $query = Entry::find()
             ->status(null)
             ->id($entryId)
+            ->one();
+
+        return $query;
+    }
+
+    /*
+     * Get one entry whether it's enabled or not
+     *
+     * @param string $entryId
+     */
+    public function queryEntryByTitle($title)
+    {
+        $query = Entry::find()
+            ->status(null)
+            ->title($title)
+            ->one();
+
+        return $query;
+    }
+
+    /*
+     * Get one entry by section and title
+     *
+     * @param string $entryId
+     */
+    public function queryEntryBySectionAndTitle($title, $section)
+    {
+        $query = Entry::find()
+            ->status(null)
+            ->section($section)
+            ->title($title)
+            ->one();
+
+        return $query;
+    }
+
+    /*
+     * Get entry by slug!
+     * Better for JSC
+     */
+    public function queryEntryBySlug($slug)
+    {
+        $query = Entry::find()
+            ->anyStatus()
+            ->slug($slug)
+            ->one();
+
+        return $query;
+    }
+
+    /*
+     * Get entry by slug!
+     * Better for JSC
+     */
+    public function queryEntryBySlugAndSection($slug, $sectionTitle = '')
+    {
+        $query = Entry::find()
+            ->section($sectionTitle)
+            ->anyStatus()
+            ->slug($slug)
+            ->one();
+
+        return $query;
+    }
+
+    /*
+     * Get one entry whether it's enabled or not by
+     * title ans section
+     *
+     * @param string $entryId
+     */
+    public function queryEntryByCongressTitle($title)
+    {
+        $query = Entry::find()
+            ->anyStatus()
+            ->section('congresses')
+            ->title($title)
+            ->one();
+
+        return $query;
+    }
+
+    public function queryEntryByCongressSlug($slug)
+    {
+        $slug = str_replace(' ', '-', $slug);
+        $slug = preg_replace('/[^A-Za-z0-9\-]/', '-', $slug);
+        var_dump($slug);
+        $query = Entry::find()
+            ->anyStatus()
+            ->section('congresses')
+            ->slug($slug)
             ->one();
 
         return $query;
@@ -97,6 +204,17 @@ class QueryService extends Component
         return $results;
     }
 
+    public function getAllEntriesUntouchedWithProduct(string $sectionTitle, $product = '')
+    {
+        $entries = Entry::find()
+            ->section($sectionTitle)
+            ->product($product)
+            ->status(null)
+            ->all();
+
+        return $entries;
+    }
+
     public function getAllEntriesUntouched(string $sectionTitle)
     {
         $query = Entry::find()
@@ -105,6 +223,11 @@ class QueryService extends Component
             ->all();
 
         return $query;
+    }
+
+    public function getCategory(string $categoryTitle)
+    {
+        return Craft::$app->getCategories()->getGroupByHandle($categoryTitle);
     }
 
     public function getAllCategoriesUntouched(string $categoryTitle)
@@ -167,7 +290,6 @@ class QueryService extends Component
             ->search($entryTitle)
             ->one();
 
-        var_dump($query);
         return $query;
     }
 
@@ -181,10 +303,17 @@ class QueryService extends Component
     {
         $dataCleaned = [];
         foreach($originalData as $newData)
-        {
+        { 
             $dataCleaned[$newData->title] = $newData;
         }
 
         return $dataCleaned;
+    }
+
+    public function changeTitleToSlug($title) {
+        $title = str_replace(' ', '-', $title);
+        $slug = preg_replace('/[^A-Za-z0-9\-]/', '-', $title);
+        $slug = strtolower($slug);
+        return $slug;
     }
 }

@@ -84,6 +84,7 @@ class DefaultController extends Controller
     {
         // Get all journals
         $queryAll = Triton::getInstance()->queryService->getAllEntriesUntouched('journals');
+
         $jsonStructure = Triton::getInstance()->variablesService->getJournalsJsonStruc();
 
         $results = Triton::getInstance()->jsonService->getSectionDataFormatted($queryAll, $jsonStructure);
@@ -137,6 +138,45 @@ class DefaultController extends Controller
         return $results;
     }
 
+    /*
+     * DEPRECIATED!
+     * ===
+     *
+     * Get all Products (Field with dropdown not entries)
+     *
+     * @return json
+     */
+    //public function actionGetAllProducts($json = true)
+    //{
+    //    $field = Craft::$app->fields->getFieldByHandle('product');
+
+    //    var_dump($field); die(); 
+
+    //    return $results;
+    //}
+
+    /*
+     * Get all Products
+     *
+     * @return json
+     */
+    public function actionGetAllProducts($json = true)
+    {
+        $queryAll = Triton::getInstance()->queryService->getAllEntriesUntouched('products');
+        $jsonStructure = Triton::getInstance()->variablesService->getProductsJsonStruc();
+
+        $results = Triton::getInstance()->jsonService->getSectionDataFormatted($queryAll, $jsonStructure);
+
+        if($json)
+        {
+            return $this->asJson(array_values($results));
+        }
+
+        return $results;
+
+
+        return $results;
+    }
     /*
      * Get all tags
      * 
@@ -221,7 +261,8 @@ class DefaultController extends Controller
      */
     public function actionGetAllCategories($json = true)
     {
-        $queryAll = Triton::getInstance()->queryService->queryCategoriesByTitle('keyAreasOfKnowledge');
+        //$queryAll = Triton::getInstance()->queryService->queryCategoriesByTitle('keyAreasOfKnowledge');
+        $queryAll = Triton::getInstance()->queryService->getAllCategoriesUntouched('keyAreasOfKnowledge');
 
         $jsonStructure = Triton::getInstance()->variablesService->getCategoryJsonStruc();
 
@@ -230,7 +271,8 @@ class DefaultController extends Controller
         //
         // Using seperate function to deal with categories
         //
-        $results = Triton::getInstance()->jsonService->getCategoryDataFormatted($queryAll, $jsonStructure);
+        //$results = Triton::getInstance()->jsonService->getCategoryDataFormatted($queryAll, $jsonStructure);
+        $results = Triton::getInstance()->jsonService->getSectionDataFormatted($queryAll, $jsonStructure);
         
         if($json)
         {
@@ -294,27 +336,39 @@ class DefaultController extends Controller
      */
     public function actionUpdateLocked()
     {
-        $entries = Triton::getInstance()->queryService->queryAllEntries('publications', 'disabled');
-        $savedEntries = '';
+        $entries = Triton::getInstance()->queryService->queryAllEntries('publications');
+        $savedEntries = [];
         foreach ($entries as $entry)
         {
             if(isset($entry->lock) && $entry->lock == '0')
             {
                 $entry->lock = '1';
-            }
 
-            // Save entry
-            if(Craft::$app->elements->saveElement($entry)) {
-                $savedEntries[] = [
-                   'title' => $entry->title,
-                   'status' => $entry->status,
-                   'lock' => $entry->lock
-                ];
-            } else {
-                throw new \Exception("Saving failed: " . print_r($craftData->getErrors(), true));
+                // Save entry
+                if(Craft::$app->elements->saveElement($entry)) {
+                    $savedEntries[] = [
+                        'title' => $entry->title,
+                        'status' => $entry->status,
+                        'lock' => $entry->lock
+                    ];
+                } else {
+                    throw new \Exception("Saving failed: " . print_r($craftData->getErrors(), true));
+                }
+
             }
         }
 
         return $this->asJson($savedEntries);
     }
+
+    /**
+     * undocumented function
+     *
+     * @return void
+     */
+    public function actionExportDb()
+    {
+        return null;
+    }
+    
 }

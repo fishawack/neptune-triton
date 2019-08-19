@@ -73,15 +73,26 @@ class Triton extends Plugin
             UrlManager::class,
             UrlManager::EVENT_REGISTER_SITE_URL_RULES,
             function (RegisterUrlRulesEvent $event) {
+ 
                 $event->rules['triton/publications'] = 'triton/default/get-all-publications';
                 $event->rules['triton/journals'] = 'triton/default/get-all-journals';
                 $event->rules['triton/congresses'] = 'triton/default/get-all-congresses';
                 $event->rules['triton/studies'] = 'triton/default/get-all-studies';
+                $event->rules['triton/products'] = 'triton/default/get-all-products';
                 $event->rules['triton/tags'] = 'triton/default/get-all-tags';
                 $event->rules['triton/categories'] = 'triton/default/get-all-categories';
                 $event->rules['triton/global'] = 'triton/default/get-all-globals';
                 $event->rules['triton/doc-types'] = 'triton/default/get-all-doctypes';
                 $event->rules['triton/exportcsv'] = 'triton/default/export-csv';
+
+                // Duplicates checker
+                $event->rules['triton/checker/duplicates'] = 'triton/checker/duplicates';
+                $event->rules['triton/deleteduplicates'] = 'triton/checker/delete-duplicates';
+
+                $event->rules['triton/test'] = 'triton/checker/test';
+                $event->rules['triton/clean'] = 'triton/checker/clean-titles';
+                $event->rules['triton/setproduct'] = 'triton/checker/set-all-entry-products';
+
 
                 // Update Json Cache files
                 $event->rules['triton/updatejsonfiles'] = 'triton/default/update-json-cache';
@@ -96,6 +107,10 @@ class Triton extends Plugin
             UrlManager::class,
             UrlManager::EVENT_REGISTER_CP_URL_RULES,
             function (RegisterUrlRulesEvent $event) {
+                $event->rules['/triton/custom/convert-kogenate'] = 'triton/custom-method/convert-kogenate';
+                $event->rules['/triton/custom/change-links'] = 'triton/custom-method/change-links-to-tables';
+                $event->rules['/triton/custom/clear-empty-files'] = 'triton/custom-method/clear-empty-files';
+
                 $event->rules['/triton/upload'] = 'triton/import/init-import';
             }
         );
@@ -115,6 +130,8 @@ class Triton extends Plugin
         $this->setComponents([
             'tritonAssets' => services\TritonAssets::class,
             'csvService' => services\CsvService::class,
+            'checkerService' => services\CheckerService::class,
+            'DbExportService' => services\DbExportService::class,
             'csvExportService' => services\CsvExportService::class,
             'entryService' => services\EntryService::class,
             'entryChangeService' => services\EntryChangeService::class,

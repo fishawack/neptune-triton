@@ -44,6 +44,7 @@ Class VariablesService extends component
     {
         return [
             'Title',
+            'Product',
             'Document Title',
             'Document Status',
             'Start Date',
@@ -67,6 +68,8 @@ Class VariablesService extends component
             
         ];
     }
+
+    
     public function getJournalHeaders()
     {
         return [
@@ -187,6 +190,10 @@ Class VariablesService extends component
                 'url' => 'triton/global',
                 'path' => 'json/global'
             ],
+            'products' => [
+                'url' => 'triton/products',
+                'path' => 'json/products'
+            ],
             'doctypes' => [
                 'url' => 'triton/doc-types',
                 'path' => 'json/doc-types'
@@ -232,8 +239,10 @@ Class VariablesService extends component
             'enabled' => 'enabled',
             'keyPublication' => 'keyPublication',
             'summary' => 'summary',
+            'product' => 'product',
             'objectives' => 'objectives',
             'tags' => 'publicationTags',
+            'file' => 'file',
             'lock' => 'lock',
             'custom' => [
                 'status' => [
@@ -246,6 +255,23 @@ Class VariablesService extends component
     }
 
     /*
+     * Structure of arrays coming from appends
+     */
+    public function getAppendDataStructure() 
+    {
+        return [
+            'title',
+            'product',
+            'summary',
+            'category',
+            'publicationTags',
+            'file',
+            'congress'
+        ];
+    }
+
+
+    /*
      *  Use this method to generate
      *  any arrays needed for retrieving
      *  data
@@ -254,8 +280,11 @@ Class VariablesService extends component
     public function getPubCustomVars()
     {
         return [
+            'Accepted',
             'Completed',
             'Presented',
+            'ePub Only',
+            'ePub Ahead of Print',
             'Published'
         ];
     }
@@ -279,6 +308,15 @@ Class VariablesService extends component
             'studyNumber' => 'title',
             'title' => 'studyTitle',
             'sacDate' => 'sacDate'
+        ];
+    }
+
+    public function getProductsJsonStruc()
+    {
+        return [
+            'id' => 'id',
+            'title' => 'title',
+            'image' => 'image'
         ];
     }
 
@@ -320,7 +358,7 @@ Class VariablesService extends component
             'id' => 'id',
             'title' => 'title'
         ];
-    }    
+    }
 
     /*
      * Json Function matching for update
@@ -335,10 +373,23 @@ Class VariablesService extends component
             'congresses' => 'actionGetAllCongresses',
             'categories' => 'actionGetAllCategories',
             'globals' => 'actionGetAllGlobals',
+            'products' => 'actionGetAllProducts',
             'doctypes' => 'actionGetAllDoctypes',
             'tags' => 'actionGetAllTags'
         ];
     }
+
+
+    /**
+     * Checker variables
+     */
+    public function getSectionTitles()
+    {
+        return [
+            'publications',
+            'studies',
+            'journals',
+            'congresses'
+        ];
+    }
 }
-
-

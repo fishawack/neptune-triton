@@ -14,9 +14,11 @@ use fishawack\triton\Triton;
 
 use Craft;
 use craft\web\Controller;
-use craft\elements\Entry;
 use craft\web\UploadedFile;
+use craft\web\Request;
 use craft\elements\Asset;
+use craft\elements\Entry;
+
 use craft\helpers\Assets as AssetHelper;
 
 use yii\web\BadRequestHttpException;
@@ -59,33 +61,54 @@ class ImportController extends Controller
          */
         $uploadedFile = UploadedFile::getInstanceByName('tritonupload');
 
+        /*
+         * Get the product name from POST
+         */
+        $product = '';
+        if(isset($_POST['product']))
+        {
+            $product = (string)$_POST['product'];
+        }
+
         if($uploadedFile)
         {
             $uploadResult = Triton::getInstance()->tritonAssets->saveAsset($uploadedFile, $folderId);
             // Get our path to Asset
             $csvPath = Triton::getInstance()->tritonAssets->getAssetPath($uploadResult); 
-            $csvType = Triton::getInstance()->csvService->checkCsvType($csvPath);
 
-            switch ($csvType)
+            // Append data to pubs
+            if(isset($_POST['append']))
             {
-                case "Publications":
-                    $importData = Triton::getInstance()->csvService->publicationCsvToArray($csvPath);
-                    $results = Triton::getInstance()->entryService->importArrayToEntries($importData);
-                    break;
-                case "Studies":
-                     $importData = Triton::getInstance()->csvService->jscCsvToArray('studies', $csvPath);
-                    $results = Triton::getInstance()->jscImportService->importArrayToEntries('studies', $importData);
-                    break;
-                case "Journals":
-                    $importData = Triton::getInstance()->csvService->jscCsvToArray('journals', $csvPath);
-                    $results = Triton::getInstance()->jscImportService->importArrayToEntries('journals', $importData);
-                    break;
-                case "Congress":
-                    $importData = Triton::getInstance()->csvService->jscCsvToArray('congresses', $csvPath);
-                    $results = Triton::getInstance()->jscImportService->importArrayToEntries('congresses', $importData);
-                    break;
+                $importData = Triton::getInstance()->csvService->readCsvIntoArray($csvPath);
+                $results = Triton::getInstance()->entryService->appendDataToPubs($importData, $product);
+            } else {
+                if(isset($_POST['custom_csv'])) {
+                    $importData = Triton::getInstance()->csvService->readCsvIntoArray($csvPath);
+                    $results = Triton::getInstance()->entryService->excelToCsv($importData, $product);
+                } else {
+                    $csvType = Triton::getInstance()->csvService->checkCsvType($csvPath);
+                    switch ($csvType)
+                    {
+                    case "Publications":
+                        $importData = Triton::getInstance()->csvService->publicationCsvToArray($csvPath);
+                        $results = Triton::getInstance()->entryService->importArrayToEntries($importData, $product);
+                        break;
+                    case "Studies":
+                        $importData = Triton::getInstance()->csvService->jscCsvToArray('studies', $csvPath);
+                        $results = Triton::getInstance()->jscImportService->importArrayToEntries('studies', $importData);
+                        break;
+                    case "Journals":
+                        $importData = Triton::getInstance()->csvService->jscCsvToArray('journals', $csvPath);
+                        $results = Triton::getInstance()->jscImportService->importArrayToEntries('journals', $importData);
+                        break;
+                    case "Congress":
+                        $importData = Triton::getInstance()->csvService->jscCsvToArray('congresses', $csvPath);
+                        $results = Triton::getInstance()->jscImportService->importArrayToEntries('congresses', $importData);
+                        break;
+                    }
+                }
             }
-                        
+
             if(!$results)
             {
                 $results['error'] = "The import was unsuccessful!";
@@ -95,6 +118,9 @@ class ImportController extends Controller
         }
 
         $performance = microtime(true) - $scriptStart;
+
+        // Export results to file
+        Triton::getInstance()->csvExportService->exportTxt('csvexport/'.$csvType.'.txt', $results);
 
         return $this->renderTemplate('triton/importchanges', [
             'results' => $results,

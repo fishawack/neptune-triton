@@ -28,10 +28,155 @@ class EntryService extends Component
         $publicationTitle = [],
         $sectionId,
         $entryType,
+        $product,
         $authorId,
         $studies,
         $journals,
         $congresses;
+
+    /*
+     *  Excel to CSV
+     *
+     *  Uses special format of excel from ES!
+     *  Make sure you're importing the right spreadsheet!
+     */
+    public function excelToCsv($csvData, $product) {
+        $currentUser = Craft::$app->getUser()->getIdentity();
+        $entryExample = Triton::getInstance()->queryService->queryOneEntry('publications');
+
+        $this->sectionId = $entryExample->sectionId;
+        $this->entryType = $entryExample->type;
+        $this->authorId = $currentUser->id; 
+
+
+        $import = [];
+        foreach($csvData as $index => $data) {
+            $this->product = $product;
+            $delimit = explode('`', $data);
+
+            $study = [];
+            if(isset($delimit[14]))
+            {
+                $studyArray = explode("  ", str_replace('"','', $delimit[14]));
+                foreach($studyArray as $index => $studyItem) {
+                    $trim = trim($studyItem);
+                    if($trim !== '')
+                    {
+                        $study[$index] = trim($studyItem);
+                    }
+                }
+            }
+
+            $tags = [];
+            if(isset($delimit[19]))
+            {
+                $tags = explode("  ", trim($this->clearQuotes($delimit[19])));
+                $availableTags = Triton::getInstance()->jscImportService->checkCategoryItems('publicationTags', $tags);
+
+                $tagRelations = [];
+                foreach($tags as $item) 
+                {
+                    $item = trim($item);
+                    if(isset($availableTags[$item])) {
+                        $tagRelations[] = (int)$availableTags[$item];
+                    } else {
+                        if($item !== '')
+                        {
+                            $tagRelations[] = Triton::getInstance()->jscImportService->saveNewCategoryEntry('publicationTags', $item);
+                        }
+                    }
+                }
+            }
+
+            // We only have one column for this table
+            $download = [];
+            if(isset($delimit[20]))
+            {
+                $files = explode('  ', $delimit[20]);
+                foreach($files as $file) 
+                {
+                    $download[] = [
+                        'col1' => $this->clearQuotes($file)
+                    ];
+                }
+            }
+
+            // Check to see if we have the special section!
+            $docTypeData = array(trim($this->clearQuotes($delimit[8])));
+            $availableDocType = Triton::getInstance()->jscImportService->checkCategoryItems('documentType', $docTypeData);
+            $docType = [];
+            if(isset($availableDocType[$docTypeData[0]])) {
+                $docType[] = (int)$availableDocType[$docTypeData[0]];
+            }
+
+            if($delimit[1] !== '') 
+            {
+                $product = trim($this->clearQuotes($delimit[1]));
+                $this->product = $product; 
+            }
+
+            // Check to see if we have the special section!
+            $special = array(trim($this->clearQuotes($delimit[18])));
+            $availableCats = Triton::getInstance()->jscImportService->checkCategoryItems('keyAreasOfKnowledge', $special);
+            $category = [];
+
+            // Had a spreadhseet that somehow contained double spaces in the entry,
+            // craft will remove double spaces therefore it's not recognised
+            if(!isset($availableCats[$special[0]])) {
+                $category[] = Triton::getInstance()->jscImportService->saveNewCategoryEntry('keyAreasOfKnowledge', $this->clearQuotes($special[0]));
+            } else {
+                $category[] = (int)$availableCats[$special[0]];
+            }
+
+            if($delimit[1] !== '') 
+            {
+                $product = trim($this->clearQuotes($delimit[1]));
+                $this->product = $product; 
+            }
+
+            $entry = [
+                'title' => $this->clearQuotes($delimit[0]),
+                'product' => $product,
+                'documentTitle' => $this->clearQuotes($delimit[2]),
+                'documentStatus' => array($this->clearQuotes($delimit[3])),
+                'startDate' => date('Y-m-d H:i:s', strtotime($delimit[4])),
+                'submissionDate' => $this->clearQuotes($delimit[5]),
+                'documentAuthor' => $this->clearQuotes($delimit[6]),
+                'documentType' => $this->clearQuotes($delimit[7]),
+                'docType' => $docType,
+                'journal'=> $this->clearQuotes($delimit[9]),
+                'congress'=> trim($this->clearQuotes($delimit[10])),
+                'citation'=> $this->clearQuotes($delimit[11]),
+                'citationUrl' => $this->clearQuotes($delimit[12]),
+                'publicationDate' => date('Y-m-d H:i:s', strtotime($delimit[13])),
+                'relatedPubs' => array($delimit[16]),
+                'summary'=> $this->clearQuotes($delimit[17]),
+                'study' => $study,
+                'category' => array($this->clearQuotes($delimit[8])),
+                'keyAreasOfKnowledge'=> $category,
+                'category' => $category,
+                'publicationTags' => $tagRelations,
+                'file' => $download,
+                'lock'=> true
+            ];
+
+            /*
+             * Check if entry is already available, if so check to see what's changed,
+             * v1.0.1 we will keep this ignored for now
+             *
+             * TODO
+             */
+            if(Triton::getInstance()->queryService->queryEntryByTitle($entry['title'])) 
+            {
+                Triton::getInstance()->entryChangeService->addIgnoredEntry($entry['title']);
+            } else {
+                $this->newEntry($entry);
+                Triton::getInstance()->entryChangeService->addNewEntry($entry['title']);
+            }
+        }
+
+        return Triton::getInstance()->entryChangeService->getStatus();
+    }
 
     /*
      *  Have a list of the data that needs to be
@@ -43,9 +188,12 @@ class EntryService extends Component
      *  as well :)
      *
      *  @param array $data
+     *  @param string $product
      */
-    public function importArrayToEntries(array $data)
+    public function importArrayToEntries(array $data, string $product = '')
     {
+        // Set our product
+        $this->product = $product;
         // Set the import date!
         $DVDate = Triton::getInstance()->queryService->queryOneGlobalSet('datavisionExportDate');
 
@@ -64,7 +212,7 @@ class EntryService extends Component
 
         // Set this last so that we get the
         // correct sectionId
-        $allPublications = Triton::getInstance()->queryService->queryAllEntries('publications', null);
+        $allPublications = Triton::getInstance()->queryService->getAllEntriesUntouched('publications');
         $allPublications = Triton::getInstance()->queryService->swapKeys($allPublications);
 
         // Set sectionId, entryTypeId, authorId
@@ -73,7 +221,7 @@ class EntryService extends Component
         $currentUser = Craft::$app->getUser()->getIdentity();
         $key = key($allPublications);
         $entryExample = $allPublications[$key];
-        
+                
         $this->sectionId = $entryExample->sectionId;
         $this->entryType = $entryExample->type;
         $this->authorId = $currentUser->id; 
@@ -115,14 +263,21 @@ class EntryService extends Component
                     Triton::getInstance()->entryChangeService->addErrorEntry($entry['title']);
                 }
 
-                if(isset($allPublications[$entry['title']])) 
+                /*
+                 * All objects were saved into an array so we could access the key however
+                 * there seems to be a problem with certain entries, sadly we will have to revert back
+                 * to using the full query!
+                 */
+                $lookup = Triton::getInstance()->queryService->queryEntryByTitle($entry['title']);
+
+                if(isset($lookup->title)) 
                 {
                     // Check if the record is locked
                     if(isset($allPublications[$entry['title']]->lock) && $allPublications[$entry['title']]->lock === '1')
                     {
                         Triton::getInstance()->entryChangeService->addLocked($entry['title']);
                     } else {
-                        $this->saveExisting($entry, $allPublications[$entry['title']]);
+                        $this->saveExisting($entry, $lookup);
                     }
 
                     // delete from array so that we're
@@ -156,8 +311,6 @@ class EntryService extends Component
                 }
             }
         }
-
-        //die(var_dump($this->journals));
 
         return Triton::getInstance()->entryChangeService->getStatus();    
     }
@@ -226,7 +379,7 @@ class EntryService extends Component
          * Annoyingly saveRelation doesn't tell you if
          * it has been saved or not, it'll always return null
          */
-        //$saveStudy = Triton::getInstance()->jscImportService->saveJSCRelation('studies', 'study', $csvData['study'], $craftData, $this->studies);
+        $saveStudy = Triton::getInstance()->jscImportService->saveJSCRelation('studies', 'study', $csvData['study'], $craftData, $this->studies);
 
         if(isset($csvData['journal']) && strlen($csvData['journal']) > 0)
         {
@@ -252,7 +405,6 @@ class EntryService extends Component
         unset($pubFields[0]);
         unset($pubFields[10]);
         unset($pubFields[11]);
-
      
         /**
          *  Track Changes
@@ -278,11 +430,23 @@ class EntryService extends Component
                     Triton::getInstance()->entryChangeService->addChanged($craftData->title, $data);
                 }
             } elseif(is_a($craftData->$data, 'craft\elements\db\CategoryQuery')) {
+                $fieldValue = '';
+                /*
+                 * Since some fields can have multiple values,
+                 * we need to loop through and find out if any
+                 * are the same
+                 */
+                foreach($craftData->$data as $fieldData)
+                {
+                    $fieldValue = $fieldData->title;
+                }
+
                 /* 
                  * if our item is a Craft Category object 
                  * then we need to sort it in a different way
                  */
-                if((string)$craftData->$data->title !== (string)$csvData[$data])
+                //if((string)$craftData->$data->title !== (string)$csvData[$data])
+                if($fieldValue !== (string)$csvData[$data])
                 {
                     // Get Category group
                     $categoryGroupId = $craftData->$data->groupId;
@@ -290,6 +454,7 @@ class EntryService extends Component
                     $category = Triton::getInstance()->queryService->queryCategoryById($categoryGroupId);
 
                     Triton::getInstance()->jscImportService->saveCategoryRelation($data, (array)$csvData['docType'], $craftData);
+                    Triton::getInstance()->entryChangeService->addChanged($craftData->title, $data);
                     $changed++;
                 }
             } else {
@@ -317,7 +482,84 @@ class EntryService extends Component
         if(Craft::$app->elements->saveElement($craftData)) {
             return true;
         } else {
-            throw new \Exception("Saving failed: " . print_r($craftData>getErrors(), true));
+            throw new \Exception("Saving failed: " . print_r($craftData->getErrors(), true));
+        }
+    }
+
+    public function appendData(array $data)
+    {
+        $record = Triton::getInstance()->queryService->queryEntryByTitle($data['title'], 'publications');
+        if(!$record) {
+            Triton::getInstance()->entryChangeService->addErrorEntry($data['title']);
+            return false;
+        }
+
+        $tags = $data['publicationTags'];
+        $areas = $data['category'];
+        $product = array($data['product']);
+        $congress = $data['congress'];
+
+        unset($data['product']);
+        unset($data['title']);
+        unset($data['congress']);
+
+        if($areas)
+        {
+            $availableAreas = Triton::getInstance()->jscImportService->checkCategoryItems('keyAreasOfKnowledge', $areas);
+            $areaRelations = [];
+            foreach($areas as $area) 
+            {
+                $area = trim($area);
+                if(isset($availableAreas[$area]))
+                {
+                    $areaRelations[] = (int)$availableAreas[$area];
+                } else {
+                    if($area !== '')
+                    {
+                        $areaRelations[] = Triton::getInstance()->jscImportService->saveNewCategoryEntry('keyAreasOfKnowledge', $area);
+                    }
+                }
+            }
+
+            $data['category'] = $areaRelations;
+        }
+
+        if($tags)
+        {
+            $availableTags = Triton::getInstance()->jscImportService->checkCategoryItems('publicationTags', $tags);
+            $tagRelations = [];
+            foreach($tags as $item) 
+            {
+                $item = trim($item);
+                if(isset($availableTags[$item])) {
+                    $tagRelations[] = (int)$availableTags[$item];
+                } else {
+                    if($item !== '')
+                    {
+                        $tagRelations[] = Triton::getInstance()->jscImportService->saveNewCategoryEntry('publicationTags', $item);
+                    }
+                }
+            }
+
+            $data['publicationTags'] = $tagRelations;
+        }
+
+        // Clear all Objectives
+        // Bayer specific, to be remove
+        $data['objectives'] = '';
+
+        $record->setFieldValues($data);
+
+        if(Craft::$app->elements->saveElement($record)) {
+            Triton::getInstance()->jscImportService->saveJSCRelation('products', 'product', $product, $record);
+
+            if(isset($congress) && strlen($congress) > 0)
+            {
+                Triton::getInstance()->jscImportService->saveJSCRelation('congresses', 'congress', (array)$congress, $record, [], true);
+            }
+            return true;
+        } else {
+            throw new \Exception("Saving failed: " . print_r($craftData->getErrors(), true));
         }
     }
 
@@ -337,18 +579,106 @@ class EntryService extends Component
     /*
      *
      * Delete Entry
+     * ---
+     *
+     * This has been reworked so that we
+     * show a list of what has been removed or doesn't
+     * exist anymore however the entry will still be 
+     * enabled, it shouldn't be used by anything
      *
      */
     public function deleteEntry(Entry $craftEntry)
     {
-        Triton::getInstance()->entryChangeService->addDeletedEntry((string)$craftEntry->title);
-
-        $craftEntry->enabled = '0';
-        if(Craft::$app->elements->saveElement($craftEntry)) {
-            return true;
-        } else {
-            throw new \Exception("Saving failed: " . print_r($entry->getErrors(), true));
+        // All custom fields in Craft requires you to run a foreach
+        // to get the value 
+        $associatedProduct = '';
+        foreach($craftEntry->product as $product)
+        {
+            $associatedProduct = (string)$product->title;
         }
+
+        // Check if entry and product is what we're dealing with
+        if($associatedProduct === $this->product)
+        {
+            Triton::getInstance()->entryChangeService->addDeletedEntry((string)$craftEntry->title);
+
+            // Disable the entry
+            $craftEntry->enabled = 0;
+
+            if(Craft::$app->elements->saveElement($craftEntry)) {
+                return true;
+            } else {
+                throw new \Exception("Saving failed: " . print_r($craftEntry->getErrors(), true));
+            }
+        }
+    }
+
+    /*
+     * Append data to publications
+     */
+    public function appendDataToPubs(array $data, string $product)
+    {
+        // clear first two columns
+        unset($data[0]);
+        unset($data[1]);
+        $csvStructure = Triton::getInstance()->variablesService->getAppendDataStructure();
+
+        foreach($data as $pub)
+        {
+            $newData = [];
+            $pub = explode('`', $pub);
+
+            foreach($pub as $key => $value)
+            {
+                $key = $csvStructure[$key];
+                $value = str_replace("\n", '', $value);
+                $value = str_replace('"', '', $value);
+                $newData[$key] = $value;
+
+                
+                // If we're dealing with files
+                if($key === 'file') 
+                {
+                    $files = explode('  ', $value);
+                    $newData['file'] = [];
+                    foreach($files as $file)
+                    {
+                        $newData['file'][] = [
+                            'col1' => $file
+                        ];
+                    }
+                }
+
+                if($key === 'publicationTags') 
+                {
+                    $tags = [];
+                    $allTags = explode('  ', $value);
+                    foreach($allTags as $tag)
+                    {
+                        $tags[] = trim($tag);
+                    }
+
+                    $newData['publicationTags'] = $tags;
+                }
+
+                if($key === 'category') 
+                {
+                    $areas = [];
+                    $allAreas = explode('  ', $value);
+                    foreach($allAreas as $area)
+                    {
+                        $areas[] = trim($area);
+                    }
+
+                    $newData['category'] = $areas;
+                }
+
+            }
+            var_dump($newData);
+            $this->appendData($newData);
+        }
+
+        die();
     }
 
     /**
@@ -363,12 +693,13 @@ class EntryService extends Component
         $entry->sectionId = $this->sectionId;
         $entry->authorId = $this->authorId;
         $entry->typeId = $this->entryType->id;
-
         $entry->title = $csvData['title'];
+        //$entry->product = $this->product;
         $entry->slug = str_replace(' ', '-', $csvData['title']);
 
         // Setup relations to be imported
-        $relations['studies'] = &$csvData['study'];
+        $relations = [];
+        $relations['studies'] = $csvData['study'];
 
         if(isset($csvData['journal']))
         {
@@ -381,7 +712,39 @@ class EntryService extends Component
             $relations['congress'] = $csvData['congress'];
             unset($csvData['congress']);
         }
-        
+
+        if(isset($csvData['tags']))
+        {
+            $relations['tags'] = $csvData['tags'];
+            unset($csvData['tags']);
+        }
+
+        if(isset($csvData['keyAreasOfKnowledge']))
+        {
+            $relations['keyAreasOfKnowledge'] = $csvData['keyAreasOfKnowledge'];
+            unset($csvData['keyAreasOfKnowledge']);
+        }
+
+        if(isset($csvData['docType']))
+        {
+            $array = (array)$csvData['docType'];
+            $availableTypes = Triton::getInstance()->jscImportService->checkCategoryItems('documentType', $array);
+            $typesRelations = [];
+            foreach($array as $item) 
+            {
+                $item = trim($item);
+                if(isset($availableTypes[$item])) {
+                    $typesRelations[] = (int)$availableTypes[$item];
+                } else {
+                    if($item !== '')
+                    {
+                        $typesRelations[] = Triton::getInstance()->jscImportService->saveNewCategoryEntry('documentType', $item);
+                    }
+                }
+            }
+
+            $csvData['docType'] = $typesRelations;
+        }
         // New way of seting fields, need to remove our title
         // for set fields to work
         unset($csvData['title']);
@@ -391,18 +754,24 @@ class EntryService extends Component
 
         if($savedEntry = Craft::$app->elements->saveElement($entry)) {
             // Save Relationship with our other sections
-            $getEntry = Triton::getInstance()->queryService->queryOneEntry('publications');
+            $getEntry = Triton::getInstance()->queryService->queryEntryByTitle($entry->title);
 
-            Triton::getInstance()->jscImportService->saveJSCRelation('studies', 'study', $relations['studies'], $getEntry, $this->studies);
+            // Save the product field
+            Triton::getInstance()->jscImportService->saveJSCRelation('products', 'product', (array)$this->product, $getEntry);
+            if(!empty($relations['studies']))
+            {
+                Triton::getInstance()->jscImportService->saveJSCRelation('studies', 'study', $relations['studies'], $getEntry, $this->studies, true);
+            }
 
             if(!empty($relations['journal']))
             {
                 Triton::getInstance()->jscImportService->saveJSCRelation('journals', 'journal', (array)$relations['journal'], $getEntry, $this->journals);
 
             }
-            if(!empty($relations['congresses']))
+
+            if(!empty($relations['congress']))
             {
-                Triton::getInstance()->jscImportService->saveJSCRelation('congresses', 'congress', (array)$relations['congress'], $getEntry, $this->congresses);
+                Triton::getInstance()->jscImportService->saveJSCRelation('congresses', 'congress', (array)$relations['congress'], $getEntry, $this->congresses, true);
             }
 
             // Save our DocType which is a craft\Category
@@ -410,11 +779,21 @@ class EntryService extends Component
             $categoryGroupId = $getEntry->docType->groupId;
             // Grab the id needed for our category type
             $category = Triton::getInstance()->queryService->queryCategoryById($categoryGroupId);
-            Triton::getInstance()->jscImportService->saveCategoryRelation('docType', (array)$csvData['docType'], $getEntry);
+
+            if(isset($csvData['docType']))
+            {
+                Triton::getInstance()->jscImportService->saveCategoryRelation('docType', (array)$csvData['docType'], $getEntry);
+            }
 
             return $entry;
         } else {
+            var_dump($csvData);
             throw new \Exception("Saving failed: " . print_r($entry->getErrors(), true));
         }
+    }
+
+    private function clearQuotes(string $string)
+    {
+        return str_replace('"', '', $string);
     }
 }

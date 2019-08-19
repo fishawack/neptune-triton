@@ -13,8 +13,7 @@ use yii\base\Component;
 
 class CsvExportService extends Component
 {
-    private $allPublications;
-
+    private $allPublications; 
     public function __construct()
     {
         $this->allPublications = Triton::getInstance()->queryService->queryAllEntries('publications', $status = null);
@@ -29,12 +28,52 @@ class CsvExportService extends Component
         return $export = $this->writePublicationsExportCsv($headers, $body);
     }
 
+    /* Migrate away from above method later on */
+    public function exportTxt($filePath, $data)
+    {
+        $this->checkFolder();
+        $this->writeTextFile($filePath, $data);
+    }
+
+    public function writeTextFile($filePath, $data) 
+    {
+        $file = fopen($filePath, 'w');
+        foreach($data as $index => $row)
+        {
+            fwrite($file, PHP_EOL . $index . PHP_EOL . "===". PHP_EOL . PHP_EOL);
+            foreach($row as $index => $entry) 
+            {
+                if(is_array($entry))
+                {
+                    fwrite($file, $index . PHP_EOL);
+                    foreach($entry as $e) 
+                    {
+                        fwrite($file, ' -' . $e . PHP_EOL);                    
+                    }
+                } else {
+                    fwrite($file, $entry . PHP_EOL);
+                }
+            }
+        }
+
+        fclose($file);
+
+        return true;
+
+    }
+
     public function setupDataForCsv()
     {
         $data = [];
         foreach($this->allPublications as $pub)
         {
             $data[$pub->id]['title'] = Triton::getInstance()->encodingService->toUTF8((string)$pub->title);
+
+            foreach($pub->product as $product)
+            {
+                $data[$pub->id]['product'] = Triton::getInstance()->encodingService->toUTF8((string)$product->title);
+            }
+            
             $data[$pub->id]['documentTitle'] = Triton::getInstance()->encodingService->toUTF8((string)$pub->documentTitle);
             $data[$pub->id]['documentStatus'] = (string)$pub->documentStatus;
             if($pub->startDate)

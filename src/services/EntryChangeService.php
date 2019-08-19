@@ -55,6 +55,10 @@ class EntryChangeService extends Component
         $this->document['Title Error'][] = $title;
     }
 
+    public function addMissingEntry($title)
+    {
+        $this->document['Missing Journal / Congresses / Studies'][] = $title;
+    }
 
     public function getStatus()
     {

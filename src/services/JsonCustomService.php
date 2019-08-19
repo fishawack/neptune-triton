@@ -49,7 +49,6 @@ class JsonCustomService extends Component
         {
             $array['objectives'] = '';
             unset($array['submissionDate']);
-            unset($array['statusDatavision']);
         }
 
         if(isset($array['status']) && $array['status'] === 'planned')

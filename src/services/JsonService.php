@@ -200,10 +200,13 @@ class JsonService extends Component
 
             $entryId = (int)$entry->id;
 
-
             /*
              * Go through our Json structure and match
-             * the values to our craft entry
+             * the values to our craft entry, to identify
+             * values you'll need to check the dump to see
+             * what object they are. Most things should be covered
+             * here however if anything new comes then
+             * you'll probably have to manually update this
              */
             foreach($structure as $key => $value)
             {

@@ -91,9 +91,6 @@ Class JSCImportService extends component
      */
     public function importArrayToEntries(string $sectionTitle, array $jscEntries)
     {
-        /* Problematic entry for BPubs will look later*/
-        /*$test = Entry::find()->section($sectionTitle)->search("National Conference on Management, Economics and Policies of Health - 9th")->one();
-        die();*/
         $this->sectionTitle = $sectionTitle;
 
         // Constructor doesn't construct
@@ -138,19 +135,6 @@ Class JSCImportService extends component
             // deleted.
             unset($jscList[$entry['title']]);
         }
-
-        // If anything is left in the array then we
-        // need to delete(disable) these records
-        //
-        // v1.1 No need to remove or disable any of our JSC
-        /*
-        if(count($jscList) > 0)
-        {
-            foreach($jscList as $deletedEntry)
-            {
-                Triton::getInstance()->entryService->deleteEntry($deletedEntry);
-            }
-        }*/
 
         return Triton::getInstance()->entryChangeService->getStatus();
     }
@@ -231,37 +215,6 @@ Class JSCImportService extends component
                                 Triton::getInstance()->entryChangeService->addMissingEntry($entry);
                             }
                         }
-
-                        /*
-                         * Changing the way this works, instead of creating a new
-                         * entry we just list out the entries that couldn't be found
-                         * and saved so that we can reimport them instead
-                         */
-
-                        /*
-                         * There seems to be problem with finding 
-                         * a certain entry within congresses, luckily
-                         * using Entry::find we will get the latest
-                         * entry. So if we have a problem looking for
-                         * the specific entry, we will find it in another
-                         * way
-                         */
-
-                        /* Disregard for now */
-                        /*
-                        if($createNew)
-                        {
-                            $getId = Entry::find()->section($sectionTitle)->search($entry)->one();
-
-                            if(!$getId) {
-                                $getId = Entry::find()->section($sectionTitle)->one();
-                            }
-
-                            if(isset($getId->id))
-                            {
-                                $entryIds[] = $getId->id;
-                            }
-                        }*/
                     }
                 }
             }
@@ -414,7 +367,6 @@ Class JSCImportService extends component
     public function saveNewCategoryEntry(string $categoryHandle, string $item)
     {
         $categoryId = Triton::getInstance()->queryService->getCategory($categoryHandle)->id;
-        //$category = Triton::getInstance()->queryService->getAllCategoriesUntouched($categoryHandle);
 
         $entryModel = new Category();
         $entryModel->groupId = $categoryId;

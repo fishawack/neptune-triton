@@ -280,6 +280,7 @@ Class VariablesService extends component
     public function getPubCustomVars()
     {
         return [
+            'Accepted',
             'Completed',
             'Presented',
             'ePub Only',

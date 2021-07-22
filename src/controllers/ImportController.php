@@ -109,7 +109,7 @@ class ImportController extends Controller
                 }
             }
 
-            if(!$results)
+            if(!isset($results) || !$results)
             {
                 $results['error'] = "The import was unsuccessful!";
             }
@@ -120,7 +120,9 @@ class ImportController extends Controller
         $performance = microtime(true) - $scriptStart;
 
         // Export results to file
-        Triton::getInstance()->csvExportService->exportTxt('csvexport/'.$csvType.'.txt', $results);
+        if(!isset($results['error'])) {
+            Triton::getInstance()->csvExportService->exportTxt('csvexport/'.$csvType.'.txt', $results);
+        }
 
         return $this->renderTemplate('triton/importchanges', [
             'results' => $results,

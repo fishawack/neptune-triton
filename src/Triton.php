@@ -112,6 +112,7 @@ class Triton extends Plugin
                 $event->rules['/triton/custom/clear-empty-files'] = 'triton/custom-method/clear-empty-files';
 
                 $event->rules['/triton/upload'] = 'triton/import/init-import';
+                $event->rules['/triton/ienvision-upload'] = 'triton/import/init-ienvision-import';
             }
         );
 
@@ -130,6 +131,7 @@ class Triton extends Plugin
         $this->setComponents([
             'tritonAssets' => services\TritonAssets::class,
             'csvService' => services\CsvService::class,
+            'xlsxService' => services\XlsxService::class,
             'checkerService' => services\CheckerService::class,
             'DbExportService' => services\DbExportService::class,
             'csvExportService' => services\CsvExportService::class,

@@ -28,11 +28,6 @@ class TritonAssets extends Component
     {
         $assets = Craft::$app->getAssets();
 
-        if($file->type !== 'text/csv')
-        {
-            throw new UnsupportedMediaTypeHttpException;
-        }
-
         $filename = AssetHelper::prepareAssetName($file->name);
         
         // Save to our Craft temp folder

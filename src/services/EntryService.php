@@ -14,7 +14,7 @@ use craft\elements\Entry;
 use craft\elements\GlobalSet;
 use craft\fields\Entries as BaseField;
 
-ini_set('xdebug.var_display_max_depth', 1000);
+//ini_set('xdebug.var_display_max_depth', 1000);
 
 /**
  *  Entry Controller
@@ -449,7 +449,7 @@ class EntryService extends Component
                 if($fieldValue !== (string)$csvData[$data])
                 {
                     // Get Category group
-                    $categoryGroupId = $craftData->$data->groupId;
+                    $categoryGroupId = $craftData->$data->groupId[0];
                     // Grab the id needed for our category type
                     $category = Triton::getInstance()->queryService->queryCategoryById($categoryGroupId);
 
@@ -674,7 +674,6 @@ class EntryService extends Component
                 }
 
             }
-            var_dump($newData);
             $this->appendData($newData);
         }
 
@@ -787,7 +786,6 @@ class EntryService extends Component
 
             return $entry;
         } else {
-            var_dump($csvData);
             throw new \Exception("Saving failed: " . print_r($entry->getErrors(), true));
         }
     }

@@ -34,7 +34,52 @@
 
 {# The content of the CP Section#}
 {% set content %}
+
+    <h2>Upload the iEnvision Publication XLSX!</h2>
+    <p class="textline">
+    </p>
+
+    <form action="/admin/triton/upload" enctype="multipart/form-data" method="POST">
+        <div style="width:100%; margin: 1.5em 0;">
+            <div class="field__group" style="width:100%; padding: 1em;">
+                <input type="file" name="tritonupload" />
+
+                {% set field = craft.entries().section('products').all() %}
+
+                <select name="product">
+                    {% for option in field %}
+
+                        {% set selected = entry is defined
+                        ? entry.product.value == option.value
+                        %}
+
+                        <option value="{{ option.title }}"
+                                {% if selected %}selected{% endif %}>
+                                    {{ option.title }}
+                        </option>
+                                {% endfor %}
+                </select>
+            </div>
+        </div>
+
+        <!--
+            <div style="width:100%; margin: 1.5em 0;">
+            <input id="checkbox_skip" type="checkbox" name="deleteskip" value="true" />
+            <label for="checkbox_skip">
+            Skip Delete
+            </label>        
+            </div>
+        -->
+        {{ getCsrfInput() }}
+        <div style="width:25%; margin: 1.5em 0;">
+            <input type="submit" name="submit" value="Import" style="padding:0.5em 0; width: 100%;" />
+        </div>
+    </form>
+
     <h2>Upload the Datavision Publication CSV!</h2>
+    <small style="margin-top:0;">
+        Used for Legacy Datavision projects, left in for transitional period
+    </small>
     <p class="textline">
     </p>
 

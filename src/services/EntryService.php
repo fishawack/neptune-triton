@@ -461,8 +461,11 @@ class EntryService extends Component
                 if((string)$csvData[$data] !== (string)$craftData->$data)
                 {
                     $changed++;
+                    $changes['original'] = $craftData->$data;
+                    $changes['new'] = $csvData[$data];
+
                     // Add change to the service for later use
-                    Triton::getInstance()->entryChangeService->addChanged($craftData->title, $data);
+                    Triton::getInstance()->entryChangeService->addChanged($craftData->title, $data, $changes);
                 }
             }
         }

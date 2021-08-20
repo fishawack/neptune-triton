@@ -20,9 +20,15 @@ class EntryChangeService extends Component
      */
     public $document;
 
-    public function addChanged($title, $field)
+    public function addChanged($title, $field, $changes = [])
     {
-        $this->document['Changed'][$title][] = $field;
+        $this->document['Changed'][$title]['item'] = $field;
+
+        if(!empty($changes))
+        {
+            $this->document['Changed'][$title]['changes']['original'] = $changes['original'];
+            $this->document['Changed'][$title]['changes']['new'] = $changes['new'];
+        }
     }
 
     public function addUnchanged($title)

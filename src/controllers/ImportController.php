@@ -97,7 +97,7 @@ class ImportController extends Controller
 
         // Export results to file
         if(!isset($results['error'])) {
-            Triton::getInstance()->csvExportService->exportTxt('csvexport/'.$product.'.txt', $results);
+            //Triton::getInstance()->csvExportService->exportTxt('csvexport/'.$product.'.txt', $results);
         }
 
         return $this->renderTemplate('triton/importchanges', [
@@ -168,6 +168,5 @@ class ImportController extends Controller
         }
 
         return $results;
-
     }
 }

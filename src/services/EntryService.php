@@ -472,6 +472,8 @@ class EntryService extends Component
             Triton::getInstance()->entryChangeService->addUnchanged($craftData->title);
         }
 
+        $csvData['documentStatus'] = $this->cleanPublishedStatus($csvData['documentStatus']);
+
         /**
          *  Save everything else as normal!
          */
@@ -482,7 +484,7 @@ class EntryService extends Component
         if(Craft::$app->elements->saveElement($craftData)) {
             return true;
         } else {
-            throw new \Exception("Saving failed: " . print_r($craftData->getErrors(), true));
+            throw new \Exception($csvData['documentTitle']." Saving failed: " . print_r($craftData->getErrors(), true));
         }
     }
 
@@ -793,5 +795,21 @@ class EntryService extends Component
     private function clearQuotes(string $string)
     {
         return str_replace('"', '', $string);
+    }
+
+    /**
+     * Bug where status gets capitalised
+     */
+    private function cleanPublishedStatus($status) 
+    {
+        switch ($status) {
+            case 'Epublished':
+                $status = 'ePublished';
+                break;
+            default:
+                break;
+        }
+
+        return $status;
     }
 }

@@ -53,11 +53,11 @@
                             <ul>
                                 {% for changed in changes %}
                                     <li style="margin-left: 1em;">
-                                        - {{ changes['item'] }}
-                                        {% if changes['changes'] is not empty %}
+                                        - {{ changed['name'] }}
+                                        {% if changed['changes'] is defined %}
                                         <ul style="margin-left: 1em; font-size: 10px;">
-                                            <li>From: {{ changes['changes']['original'] }}</li>
-                                            <li>To: {{ changes['changes']['new'] }}</li>
+                                            <li>From: {{ changed['changes']['original'] }}</li>
+                                            <li>To: {{ changed['changes']['new'] }}</li>
                                         </ul>
                                         {% endif %}
                                     </li>

@@ -156,6 +156,7 @@ Class VariablesService extends component
         $list[] = [
             'handle' => 'documentStatus',
             'ignore' => [
+                'Cancelled',
                 'Canceled',
                 'Rejected'
             ]

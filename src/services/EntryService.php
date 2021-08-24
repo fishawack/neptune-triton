@@ -273,7 +273,9 @@ class EntryService extends Component
                 if(isset($lookup->title)) 
                 {
                     // Check if the record is locked
-                    if(isset($allPublications[$entry['title']]->lock) && $allPublications[$entry['title']]->lock === '1')
+                    if(isset($allPublications[$entry['title']]->lock)
+                        && ($allPublications[$entry['title']]->lock 
+                        || $allPublications[$entry['title']]->lock === '1'))
                     {
                         Triton::getInstance()->entryChangeService->addLocked($entry['title']);
                     } else {

@@ -5,36 +5,19 @@ Since our product is called Neptune, it made sense to name our plugin following 
 
 ## Requirements
 
-* PHP7+
-* MySQL 5.6+
-* Composer
+* Docker
 
-## Installation
+## Installation fresh to Craft Instance
 
 To install the plugin, follow these instructions.
 
 *Pre-requistes - Make sure that the composer file in Craft has the repository that loads everything above the craft folder*
 
-1. Open your terminal and go to your Craft project:
-
-        cd /path/to/project
-
-2. Add this to craft's composer.json (The ../ is dependant on how deep your craft is nested)
-
-```
-  "repositories": [
-    {
-      "type": "path",
-      "url": "../../triton"
-    }
-  ]
-```
-
-3. Then tell Composer to load the plugin:
+1. Require our plugin by running:
 
         composer require /triton
 
-4. In the Control Panel, go to Settings → Plugins and click the “Install” button for Triton.
+2. In the Control Panel, go to Settings → Plugins and click the “Install” button for Triton.
 
 ## Import
 
@@ -45,9 +28,12 @@ Must knows!
 
 ## Configuring Triton
 
-This tool is so automated that there's only one thing you have to do!
+There are a few config arrays available within variablesService - i.e. you can add more ignored status' in the getDisregard() method, you should largely not need to touch these.
 
-## Using Triton
+## Import via XLSX
+With the new XLSX import method you don't need to worry about text quantifiers anymore, please let the writers know how to export from iEvension and it's a case of selecting the correct product and importing.
+
+## Using Triton (legacy CSV import from datavision)
 
 Make sure that you export CSV from Datavision with no text quantifier and use ` for seperation
 

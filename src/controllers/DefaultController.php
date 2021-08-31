@@ -240,9 +240,9 @@ class DefaultController extends Controller
      */
     public function actionGetAllDoctypes($json = true)
     {
-        $queryAll = Triton::getInstance()->queryService->queryCategoriesByTitle('DocumentType');
+        $queryAll = Triton::getInstance()->queryService->queryCategoriesByTitle('documentType');
 
-        $jsonStructure = Triton::getInstance()->variablesService->getCategoryJsonStruc();
+        $jsonStructure = Triton::getInstance()->variablesService->getDocTypeJsonStruc();
 
         $results = Triton::getInstance()->jsonService->getSectionDataFormatted($queryAll, $jsonStructure, false, true);
         

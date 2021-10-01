@@ -286,7 +286,8 @@ Class VariablesService extends component
             'Presented',
             'ePub Only',
             'ePub Ahead of Print',
-            'Published'
+            'Published',
+            'Published/Presented'
         ];
     }
 

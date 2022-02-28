@@ -173,7 +173,9 @@ class Triton extends Plugin
             __METHOD__
         );
 
-        Craft::$app->getResponse()->getHeaders()->set('Access-Control-Allow-Origin', '*');
+        if (!Craft::$app->request->isConsoleRequest) {
+            Craft::$app->getResponse()->getHeaders()->set('Access-Control-Allow-Origin', '*');
+        }
     }
 
     public function getCpNavItem()
